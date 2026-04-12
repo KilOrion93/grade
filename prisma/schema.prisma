@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  passwordHash String
+  name         String?
+  role         UserRole          @default(OWNER)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  auditLogs    AuditLog[]
+  memberships  StaffMembership[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Restaurant {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String            @unique
+  address        String?
+  phone          String?
+  website        String?
+  logoUrl        String?
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  subscriptionId String?
+  description    String?
+  qrCodes        QrCode[]
+  subscription   Subscription?     @relation(fields: [subscriptionId], references: [id])
+  reviews        Review[]
+  memberships    StaffMembership[]
+  visitTokens    VisitToken[]
+
+  @@index([slug])
+  @@map("restaurants")
+}
+
+model StaffMembership {
+  id           String     @id @default(cuid())
+  userId       String
+  restaurantId String
+  role         UserRole
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, restaurantId])
+  @@map("staff_memberships")
+}
+
+model QrCode {
+  id           String     @id @default(cuid())
+  restaurantId String
+  label        String?
+  url          String
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("qr_codes")
+}
+
+model VisitToken {
+  id           String     @id @default(cuid())
+  token        String     @unique
+  restaurantId String
+  isUsed       Boolean    @default(false)
+  expiresAt    DateTime
+  createdAt    DateTime   @default(now())
+  review       Review?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([restaurantId])
+  @@map("visit_tokens")
+}
+
+model Review {
+  id               String                 @id @default(cuid())
+  restaurantId     String
+  visitTokenId     String                 @unique
+  overallScore     Float
+  comment          String?
+  visibilityType   VisibilityType         @default(PUBLIC)
+  moderationStatus ModerationStatus       @default(PENDING)
+  trustScore       Int                    @default(100)
+  ipHash           String?
+  userAgent        String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  criterionScores  ReviewCriterionScore[]
+  flags            ReviewFlag[]
+  restaurant       Restaurant             @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  visitToken       VisitToken             @relation(fields: [visitTokenId], references: [id])
+
+  @@index([restaurantId])
+  @@index([createdAt])
+  @@map("reviews")
+}
+
+model ReviewCriterionScore {
+  id            String @id @default(cuid())
+  reviewId      String
+  criterionName String
+  score         Int
+  review        Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, criterionName])
+  @@map("review_criterion_scores")
+}
+
+model ReviewFlag {
+  id        String   @id @default(cuid())
+  reviewId  String
+  reason    String
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_flags")
+}
+
+model SubscriptionPlan {
+  id                 String         @id @default(cuid())
+  name               String
+  price              Float
+  maxRestaurants     Int            @default(1)
+  maxTokensPerMonth  Int            @default(50)
+  hasAiSummary       Boolean        @default(false)
+  hasAnalytics       Boolean        @default(false)
+  hasPosIntegration  Boolean        @default(false)
+  hasDedicatedApi    Boolean        @default(false)
+  hasPrioritySupport Boolean        @default(false)
+  features           Json?          // Pour la migration, on le garde temporairement
+  subscriptions      Subscription[]
+
+  @@map("subscription_plans")
+}
+
+model Subscription {
+  id          String           @id @default(cuid())
+  planId      String
+  status      String           @default("active")
+  startDate   DateTime         @default(now())
+  endDate     DateTime?
+  restaurants Restaurant[]
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+enum UserRole {
+  ADMIN
+  OWNER
+  MANAGER
+}
+
+enum VisibilityType {
+  PUBLIC
+  PRIVATE
+}
+
+enum ModerationStatus {
+  PENDING
+  PUBLISHED
+  FLAGGED
+  REJECTED
+}
