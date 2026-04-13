@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRestaurantAccess } from "@/lib/session";
+import { requireBusinessAccess } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const restaurantId = req.nextUrl.searchParams.get("restaurantId");
-    if (!restaurantId) {
-      return NextResponse.json({ error: "restaurantId requis" }, { status: 400 });
+    const businessId = req.nextUrl.searchParams.get("businessId");
+    if (!businessId) {
+      return NextResponse.json({ error: "businessId requis" }, { status: 400 });
     }
 
-    await requireRestaurantAccess(restaurantId);
+    await requireBusinessAccess(businessId);
 
     const reviews = await db.review.findMany({
-      where: { restaurantId },
+      where: { businessId },
       include: { criterionScores: true },
       orderBy: { createdAt: "desc" },
     });
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="avis-${restaurantId}-${new Date().toISOString().slice(0, 10)}.csv"`,
+        "Content-Disposition": `attachment; filename="avis-${businessId}-${new Date().toISOString().slice(0, 10)}.csv"`,
       },
     });
   } catch (error) {

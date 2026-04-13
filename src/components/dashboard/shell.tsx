@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth";
 import {
-  ShieldCheck,
   LayoutDashboard,
   MessageSquare,
   QrCode,
@@ -21,8 +21,8 @@ import {
 
 interface Props {
   user: { name: string | null; email: string };
-  restaurants: { id: string; name: string; slug: string }[];
-  defaultRestaurantId: string;
+  businesses: { id: string; name: string; slug: string }[];
+  defaultBusinessId: string;
   children: React.ReactNode;
 }
 
@@ -37,16 +37,16 @@ const navItems = [
 
 export default function DashboardShell({
   user,
-  restaurants,
-  defaultRestaurantId,
+  businesses,
+  defaultBusinessId,
   children,
 }: Props) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(defaultRestaurantId);
-  const [restaurantDropdownOpen, setRestaurantDropdownOpen] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState(defaultBusinessId);
+  const [businessDropdownOpen, setBusinessDropdownOpen] = useState(false);
 
-  const currentRestaurant = restaurants.find((r) => r.id === selectedRestaurant);
+  const currentBusiness = businesses.find((business) => business.id === selectedBusiness);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-subtle)]">
@@ -60,15 +60,17 @@ export default function DashboardShell({
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center text-white">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <span className="font-semibold text-sm">TrustReview</span>
+            <div className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="Grade Logo" 
+                width={28} 
+                height={28}
+              />
             </div>
           </div>
           <span className="text-xs text-[var(--color-text-muted)] truncate max-w-[120px]">
-            {currentRestaurant?.name}
+            {currentBusiness?.name}
           </span>
         </div>
       </header>
@@ -83,13 +85,13 @@ export default function DashboardShell({
           <div className="relative w-72 h-full bg-[var(--color-surface)] border-r border-[var(--color-border)] shadow-xl animate-slide-in">
             <SidebarContent
               user={user}
-              restaurants={restaurants}
-              selectedRestaurant={selectedRestaurant}
-              currentRestaurant={currentRestaurant}
+              businesses={businesses}
+              selectedBusiness={selectedBusiness}
+              currentBusiness={currentBusiness}
               pathname={pathname}
-              restaurantDropdownOpen={restaurantDropdownOpen}
-              setRestaurantDropdownOpen={setRestaurantDropdownOpen}
-              setSelectedRestaurant={setSelectedRestaurant}
+              businessDropdownOpen={businessDropdownOpen}
+              setBusinessDropdownOpen={setBusinessDropdownOpen}
+              setSelectedBusiness={setSelectedBusiness}
               onClose={() => setSidebarOpen(false)}
             />
           </div>
@@ -101,13 +103,13 @@ export default function DashboardShell({
         <div className="flex flex-col flex-1 bg-[var(--color-surface)] border-r border-[var(--color-border)]">
           <SidebarContent
             user={user}
-            restaurants={restaurants}
-            selectedRestaurant={selectedRestaurant}
-            currentRestaurant={currentRestaurant}
+            businesses={businesses}
+            selectedBusiness={selectedBusiness}
+            currentBusiness={currentBusiness}
             pathname={pathname}
-            restaurantDropdownOpen={restaurantDropdownOpen}
-            setRestaurantDropdownOpen={setRestaurantDropdownOpen}
-            setSelectedRestaurant={setSelectedRestaurant}
+            businessDropdownOpen={businessDropdownOpen}
+            setBusinessDropdownOpen={setBusinessDropdownOpen}
+            setSelectedBusiness={setSelectedBusiness}
           />
         </div>
       </aside>
@@ -115,41 +117,41 @@ export default function DashboardShell({
       {/* Main content */}
       <main className="lg:pl-64">
         <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
-          <RestaurantContext.Provider value={selectedRestaurant}>
+          <BusinessContext.Provider value={selectedBusiness}>
             {children}
-          </RestaurantContext.Provider>
+          </BusinessContext.Provider>
         </div>
       </main>
     </div>
   );
 }
 
-// Restaurant context
-export const RestaurantContext = React.createContext<string>("");
-export function useRestaurantId() {
-  return React.useContext(RestaurantContext);
+// Business context
+export const BusinessContext = React.createContext<string>("");
+export function useBusinessId() {
+  return React.useContext(BusinessContext);
 }
 
 // Sidebar component extracted
 function SidebarContent({
   user,
-  restaurants,
-  selectedRestaurant,
-  currentRestaurant,
+  businesses,
+  selectedBusiness,
+  currentBusiness,
   pathname,
-  restaurantDropdownOpen,
-  setRestaurantDropdownOpen,
-  setSelectedRestaurant,
+  businessDropdownOpen,
+  setBusinessDropdownOpen,
+  setSelectedBusiness,
   onClose,
 }: {
   user: Props["user"];
-  restaurants: Props["restaurants"];
-  selectedRestaurant: string;
-  currentRestaurant: Props["restaurants"][0] | undefined;
+  businesses: Props["businesses"];
+  selectedBusiness: string;
+  currentBusiness: Props["businesses"][0] | undefined;
   pathname: string;
-  restaurantDropdownOpen: boolean;
-  setRestaurantDropdownOpen: (v: boolean) => void;
-  setSelectedRestaurant: (v: string) => void;
+  businessDropdownOpen: boolean;
+  setBusinessDropdownOpen: (v: boolean) => void;
+  setSelectedBusiness: (v: string) => void;
   onClose?: () => void;
 }) {
   return (
@@ -157,11 +159,14 @@ function SidebarContent({
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-5 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center text-white shadow-md">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
+          <Image 
+            src="/logo.png" 
+            alt="Grade Logo" 
+            width={36} 
+            height={36}
+          />
           <div>
-            <p className="font-bold text-sm">TrustReview</p>
+            <p className="font-bold text-sm">Grade</p>
             <p className="text-xs text-[var(--color-text-muted)]">Dashboard</p>
           </div>
         </div>
@@ -172,36 +177,36 @@ function SidebarContent({
         )}
       </div>
 
-      {/* Restaurant selector */}
+      {/* Business selector */}
       <div className="px-3 py-3 border-b border-[var(--color-border)]">
         <div className="relative">
           <button
             onClick={() =>
-              setRestaurantDropdownOpen(!restaurantDropdownOpen)
+              setBusinessDropdownOpen(!businessDropdownOpen)
             }
             className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm bg-[var(--color-bg-muted)] hover:bg-[var(--color-bg-subtle)] transition-colors cursor-pointer"
           >
             <span className="truncate font-medium">
-              {currentRestaurant?.name}
+              {currentBusiness?.name}
             </span>
             <ChevronDown className="w-4 h-4 text-[var(--color-text-muted)]" />
           </button>
-          {restaurantDropdownOpen && (
+          {businessDropdownOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg shadow-lg overflow-hidden z-10">
-              {restaurants.map((r) => (
+              {businesses.map((business) => (
                 <button
-                  key={r.id}
+                  key={business.id}
                   onClick={() => {
-                    setSelectedRestaurant(r.id);
-                    setRestaurantDropdownOpen(false);
+                    setSelectedBusiness(business.id);
+                    setBusinessDropdownOpen(false);
                     if (onClose) onClose();
                   }}
                   className={cn(
                     "w-full px-3 py-2 text-sm text-left hover:bg-[var(--color-bg-muted)] transition-colors cursor-pointer",
-                    r.id === selectedRestaurant && "bg-[var(--color-bg-muted)] font-medium"
+                    business.id === selectedBusiness && "bg-[var(--color-bg-muted)] font-medium"
                   )}
                 >
-                  {r.name}
+                  {business.name}
                 </button>
               ))}
             </div>
@@ -247,7 +252,7 @@ function SidebarContent({
         <div className="flex items-center justify-between px-2">
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">
-              {user.name || "Restaurateur"}
+              {user.name || "Business Owner"}
             </p>
             <p className="text-xs text-[var(--color-text-muted)] truncate">
               {user.email}

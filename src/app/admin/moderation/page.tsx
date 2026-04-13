@@ -14,7 +14,7 @@ interface ReviewItem {
   moderationStatus: string;
   trustScore: number;
   createdAt: string;
-  restaurantName: string;
+  businessName: string;
   flagCount: number;
   flagReasons: string[];
   criteria: { name: string; score: number }[];
@@ -102,7 +102,7 @@ export default function AdminReviewsPage() {
                 <div className="flex items-start justify-between flex-wrap gap-2">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold">{review.restaurantName}</span>
+                      <span className="text-sm font-semibold">{review.businessName}</span>
                       <StarRating value={review.overallScore} readonly size="sm" />
                       <Badge variant={statusBadge(review.moderationStatus)}>
                         {review.moderationStatus}

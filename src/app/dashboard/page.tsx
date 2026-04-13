@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRestaurantId } from "@/components/dashboard/shell";
+import { useBusinessId } from "@/components/dashboard/shell";
 import { StatCard, Card, Badge, Skeleton } from "@/components/ui";
 import { StarRating } from "@/components/ui/star-rating";
 import { REVIEW_CRITERIA, timeAgo } from "@/lib/utils";
@@ -51,24 +51,24 @@ const criterionIcons: Record<string, React.ReactNode> = {
 };
 
 export default function DashboardOverview() {
-  const restaurantId = useRestaurantId();
+  const businessId = useBusinessId();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [period, setPeriod] = useState("30");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!restaurantId) return;
+    if (!businessId) return;
     setLoading(true);
-    fetch(`/api/analytics?restaurantId=${restaurantId}&period=${period}`)
+    fetch(`/api/analytics?businessId=${businessId}&period=${period}`)
       .then((r) => r.json())
       .then((d) => {
         setData(d);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [restaurantId, period]);
+  }, [businessId, period]);
 
-  if (!restaurantId) {
+  if (!businessId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in text-center p-4">
         <div className="w-20 h-20 bg-[var(--color-brand-100)] text-[var(--color-brand-600)] rounded-full flex items-center justify-center mb-6">
@@ -76,7 +76,7 @@ export default function DashboardOverview() {
         </div>
         <h2 className="text-2xl font-bold mb-2">Bienvenue sur le Dashboard !</h2>
         <p className="text-[var(--color-text-secondary)] max-w-md mb-8">
-          Vous n'avez pas encore d'établissement enregistré. Pour commencer à collecter des avis certifiés, ajoutez votre première boutique ou restaurant.
+          Vous n'avez pas encore d'établissement enregistré. Pour commencer à collecter des avis certifiés, ajoutez votre premier business.
         </p>
         <a href="/onboarding" className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-600)] text-white font-medium rounded-xl hover:bg-[var(--color-brand-700)] transition-all shadow-md">
           + Ajouter mon premier établissement

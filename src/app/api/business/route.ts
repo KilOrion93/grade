@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/session";
 
-// GET /api/restaurant?id=xxx — get restaurant info
 export async function GET(req: NextRequest) {
   try {
     const session = await requireSession();
@@ -13,17 +12,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "id requis" }, { status: 400 });
     }
 
-    // Verify access (admin or member)
     if (session.role !== "ADMIN") {
       const membership = await db.staffMembership.findUnique({
-        where: { userId_restaurantId: { userId: session.userId, restaurantId: id } },
+        where: { userId_businessId: { userId: session.userId, businessId: id } },
       });
       if (!membership) {
         return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
       }
     }
 
-    const restaurant = await db.restaurant.findUnique({
+    const business = await db.business.findUnique({
       where: { id },
       select: {
         id: true,
@@ -37,14 +35,13 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ restaurant });
+    return NextResponse.json({ business });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// PATCH /api/restaurant — update restaurant info
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireSession();
@@ -55,17 +52,16 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "id requis" }, { status: 400 });
     }
 
-    // Verify access
     if (session.role !== "ADMIN") {
       const membership = await db.staffMembership.findUnique({
-        where: { userId_restaurantId: { userId: session.userId, restaurantId: id } },
+        where: { userId_businessId: { userId: session.userId, businessId: id } },
       });
       if (!membership) {
         return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
       }
     }
 
-    const restaurant = await db.restaurant.update({
+    const business = await db.business.update({
       where: { id },
       data: {
         ...(name !== undefined && { name }),
@@ -76,7 +72,7 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ restaurant });
+    return NextResponse.json({ business });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     return NextResponse.json({ error: message }, { status: 500 });

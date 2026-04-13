@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRestaurantAccess } from "@/lib/session";
+import { requireBusinessAccess } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
-    const restaurantId = req.nextUrl.searchParams.get("restaurantId");
-    if (!restaurantId) {
-      return NextResponse.json({ error: "restaurantId requis" }, { status: 400 });
+    const businessId = req.nextUrl.searchParams.get("businessId");
+    if (!businessId) {
+      return NextResponse.json({ error: "businessId requis" }, { status: 400 });
     }
 
-    await requireRestaurantAccess(restaurantId);
+    await requireBusinessAccess(businessId);
 
     const page = parseInt(req.nextUrl.searchParams.get("page") || "1");
     const limit = Math.min(parseInt(req.nextUrl.searchParams.get("limit") || "20"), 50);
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const dateFrom = req.nextUrl.searchParams.get("dateFrom");
     const dateTo = req.nextUrl.searchParams.get("dateTo");
 
-    const where: Record<string, unknown> = { restaurantId };
+    const where: Record<string, unknown> = { businessId };
     if (status) where.moderationStatus = status;
     if (visibility) where.visibilityType = visibility;
     if (dateFrom || dateTo) {

@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { Card, Button, Input, Textarea, Skeleton } from "@/components/ui";
-import { useRestaurantId } from "@/components/dashboard/shell";
+import { useBusinessId } from "@/components/dashboard/shell";
 import { Building2, User, Save, CheckCircle2 } from "lucide-react";
 
-interface RestaurantData {
+interface BusinessData {
   id: string;
   name: string;
   address: string | null;
@@ -21,17 +21,17 @@ interface UserData {
 }
 
 export default function SettingsPage() {
-  const restaurantId = useRestaurantId();
+  const businessId = useBusinessId();
 
-  // Restaurant edit state
-  const [restaurant, setRestaurant] = useState<RestaurantData | null>(null);
-  const [restName, setRestName] = useState("");
-  const [restAddress, setRestAddress] = useState("");
-  const [restDescription, setRestDescription] = useState("");
-  const [restPhone, setRestPhone] = useState("");
-  const [restWebsite, setRestWebsite] = useState("");
-  const [restSaving, setRestSaving] = useState(false);
-  const [restSaved, setRestSaved] = useState(false);
+  // Business edit state
+  const [business, setBusiness] = useState<BusinessData | null>(null);
+  const [businessName, setBusinessName] = useState("");
+  const [businessAddress, setBusinessAddress] = useState("");
+  const [businessDescription, setBusinessDescription] = useState("");
+  const [businessPhone, setBusinessPhone] = useState("");
+  const [businessWebsite, setBusinessWebsite] = useState("");
+  const [businessSaving, setBusinessSaving] = useState(false);
+  const [businessSaved, setBusinessSaved] = useState(false);
 
   // User edit state
   const [user, setUser] = useState<UserData | null>(null);
@@ -42,23 +42,23 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
-    if (!restaurantId) return;
+    if (!businessId) return;
     try {
       const [restRes, userRes] = await Promise.all([
-        fetch(`/api/restaurant?id=${restaurantId}`),
+        fetch(`/api/business?id=${businessId}`),
         fetch(`/api/profile`),
       ]);
       const restData = await restRes.json();
       const userData = await userRes.json();
 
-      if (restData.restaurant) {
-        const r = restData.restaurant;
-        setRestaurant(r);
-        setRestName(r.name || "");
-        setRestAddress(r.address || "");
-        setRestDescription(r.description || "");
-        setRestPhone(r.phone || "");
-        setRestWebsite(r.website || "");
+      if (restData.business) {
+        const r = restData.business;
+        setBusiness(r);
+        setBusinessName(r.name || "");
+        setBusinessAddress(r.address || "");
+        setBusinessDescription(r.description || "");
+        setBusinessPhone(r.phone || "");
+        setBusinessWebsite(r.website || "");
       }
       if (userData.user) {
         setUser(userData.user);
@@ -66,35 +66,35 @@ export default function SettingsPage() {
       }
     } catch { /* ignore */ }
     setLoading(false);
-  }, [restaurantId]);
+  }, [businessId]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleSaveRestaurant = async (e: React.FormEvent) => {
+  const handleSaveBusiness = async (e: React.FormEvent) => {
     e.preventDefault();
-    setRestSaving(true);
-    setRestSaved(false);
+    setBusinessSaving(true);
+    setBusinessSaved(false);
     try {
-      const res = await fetch(`/api/restaurant`, {
+      const res = await fetch(`/api/business`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: restaurantId,
-          name: restName,
-          address: restAddress,
-          description: restDescription,
-          phone: restPhone,
-          website: restWebsite,
+          id: businessId,
+          name: businessName,
+          address: businessAddress,
+          description: businessDescription,
+          phone: businessPhone,
+          website: businessWebsite,
         }),
       });
       if (res.ok) {
-        setRestSaved(true);
-        setTimeout(() => setRestSaved(false), 3000);
+        setBusinessSaved(true);
+        setTimeout(() => setBusinessSaved(false), 3000);
       }
     } finally {
-      setRestSaving(false);
+      setBusinessSaving(false);
     }
   };
 
@@ -178,9 +178,9 @@ export default function SettingsPage() {
         </form>
       </Card>
 
-      {/* Restaurant section */}
+      {/* Business section */}
       <Card>
-        <form onSubmit={handleSaveRestaurant} className="space-y-5">
+        <form onSubmit={handleSaveBusiness} className="space-y-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] flex items-center justify-center">
               <Building2 className="w-5 h-5 text-[var(--color-brand-600)]" />
@@ -194,47 +194,47 @@ export default function SettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="Nom de l'établissement"
-              value={restName}
-              onChange={(e) => setRestName(e.target.value)}
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
               required
             />
             <Input
               label="Téléphone"
-              value={restPhone}
-              onChange={(e) => setRestPhone(e.target.value)}
+              value={businessPhone}
+              onChange={(e) => setBusinessPhone(e.target.value)}
               placeholder="+33 1 23 45 67 89"
             />
           </div>
 
           <Input
             label="Adresse complète"
-            value={restAddress}
-            onChange={(e) => setRestAddress(e.target.value)}
+            value={businessAddress}
+            onChange={(e) => setBusinessAddress(e.target.value)}
             placeholder="10 Rue de la Paix, 75002 Paris"
             required
           />
 
           <Input
             label="Site web"
-            value={restWebsite}
-            onChange={(e) => setRestWebsite(e.target.value)}
-            placeholder="https://www.mon-restaurant.fr"
+            value={businessWebsite}
+            onChange={(e) => setBusinessWebsite(e.target.value)}
+            placeholder="https://www.mon-business.fr"
           />
 
           <Textarea
             label="Description"
-            value={restDescription}
-            onChange={(e) => setRestDescription(e.target.value)}
+            value={businessDescription}
+            onChange={(e) => setBusinessDescription(e.target.value)}
             rows={4}
             placeholder="Décrivez votre établissement, vos spécialités, votre ambiance..."
           />
 
           <div className="flex items-center gap-3">
-            <Button type="submit" isLoading={restSaving}>
+            <Button type="submit" isLoading={businessSaving}>
               <Save className="w-4 h-4" />
               Enregistrer l&apos;établissement
             </Button>
-            {restSaved && (
+            {businessSaved && (
               <span className="text-sm text-emerald-600 flex items-center gap-1 animate-fade-in">
                 <CheckCircle2 className="w-4 h-4" /> Sauvegardé
               </span>

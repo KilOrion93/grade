@@ -7,7 +7,6 @@ import { Button, Input, Textarea, Card } from "@/components/ui";
 import { StarRating, CriterionRating } from "@/components/ui/star-rating";
 import { REVIEW_CRITERIA } from "@/lib/utils";
 import {
-  ShieldCheck,
   CheckCircle2,
   Smile,
   Sparkles,
@@ -29,18 +28,18 @@ const criterionIcons: Record<string, React.ReactNode> = {
 };
 
 interface Props {
-  restaurantSlug: string;
-  restaurantName: string;
+  businessSlug: string;
+  businessName: string;
 }
 
-export default function RestaurantReviewFlow({
-  restaurantSlug,
-  restaurantName,
+export default function BusinessReviewFlow({
+  businessSlug,
+  businessName,
 }: Props) {
   const [step, setStep] = useState<Step>("welcome");
   const [tokenInput, setTokenInput] = useState("");
   const [tokenId, setTokenId] = useState("");
-  const [restaurantId, setRestaurantId] = useState("");
+  const [businessId, setBusinessId] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,11 +65,11 @@ export default function RestaurantReviewFlow({
     setIsLoading(true);
     setError("");
 
-    const result = await validateTokenAction(tokenInput, restaurantSlug);
+    const result = await validateTokenAction(tokenInput, businessSlug);
 
-    if (result.valid && result.tokenId && result.restaurantId) {
+    if (result.valid && result.tokenId && result.businessId) {
       setTokenId(result.tokenId);
-      setRestaurantId(result.restaurantId);
+      setBusinessId(result.businessId);
       setStep("review");
     } else {
       setError(result.error || "Code invalide");
@@ -91,7 +90,7 @@ export default function RestaurantReviewFlow({
 
     const result = await submitReviewAction({
       visitTokenId: tokenId,
-      restaurantId,
+      businessId,
       overallScore: computedOverallScore,
       criteria,
       comment: comment || undefined,
@@ -113,13 +112,13 @@ export default function RestaurantReviewFlow({
         {/* Header */}
         <div className="text-center mb-6 animate-fade-in">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white mb-3 shadow-lg">
-            <ShieldCheck className="w-6 h-6" />
+            <CheckCircle2 className="w-6 h-6" />
           </div>
           <h1 className="text-xl font-bold text-[var(--color-text)]">
-            {restaurantName}
+            {businessName}
           </h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-1">
-            Avis vérifié par TrustReview
+            Avis vérifié par Grade
           </p>
         </div>
 
@@ -174,7 +173,7 @@ export default function RestaurantReviewFlow({
                   Entrez votre code de visite (Token)
                 </h2>
                 <p className="text-sm text-[var(--color-text-muted)] mt-1">
-                  Ce code certifié a été généré et fourni par le restaurant.
+                  Ce code certifié a été généré et fourni par le business.
                 </p>
               </div>
 
@@ -289,7 +288,7 @@ export default function RestaurantReviewFlow({
                     {
                       value: "PRIVATE" as const,
                       label: "Privé",
-                      desc: "Visible par le restaurant uniquement (compte dans la note)",
+                      desc: "Visible par le business uniquement (compte dans la note)",
                     },
                   ].map((option) => (
                     <button
@@ -351,7 +350,7 @@ export default function RestaurantReviewFlow({
               </div>
               <div className="pt-2 px-4 py-3 rounded-xl bg-[var(--color-bg-muted)] text-sm">
                 <p className="font-medium text-[var(--color-text)]">
-                  {restaurantName}
+                  {businessName}
                 </p>
                 <div className="flex justify-center mt-2">
                   <StarRating
@@ -369,7 +368,7 @@ export default function RestaurantReviewFlow({
         {/* Footer */}
         <p className="text-center text-xs text-[var(--color-text-muted)] mt-6">
           Propulsé par{" "}
-          <span className="font-semibold gradient-text">TrustReview</span>
+          <span className="font-semibold gradient-text">Grade</span>
         </p>
       </div>
     </div>

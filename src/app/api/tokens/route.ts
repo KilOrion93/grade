@@ -6,19 +6,19 @@ export async function GET(req: NextRequest) {
   try {
     const session = await requireSession();
     const { searchParams } = new URL(req.url);
-    const restaurantId = searchParams.get("restaurantId");
+    const businessId = searchParams.get("businessId");
 
-    if (!restaurantId) {
-      return NextResponse.json({ error: "restaurantId requis" }, { status: 400 });
+    if (!businessId) {
+      return NextResponse.json({ error: "businessId requis" }, { status: 400 });
     }
 
     // Verify access
     if (session.role !== "ADMIN") {
       const membership = await db.staffMembership.findUnique({
         where: {
-          userId_restaurantId: {
+          userId_businessId: {
             userId: session.userId,
-            restaurantId,
+            businessId,
           },
         },
       });
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     }
 
     const tokens = await db.visitToken.findMany({
-      where: { restaurantId },
+      where: { businessId },
       orderBy: { createdAt: "desc" },
       take: 500,
       select: {

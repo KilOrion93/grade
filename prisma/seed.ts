@@ -14,7 +14,7 @@ async function main() {
   await prisma.qrCode.deleteMany();
   await prisma.staffMembership.deleteMany();
   await prisma.auditLog.deleteMany();
-  await prisma.restaurant.deleteMany();
+  await prisma.business.deleteMany();
   await prisma.subscription.deleteMany();
   await prisma.subscriptionPlan.deleteMany();
   await prisma.user.deleteMany();
@@ -26,7 +26,7 @@ async function main() {
     data: {
       name: "Starter",
       price: 0,
-      maxRestaurants: 1,
+      maxBusinesses: 1,
       maxTokensPerMonth: 50,
       hasAnalytics: true,
       hasAiSummary: false,
@@ -40,7 +40,7 @@ async function main() {
     data: {
       name: "Pro",
       price: 29,
-      maxRestaurants: 3,
+      maxBusinesses: 3,
       maxTokensPerMonth: 500,
       hasAnalytics: true,
       hasAiSummary: true,
@@ -54,7 +54,7 @@ async function main() {
     data: {
       name: "Enterprise",
       price: 99,
-      maxRestaurants: -1,
+      maxBusinesses: -1,
       maxTokensPerMonth: -1,
       hasAnalytics: true,
       hasAiSummary: true,
@@ -70,14 +70,14 @@ async function main() {
   const adminHash = await bcrypt.hash("admin123", 12);
   const admin = await prisma.user.create({
     data: {
-      email: "admin@trustreview.com",
+      email: "admin@grade.com",
       passwordHash: adminHash,
       name: "Super Admin",
       role: "ADMIN",
     },
   });
 
-  console.log("✅ Created admin: admin@trustreview.com / admin123");
+  console.log("✅ Created admin: admin@grade.com / admin123");
 
   // Create owner user
   const ownerHash = await bcrypt.hash("owner123", 12);
@@ -114,8 +114,8 @@ async function main() {
     },
   });
 
-  // Create restaurants
-  const bistrot = await prisma.restaurant.create({
+  // Create businesses
+  const bistrot = await prisma.business.create({
     data: {
       name: "Le Bistrot Parisien",
       slug: "le-bistrot-parisien",
@@ -126,7 +126,7 @@ async function main() {
     },
   });
 
-  const sushi = await prisma.restaurant.create({
+  const sushi = await prisma.business.create({
     data: {
       name: "Sushi Zen",
       slug: "sushi-zen",
@@ -135,20 +135,20 @@ async function main() {
     },
   });
 
-  console.log("✅ Created restaurants: Le Bistrot Parisien, Sushi Zen");
+  console.log("✅ Created businesses: Le Bistrot Parisien, Sushi Zen");
 
   // Create memberships
   await prisma.staffMembership.create({
-    data: { userId: owner.id, restaurantId: bistrot.id, role: "OWNER" },
+    data: { userId: owner.id, businessId: bistrot.id, role: "OWNER" },
   });
 
   await prisma.staffMembership.create({
-    data: { userId: owner2.id, restaurantId: sushi.id, role: "OWNER" },
+    data: { userId: owner2.id, businessId: sushi.id, role: "OWNER" },
   });
 
-  // Give Marie access to both restaurants
+  // Give Marie access to both businesses
   await prisma.staffMembership.create({
-    data: { userId: owner.id, restaurantId: sushi.id, role: "MANAGER" },
+    data: { userId: owner.id, businessId: sushi.id, role: "MANAGER" },
   });
 
   console.log("✅ Created staff memberships");
@@ -156,7 +156,7 @@ async function main() {
   // Create QR codes
   await prisma.qrCode.create({
     data: {
-      restaurantId: bistrot.id,
+      businessId: bistrot.id,
       url: "http://localhost:3000/r/le-bistrot-parisien/review",
       label: "QR Principal",
     },
@@ -176,7 +176,7 @@ async function main() {
     }
     tokenData.push({
       token,
-      restaurantId: bistrot.id,
+      businessId: bistrot.id,
       isUsed: false,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
     });
@@ -191,7 +191,7 @@ async function main() {
     }
     usedTokens.push({
       token,
-      restaurantId: bistrot.id,
+      businessId: bistrot.id,
       isUsed: true,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
       createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
@@ -207,7 +207,7 @@ async function main() {
     }
     tokenData.push({
       token,
-      restaurantId: sushi.id,
+      businessId: sushi.id,
       isUsed: false,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
     });
@@ -227,7 +227,7 @@ async function main() {
     "Petite déception sur la propreté des toilettes, mais le repas était bon.",
     "Ambiance chaleureuse, carte variée. Un must pour les amateurs de cuisine française.",
     null,
-    "Très bon restaurant, les enfants ont adoré !",
+    "Très bon business, les enfants ont adoré !",
     "La qualité des produits est vraiment au rendez-vous.",
     null,
     "Service un peu lent ce soir-là mais la nourriture compensait largement.",
@@ -236,7 +236,7 @@ async function main() {
   ];
 
   const createdTokens = await prisma.visitToken.findMany({
-    where: { isUsed: true, restaurantId: bistrot.id },
+    where: { isUsed: true, businessId: bistrot.id },
     orderBy: { createdAt: "asc" },
   });
 
@@ -249,7 +249,7 @@ async function main() {
 
     const review = await prisma.review.create({
       data: {
-        restaurantId: bistrot.id,
+        businessId: bistrot.id,
         visitTokenId: token.id,
         overallScore: overall,
         comment: comments[i] || null,
@@ -300,12 +300,12 @@ async function main() {
         action: "user.register",
         entity: "user",
         entityId: owner.id,
-        metadata: { restaurantId: bistrot.id },
+        metadata: { businessId: bistrot.id },
       },
       {
         userId: owner.id,
         action: "token.generate",
-        entity: "restaurant",
+        entity: "business",
         entityId: bistrot.id,
         metadata: { count: 20 },
       },
@@ -323,11 +323,11 @@ async function main() {
   console.log("\n🎉 Seed complete!\n");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log("  Demo accounts:");
-  console.log("  Admin:  admin@trustreview.fr / admin123");
+  console.log("  Admin:  admin@grade.com / admin123");
   console.log("  Owner:  marie@lebistrot.fr / owner123");
   console.log("  Owner2: pierre@sushi-zen.fr / owner123");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("  Restaurant URLs:");
+  console.log("  Business URLs:");
   console.log("  http://localhost:3000/r/le-bistrot-parisien");
   console.log("  http://localhost:3000/r/sushi-zen");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");

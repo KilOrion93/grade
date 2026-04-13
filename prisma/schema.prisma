@@ -23,7 +23,7 @@ model User {
   @@map("users")
 }
 
-model Restaurant {
+model Business {
   id             String            @id @default(cuid())
   name           String
   slug           String            @unique
@@ -43,51 +43,51 @@ model Restaurant {
   visitTokens    VisitToken[]
 
   @@index([slug])
-  @@map("restaurants")
+  @@map("businesses")
 }
 
 model StaffMembership {
   id           String     @id @default(cuid())
   userId       String
-  restaurantId String
+  businessId   String
   role         UserRole
   createdAt    DateTime   @default(now())
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  business     Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, restaurantId])
+  @@unique([userId, businessId])
   @@map("staff_memberships")
 }
 
 model QrCode {
-  id           String     @id @default(cuid())
-  restaurantId String
-  label        String?
-  url          String
-  createdAt    DateTime   @default(now())
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  id         String     @id @default(cuid())
+  businessId String
+  label      String?
+  url        String
+  createdAt  DateTime   @default(now())
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@map("qr_codes")
 }
 
 model VisitToken {
-  id           String     @id @default(cuid())
-  token        String     @unique
-  restaurantId String
-  isUsed       Boolean    @default(false)
-  expiresAt    DateTime
-  createdAt    DateTime   @default(now())
-  review       Review?
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  id         String     @id @default(cuid())
+  token      String     @unique
+  businessId String
+  isUsed     Boolean    @default(false)
+  expiresAt  DateTime
+  createdAt  DateTime   @default(now())
+  review     Review?
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([token])
-  @@index([restaurantId])
+  @@index([businessId])
   @@map("visit_tokens")
 }
 
 model Review {
   id               String                 @id @default(cuid())
-  restaurantId     String
+  businessId       String
   visitTokenId     String                 @unique
   overallScore     Float
   comment          String?
@@ -100,10 +100,10 @@ model Review {
   updatedAt        DateTime               @updatedAt
   criterionScores  ReviewCriterionScore[]
   flags            ReviewFlag[]
-  restaurant       Restaurant             @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  business         Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
   visitToken       VisitToken             @relation(fields: [visitTokenId], references: [id])
 
-  @@index([restaurantId])
+  @@index([businessId])
   @@index([createdAt])
   @@map("reviews")
 }
@@ -131,30 +131,30 @@ model ReviewFlag {
 }
 
 model SubscriptionPlan {
-  id                 String         @id @default(cuid())
-  name               String
-  price              Float
-  maxRestaurants     Int            @default(1)
-  maxTokensPerMonth  Int            @default(50)
-  hasAiSummary       Boolean        @default(false)
-  hasAnalytics       Boolean        @default(false)
-  hasPosIntegration  Boolean        @default(false)
-  hasDedicatedApi    Boolean        @default(false)
+  id                String         @id @default(cuid())
+  name              String
+  price             Float
+  maxBusinesses     Int            @default(1)
+  maxTokensPerMonth Int            @default(50)
+  hasAiSummary      Boolean        @default(false)
+  hasAnalytics      Boolean        @default(false)
+  hasPosIntegration Boolean        @default(false)
+  hasDedicatedApi   Boolean        @default(false)
   hasPrioritySupport Boolean        @default(false)
-  features           Json?          // Pour la migration, on le garde temporairement
-  subscriptions      Subscription[]
+  features          Json?          // Pour la migration, on le garde temporairement
+  subscriptions     Subscription[]
 
   @@map("subscription_plans")
 }
 
 model Subscription {
-  id          String           @id @default(cuid())
-  planId      String
-  status      String           @default("active")
-  startDate   DateTime         @default(now())
-  endDate     DateTime?
-  restaurants Restaurant[]
-  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
+  id        String           @id @default(cuid())
+  planId    String
+  status    String           @default("active")
+  startDate DateTime         @default(now())
+  endDate   DateTime?
+  businesses Business[]
+  plan      SubscriptionPlan @relation(fields: [planId], references: [id])
 
   @@map("subscriptions")
 }

@@ -10,16 +10,16 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const restaurantId = searchParams.get("restaurantId");
+  const businessId = searchParams.get("businessId");
 
-  if (!restaurantId) {
-    return NextResponse.json({ error: "Restaurant ID required" }, { status: 400 });
+  if (!businessId) {
+    return NextResponse.json({ error: "Business ID required" }, { status: 400 });
   }
 
   // Check access
   const membership = await db.staffMembership.findUnique({
     where: {
-      userId_restaurantId: { userId: session.userId, restaurantId },
+      userId_businessId: { userId: session.userId, businessId },
     },
   });
 
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
   }
 
   const qrCodes = await db.qrCode.findMany({
-    where: { restaurantId },
+    where: { businessId },
     orderBy: { createdAt: "desc" },
   });
 

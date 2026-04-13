@@ -5,37 +5,35 @@ import { getSession } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
 import { z } from "zod";
 
-const createRestaurantSchema = z.object({
+const createBusinessSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   address: z.string().min(5, "Une adresse complète est requise"),
   description: z.string().optional(),
 });
 
-export async function createRestaurantAction(data: z.infer<typeof createRestaurantSchema>) {
+export async function createBusinessAction(data: z.infer<typeof createBusinessSchema>) {
   const session = await getSession();
   if (!session) return { success: false, error: "Non autorisé" };
 
-  const parsed = createRestaurantSchema.safeParse(data);
+  const parsed = createBusinessSchema.safeParse(data);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
 
-  // Generate slug
   let slug = parsed.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  if (!slug) slug = "restaurant";
-  
-  // Ensure unique slug
+  if (!slug) slug = "business";
+
   let uniqueSlug = slug;
   let counter = 1;
   while (true) {
-    const exists = await db.restaurant.findUnique({ where: { slug: uniqueSlug } });
-    if (!exists) break;
+    const existingBusiness = await db.business.findUnique({ where: { slug: uniqueSlug } });
+    if (!existingBusiness) break;
     uniqueSlug = `${slug}-${counter}`;
     counter++;
   }
 
   try {
-    const restaurant = await db.restaurant.create({
+    const business = await db.business.create({
       data: {
         name: parsed.data.name,
         address: parsed.data.address,
@@ -46,22 +44,22 @@ export async function createRestaurantAction(data: z.infer<typeof createRestaura
           create: {
             userId: session.userId,
             role: "OWNER",
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     await logAudit({
       userId: session.userId,
-      action: "restaurant.create",
-      entity: "restaurant",
-      entityId: restaurant.id,
-      metadata: { name: restaurant.name, slug: restaurant.slug },
+      action: "business.create",
+      entity: "business",
+      entityId: business.id,
+      metadata: { name: business.name, slug: business.slug },
     });
 
-    return { success: true, restaurantId: restaurant.id };
+    return { success: true, businessId: business.id };
   } catch (error) {
-    console.error("Failed to create restaurant:", error);
-    return { success: false, error: "Erreur lors de la création du restaurant" };
+    console.error("Failed to create business:", error);
+    return { success: false, error: "Erreur lors de la création du business" };
   }
 }

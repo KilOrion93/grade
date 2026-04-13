@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Card } from "@/components/ui";
-import { createRestaurantAction } from "@/actions/restaurant";
+import { createBusinessAction } from "@/actions/business";
 import { Store, ArrowRight } from "lucide-react";
 
-export default function NewRestaurantPage() {
+export default function NewBusinessPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -21,7 +21,7 @@ export default function NewRestaurantPage() {
     setIsLoading(true);
     setError("");
 
-    const res = await createRestaurantAction({ name, address, description });
+    const res = await createBusinessAction({ name, address, description });
     
     if (res.success) {
       window.location.href = "/dashboard";
@@ -45,7 +45,7 @@ export default function NewRestaurantPage() {
              <Store className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold">Nouvel Établissement</h1>
-          <p className="mt-2 text-[var(--color-text-secondary)]">Ajoutez votre établissement à l'annuaire TrustReview pour commencer à collecter des avis certifiés.</p>
+          <p className="mt-2 text-[var(--color-text-secondary)]">Ajoutez votre établissement à l'annuaire Grade pour commencer à collecter des avis certifiés.</p>
         </div>
 
         <Card className="shadow-2xl border-[var(--color-border)] animate-fade-in p-6">

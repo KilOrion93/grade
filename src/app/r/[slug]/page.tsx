@@ -1,7 +1,8 @@
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Star, MapPin, ArrowRight, ShieldCheck, CheckCircle2, ChevronRight, Quote, Info } from "lucide-react";
+import Image from "next/image";
+import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, Info } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -9,31 +10,31 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const restaurant = await db.restaurant.findUnique({
+  const business = await db.business.findUnique({
     where: { slug },
   });
 
-  if (!restaurant) return { title: "Restaurant introuvable" };
+  if (!business) return { title: "Business introuvable" };
 
   return {
-    title: `Avis ${restaurant.name} — Vérifié par TrustReview`,
-    description: (restaurant as any).description || `Découvrez tous les avis vérifiés et authentiques pour ${restaurant.name}.`,
+    title: `Avis ${business.name} — Vérifié par Grade`,
+    description: (business as any).description || `Découvrez tous les avis vérifiés et authentiques pour ${business.name}.`,
   };
 }
 
-export default async function RestaurantVitrinePage({ params }: PageProps) {
+export default async function BusinessVitrinePage({ params }: PageProps) {
   const { slug } = await params;
-  const restaurant = await db.restaurant.findUnique({
+  const business = await db.business.findUnique({
     where: { slug },
   });
 
-  if (!restaurant || !restaurant.isActive) {
+  if (!business || !business.isActive) {
     notFound();
   }
 
   const reviews = await db.review.findMany({
     where: {
-      restaurantId: restaurant.id,
+      businessId: business.id,
       moderationStatus: "PUBLISHED",
       visibilityType: "PUBLIC",
     },
@@ -46,8 +47,8 @@ export default async function RestaurantVitrinePage({ params }: PageProps) {
 
   const avg = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.overallScore, 0) / reviews.length).toFixed(1) : "—";
   
-  const address = restaurant.address || "Adresse non renseignée";
-  const desc = (restaurant as any).description || "Cet établissement n'a pas encore ajouté de présentation. Rejoignez les clients vérifiés en laissant le premier avis !";
+  const address = business.address || "Adresse non renseignée";
+  const desc = (business as any).description || "Cet établissement n'a pas encore ajouté de présentation. Rejoignez les clients vérifiés en laissant le premier avis !";
 
   return (
     <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
@@ -55,14 +56,16 @@ export default async function RestaurantVitrinePage({ params }: PageProps) {
       {/* Header NavBar */}
       <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-600)] flex items-center justify-center shadow-md">
-              <ShieldCheck className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold tracking-tight text-[var(--color-text)] group-hover:text-[var(--color-brand-600)] transition-colors">TrustReview</span>
+          <Link href="/" className="flex items-center group">
+            <Image 
+              src="/logo.png" 
+              alt="Grade Logo" 
+              width={32} 
+              height={32}
+            />
           </Link>
           <div className="flex items-center gap-4 text-sm font-medium">
-             <Link href="/restaurants" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
+             <Link href="/businesses" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
                <ChevronRight className="w-4 h-4" /> Retour à l'annuaire
              </Link>
           </div>
@@ -79,10 +82,10 @@ export default async function RestaurantVitrinePage({ params }: PageProps) {
              {/* Logo / Initial */}
              <div className="shrink-0 relative mt-4 md:mt-0 z-10">
                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-white border-4 border-white shadow-[var(--shadow-md)] flex items-center justify-center text-5xl font-black text-[var(--color-brand-600)] relative z-10 ring-1 ring-[var(--color-border)]">
-                   {restaurant.name.charAt(0).toUpperCase()}
+                   {business.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 flex items-center gap-1.5 z-20 shadow-sm">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Certifié</span>
                 </div>
              </div>
@@ -90,18 +93,18 @@ export default async function RestaurantVitrinePage({ params }: PageProps) {
              {/* Info */}
              <div className="flex-1 text-center md:text-left space-y-5 z-10">
                 <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[var(--color-text)]">
-                  {restaurant.name}
+                  {business.name}
                 </h1>
                 
                 <div className="flex flex-col gap-3">
                   <p className="flex justify-center md:justify-start items-start gap-2 text-[var(--color-text-secondary)] font-medium">
                     <MapPin className="w-5 h-5 text-[var(--color-brand-500)] shrink-0 mt-0.5" /> 
-                    <span className={!restaurant.address ? "italic text-[var(--color-text-muted)]" : ""}>{address}</span>
+                    <span className={!business.address ? "italic text-[var(--color-text-muted)]" : ""}>{address}</span>
                   </p>
 
                   <div className="flex justify-center md:justify-start items-start gap-2 text-[var(--color-text-secondary)]">
                     <Info className="w-5 h-5 text-[var(--color-brand-400)] shrink-0 mt-1" />
-                    <p className={`text-sm md:text-base leading-relaxed max-w-2xl bg-[var(--color-bg-subtle)] p-4 rounded-2xl border border-[var(--color-border)] ${!(restaurant as any).description ? "italic text-[var(--color-text-muted)]" : ""}`}>
+                    <p className={`text-sm md:text-base leading-relaxed max-w-2xl bg-[var(--color-bg-subtle)] p-4 rounded-2xl border border-[var(--color-border)] ${!(business as any).description ? "italic text-[var(--color-text-muted)]" : ""}`}>
                       {desc}
                     </p>
                   </div>
@@ -129,13 +132,13 @@ export default async function RestaurantVitrinePage({ params }: PageProps) {
 
         {/* Action Button */}
         <div className="mt-8 relative z-20">
-          <Link href={`/r/${restaurant.slug}/review`} className="group flex flex-col md:flex-row items-center justify-between p-6 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg overflow-hidden transition-all duration-300 hover:scale-[1.01] gap-4">
+          <Link href={`/r/${business.slug}/review`} className="group flex flex-col md:flex-row items-center justify-between p-6 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg overflow-hidden transition-all duration-300 hover:scale-[1.01] gap-4">
             <div className="relative flex items-center gap-5 text-center md:text-left">
               <div className="hidden md:flex w-14 h-14 rounded-full bg-white/20 flex items-center justify-center shadow-inner">
-                <ShieldCheck className="w-7 h-7 text-white" />
+                <CheckCircle2 className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-xl text-white tracking-wide">Vous avez visité {restaurant.name} ?</h3>
+                <h3 className="font-bold text-xl text-white tracking-wide">Vous avez visité {business.name} ?</h3>
                 <p className="text-[var(--color-brand-50)] text-sm font-medium">Munissez-vous de votre reçu et laissez une note encadrée par notre solution de vérification.</p>
               </div>
             </div>

@@ -3,17 +3,17 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Brand Colors */
-  --color-brand-50: #f0f7ff;
-  --color-brand-100: #e0efff;
-  --color-brand-200: #b8ddff;
-  --color-brand-300: #7ac2ff;
-  --color-brand-400: #36a5ff;
-  --color-brand-500: #0b85f3;
-  --color-brand-600: #0068d1;
-  --color-brand-700: #0052a9;
-  --color-brand-800: #05468b;
-  --color-brand-900: #0a3b73;
+  /* Brand Colors - Blue/Teal Gradient */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
 
   /* Accent */
   --color-accent-500: #f59e0b;

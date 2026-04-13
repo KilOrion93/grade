@@ -6,8 +6,8 @@ import { CreditCard, CheckCircle2, ShieldCheck, Zap, Star } from "lucide-react";
 export default async function BillingPage() {
   const session = await requireSession();
 
-  // On récupère le restaurant de l'utilisateur avec son abonnement rattaché
-  const restaurant = await db.restaurant.findFirst({
+  // On récupère le business de l'utilisateur avec son abonnement rattaché
+  const business = await db.business.findFirst({
     where: { memberships: { some: { userId: session.userId } } },
     include: {
       subscription: {
@@ -17,8 +17,8 @@ export default async function BillingPage() {
   });
 
   // Si pas d'abonnement actif, on affiche le plan par défaut (le moins cher)
-  let activePlan = restaurant?.subscription?.plan;
-  const isActive = !!restaurant?.subscription;
+  let activePlan = business?.subscription?.plan;
+  const isActive = !!business?.subscription;
 
   if (!activePlan) {
     const defaultPlan = await db.subscriptionPlan.findFirst({ orderBy: { price: "asc" } });
@@ -32,7 +32,7 @@ export default async function BillingPage() {
   const getFeatures = (plan: any) => {
     if (!plan) return [];
     const f = [];
-    f.push(plan.maxRestaurants === -1 ? "Restaurants illimités" : `${plan.maxRestaurants} restaurant(s)`);
+    f.push(plan.maxBusinesses === -1 ? "Businesses illimités" : `${plan.maxBusinesses} business(es)`);
     f.push(plan.maxTokensPerMonth === -1 ? "Tokens illimités" : `${plan.maxTokensPerMonth} tokens / mois`);
     if (plan.hasAnalytics) f.push("Analytics avancés");
     if (plan.hasAiSummary) f.push("Résumé par IA");
@@ -48,7 +48,7 @@ export default async function BillingPage() {
     <div className="space-y-8 animate-fade-in pb-12">
       <div>
         <h1 className="text-3xl font-black tracking-tight text-[var(--color-text)]">Abonnement & Facturation</h1>
-        <p className="text-[var(--color-text-secondary)] mt-1">Gérez votre offre TrustReview et consultez vos factures.</p>
+        <p className="text-[var(--color-text-secondary)] mt-1">Gérez votre offre Grade et consultez vos factures.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

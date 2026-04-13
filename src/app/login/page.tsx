@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Button, Input, Card } from "@/components/ui";
 import { loginAction, registerAction } from "@/actions/auth";
-import { ShieldCheck, Mail, Lock, User, Store } from "lucide-react";
+import { Mail, Lock, User, Store } from "lucide-react";
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
@@ -37,13 +38,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md animate-fade-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] text-white mb-4 shadow-lg">
-            <ShieldCheck className="w-7 h-7" />
-          </div>
-          <h1 className="text-2xl font-bold gradient-text">TrustReview</h1>
+          <h1 className="text-2xl font-bold gradient-text">Grade</h1>
           <p className="text-sm text-[var(--color-text-muted)] mt-1">
             {isRegister
-              ? "Créez votre compte restaurateur"
+              ? "Créez votre compte business"
               : "Connectez-vous à votre espace"}
           </p>
         </div>
@@ -60,9 +58,9 @@ export default function LoginPage() {
                   icon={<User className="w-4 h-4" />}
                 />
                 <Input
-                  label="Nom du restaurant"
-                  name="restaurantName"
-                  placeholder="Le Bistrot Parisien"
+                  label="Nom du business"
+                  name="businessName"
+                  placeholder="Votre Business"
                   required
                   icon={<Store className="w-4 h-4" />}
                 />
@@ -73,7 +71,7 @@ export default function LoginPage() {
               label="Email"
               name="email"
               type="email"
-              placeholder="vous@restaurant.com"
+              placeholder="vous@business.com"
               required
               icon={<Mail className="w-4 h-4" />}
             />

@@ -62,7 +62,7 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     name: formData.get("name") as string,
-    restaurantName: formData.get("restaurantName") as string,
+    businessName: formData.get("businessName") as string,
   };
 
   const parsed = registerSchema.safeParse(raw);
@@ -79,16 +79,16 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  const slug = slugify(parsed.data.restaurantName);
+  const slug = slugify(parsed.data.businessName);
 
-  const existingSlug = await db.restaurant.findUnique({
+  const existingSlug = await db.business.findUnique({
     where: { slug },
   });
 
   if (existingSlug) {
     return {
       success: false,
-      error: "Un restaurant avec un nom similaire existe déjà",
+      error: "Un business avec un nom similaire existe déjà",
     };
   }
 
@@ -101,9 +101,9 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     },
   });
 
-  const restaurant = await db.restaurant.create({
+  const business = await db.business.create({
     data: {
-      name: parsed.data.restaurantName,
+      name: parsed.data.businessName,
       slug,
     },
   });
@@ -111,7 +111,7 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
   await db.staffMembership.create({
     data: {
       userId: user.id,
-      restaurantId: restaurant.id,
+      businessId: business.id,
       role: "OWNER",
     },
   });
@@ -121,7 +121,7 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     action: "user.register",
     entity: "user",
     entityId: user.id,
-    metadata: { restaurantId: restaurant.id },
+    metadata: { businessId: business.id },
   });
 
   await createSession({

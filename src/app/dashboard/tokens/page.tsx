@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useRestaurantId } from "@/components/dashboard/shell";
+import { useBusinessId } from "@/components/dashboard/shell";
 import { Button, Card, Badge, EmptyState, Skeleton } from "@/components/ui";
 import { generateTokensAction } from "@/actions/token";
 import { Ticket, Copy, Check, Plus, Clock } from "lucide-react";
@@ -15,7 +15,7 @@ interface TokenItem {
 }
 
 export default function TokensPage() {
-  const restaurantId = useRestaurantId();
+  const businessId = useBusinessId();
   const [existingTokens, setExistingTokens] = useState<TokenItem[]>([]);
   const [newTokens, setNewTokens] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,17 +25,17 @@ export default function TokensPage() {
   const [copiedToken, setCopiedToken] = useState("");
 
   const fetchTokens = useCallback(async () => {
-    if (!restaurantId) return;
+    if (!businessId) return;
     setIsFetching(true);
     try {
-      const res = await fetch(`/api/tokens?restaurantId=${restaurantId}`);
+      const res = await fetch(`/api/tokens?businessId=${businessId}`);
       const data = await res.json();
       setExistingTokens(data.tokens || []);
     } catch {
       // ignore
     }
     setIsFetching(false);
-  }, [restaurantId]);
+  }, [businessId]);
 
   useEffect(() => {
     fetchTokens();
@@ -44,7 +44,7 @@ export default function TokensPage() {
   const handleGenerate = async () => {
     setIsLoading(true);
     const result = await generateTokensAction({
-      restaurantId,
+      businessId,
       count,
       expiresInHours: expiry,
     });

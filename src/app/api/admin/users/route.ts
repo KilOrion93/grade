@@ -17,7 +17,7 @@ export async function GET() {
         createdAt: true,
         memberships: {
           include: {
-            restaurant: { select: { id: true, name: true, slug: true, address: true, description: true, isActive: true } },
+            business: { select: { id: true, name: true, slug: true, address: true, description: true, isActive: true } },
           },
         },
       },

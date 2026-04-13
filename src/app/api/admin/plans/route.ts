@@ -7,7 +7,7 @@ const defaultPlans = [
   {
     name: "Starter",
     price: 0,
-    maxRestaurants: 1,
+    maxBusinesses: 1,
     maxTokensPerMonth: 50,
     hasAnalytics: true,
     hasAiSummary: false,
@@ -18,7 +18,7 @@ const defaultPlans = [
   {
     name: "Pro",
     price: 29,
-    maxRestaurants: 3,
+    maxBusinesses: 3,
     maxTokensPerMonth: 500,
     hasAnalytics: true,
     hasAiSummary: true,
@@ -29,7 +29,7 @@ const defaultPlans = [
   {
     name: "Enterprise",
     price: 99,
-    maxRestaurants: -1,
+    maxBusinesses: -1,
     maxTokensPerMonth: -1,
     hasAnalytics: true,
     hasAiSummary: true,
@@ -74,7 +74,7 @@ export async function PATCH(req: NextRequest) {
       id, 
       name, 
       price, 
-      maxRestaurants, 
+      maxBusinesses, 
       maxTokensPerMonth, 
       hasAiSummary, 
       hasAnalytics, 
@@ -92,7 +92,7 @@ export async function PATCH(req: NextRequest) {
       data: { 
         name, 
         price: parseFloat(price), 
-        maxRestaurants: parseInt(maxRestaurants),
+        maxBusinesses: parseInt(maxBusinesses),
         maxTokensPerMonth: parseInt(maxTokensPerMonth),
         hasAiSummary: !!hasAiSummary,
         hasAnalytics: !!hasAnalytics,
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     const { 
       name, 
       price, 
-      maxRestaurants, 
+      maxBusinesses, 
       maxTokensPerMonth, 
       hasAiSummary, 
       hasAnalytics, 
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
       data: { 
         name, 
         price: parseFloat(price), 
-        maxRestaurants: parseInt(maxRestaurants),
+        maxBusinesses: parseInt(maxBusinesses),
         maxTokensPerMonth: parseInt(maxTokensPerMonth),
         hasAiSummary: !!hasAiSummary,
         hasAnalytics: !!hasAnalytics,

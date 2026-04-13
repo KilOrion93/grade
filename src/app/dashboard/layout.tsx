@@ -14,14 +14,14 @@ export default async function DashboardLayout({
 
   const memberships = await db.staffMembership.findMany({
     where: { userId: session.userId },
-    include: { restaurant: { select: { id: true, name: true, slug: true } } },
+    include: { business: { select: { id: true, name: true, slug: true } } },
   });
 
   return (
     <DashboardShell
       user={{ name: session.name, email: session.email }}
-      restaurants={memberships.map((m) => m.restaurant)}
-      defaultRestaurantId={memberships[0]?.restaurant.id || ""}
+      businesses={memberships.map((m) => m.business)}
+      defaultBusinessId={memberships[0]?.business.id || ""}
     >
       {children}
     </DashboardShell>

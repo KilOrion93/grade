@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRestaurantId } from "@/components/dashboard/shell";
+import { useBusinessId } from "@/components/dashboard/shell";
 import { Button, Card, EmptyState } from "@/components/ui";
 import { generateQrCodeAction } from "@/actions/token";
 import { QrCode, Download, Plus } from "lucide-react";
@@ -14,16 +14,16 @@ interface GeneratedQr {
 }
 
 export default function QrCodesPage() {
-  const restaurantId = useRestaurantId();
+  const businessId = useBusinessId();
   const [qrCodes, setQrCodes] = useState<GeneratedQr[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [label, setLabel] = useState("");
   const [isFetching, setIsFetching] = useState(true);
 
   React.useEffect(() => {
-    if (!restaurantId) return;
+    if (!businessId) return;
     setIsFetching(true);
-    fetch(`/api/qrcodes?restaurantId=${restaurantId}`)
+    fetch(`/api/qrcodes?businessId=${businessId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.qrCodes) {
@@ -38,11 +38,11 @@ export default function QrCodesPage() {
         }
         setIsFetching(false);
       });
-  }, [restaurantId]);
+  }, [businessId]);
 
   const handleGenerate = async () => {
     setIsLoading(true);
-    const result = await generateQrCodeAction(restaurantId, label || undefined);
+    const result = await generateQrCodeAction(businessId, label || undefined);
 
     if (result.success && result.dataUrl) {
       setQrCodes((prev) => [

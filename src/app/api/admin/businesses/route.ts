@@ -3,12 +3,11 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
 
-// GET /api/admin/restaurants
 export async function GET() {
   try {
     await requireAdmin();
 
-    const restaurants = await db.restaurant.findMany({
+    const businesses = await db.business.findMany({
       include: {
         _count: { select: { reviews: true, visitTokens: true } },
         memberships: {
@@ -18,7 +17,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ restaurants });
+    return NextResponse.json({ businesses });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     const status = message === "Forbidden" ? 403 : message === "Unauthorized" ? 401 : 500;
@@ -26,7 +25,6 @@ export async function GET() {
   }
 }
 
-// PATCH /api/admin/restaurants - update restaurant
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
@@ -37,27 +35,26 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "ID requis" }, { status: 400 });
     }
 
-    const restaurant = await db.restaurant.update({
+    const business = await db.business.update({
       where: { id },
       data,
     });
 
     await logAudit({
       userId: session.userId,
-      action: "restaurant.update",
-      entity: "restaurant",
+      action: "business.update",
+      entity: "business",
       entityId: id,
       metadata: data,
     });
 
-    return NextResponse.json({ restaurant });
+    return NextResponse.json({ business });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// DELETE /api/admin/restaurants - delete restaurant
 export async function DELETE(req: NextRequest) {
   try {
     const session = await requireAdmin();
@@ -68,26 +65,25 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "ID requis" }, { status: 400 });
     }
 
-    await db.restaurant.delete({
+    await db.business.delete({
       where: { id },
     });
 
     await logAudit({
       userId: session.userId,
-      action: "restaurant.update",
-      entity: "restaurant",
+      action: "business.update",
+      entity: "business",
       entityId: id,
       metadata: { deleted: true },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ business: { id, deleted: true } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// POST /api/admin/restaurants - create restaurant
 export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
@@ -99,44 +95,46 @@ export async function POST(req: NextRequest) {
     }
 
     let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-    if (!slug) slug = "restaurant";
-    
+    if (!slug) slug = "business";
+
     let uniqueSlug = slug;
     let counter = 1;
     while (true) {
-      const exists = await db.restaurant.findUnique({ where: { slug: uniqueSlug } });
+      const exists = await db.business.findUnique({ where: { slug: uniqueSlug } });
       if (!exists) break;
       uniqueSlug = `${slug}-${counter}`;
       counter++;
     }
 
-    const memberships = ownerId ? {
-      create: {
-        userId: ownerId,
-        role: "OWNER",
-      }
-    } : undefined;
+    const memberships = ownerId
+      ? {
+          create: {
+            userId: ownerId,
+            role: "OWNER" as const,
+          },
+        }
+      : undefined;
 
-    const restaurant = await db.restaurant.create({
+    const business = await db.business.create({
       data: {
         name,
         address,
         description,
         slug: uniqueSlug,
         isActive: true,
-        memberships: memberships as any
+        memberships: memberships as never,
       },
     });
 
     await logAudit({
       userId: session.userId,
-      action: "restaurant.create",
-      entity: "restaurant",
-      entityId: restaurant.id,
+      action: "business.create",
+      entity: "business",
+      entityId: business.id,
       metadata: { name, slug: uniqueSlug },
     });
 
-    return NextResponse.json({ restaurant });
+    return NextResponse.json({ business });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur serveur";
     return NextResponse.json({ error: message }, { status: 500 });

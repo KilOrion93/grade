@@ -6,7 +6,7 @@ const JWT_SECRET_KEY = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback-secret-not-for-production"
 );
 
-const COOKIE_NAME = "trustreview-session";
+const COOKIE_NAME = "grade-session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 export interface SessionPayload {
@@ -64,8 +64,8 @@ export async function requireAdmin(): Promise<SessionPayload> {
   return session;
 }
 
-export async function requireRestaurantAccess(
-  restaurantId: string
+export async function requireBusinessAccess(
+  businessId: string
 ): Promise<SessionPayload> {
   const session = await requireSession();
   if (session.role === "ADMIN") return session;
@@ -73,9 +73,9 @@ export async function requireRestaurantAccess(
   const { db } = await import("@/lib/db");
   const membership = await db.staffMembership.findUnique({
     where: {
-      userId_restaurantId: {
+      userId_businessId: {
         userId: session.userId,
-        restaurantId,
+        businessId,
       },
     },
   });

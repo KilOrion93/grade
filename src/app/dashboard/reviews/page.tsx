@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { useRestaurantId } from "@/components/dashboard/shell";
+import { useBusinessId } from "@/components/dashboard/shell";
 import { Card, Badge, Button, EmptyState, Skeleton } from "@/components/ui";
 import { StarRating } from "@/components/ui/star-rating";
 import { timeAgo } from "@/lib/utils";
@@ -26,7 +26,7 @@ interface ReviewItem {
 }
 
 export default function ReviewsPage() {
-  const restaurantId = useRestaurantId();
+  const businessId = useBusinessId();
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -36,11 +36,11 @@ export default function ReviewsPage() {
   const [visibilityFilter, setVisibilityFilter] = useState("");
 
   const fetchReviews = useCallback(async () => {
-    if (!restaurantId) return;
+    if (!businessId) return;
     setLoading(true);
 
     const params = new URLSearchParams({
-      restaurantId,
+      businessId,
       page: page.toString(),
       limit: "15",
     });
@@ -54,14 +54,14 @@ export default function ReviewsPage() {
     setTotal(data.total || 0);
     setTotalPages(data.totalPages || 1);
     setLoading(false);
-  }, [restaurantId, page, statusFilter, visibilityFilter]);
+  }, [businessId, page, statusFilter, visibilityFilter]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
 
   const handleExport = () => {
-    window.open(`/api/export?restaurantId=${restaurantId}`, "_blank");
+    window.open(`/api/export?businessId=${businessId}`, "_blank");
   };
 
   const statusBadge = (status: string) => {

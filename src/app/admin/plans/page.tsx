@@ -8,7 +8,7 @@ interface Plan {
   id: string;
   name: string;
   price: number;
-  maxRestaurants: number;
+  maxBusinesses: number;
   maxTokensPerMonth: number;
   hasAiSummary: boolean;
   hasAnalytics: boolean;
@@ -26,7 +26,7 @@ export default function AdminPlansPage() {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    maxRestaurants: 0,
+    maxBusinesses: 0,
     maxTokensPerMonth: 0,
     hasAiSummary: false,
     hasAnalytics: false,
@@ -51,7 +51,7 @@ export default function AdminPlansPage() {
     setFormData({
       name: p.name,
       price: p.price.toString(),
-      maxRestaurants: p.maxRestaurants,
+      maxBusinesses: p.maxBusinesses,
       maxTokensPerMonth: p.maxTokensPerMonth,
       hasAiSummary: p.hasAiSummary,
       hasAnalytics: p.hasAnalytics,
@@ -144,7 +144,7 @@ export default function AdminPlansPage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Limites</p>
-                      <p className="text-sm font-semibold">{plan.maxRestaurants === -1 ? "Restaurants illimités" : `${plan.maxRestaurants} restaurant(s)`}</p>
+                      <p className="text-sm font-semibold">{plan.maxBusinesses === -1 ? "Businesses illimités" : `${plan.maxBusinesses} business(es)`}</p>
                     </div>
                   </div>
 
@@ -224,11 +224,11 @@ export default function AdminPlansPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Input 
-                  label="Nb. Restaurants" 
+                  label="Nb. Businesses" 
                   type="number" 
                   required 
-                  value={formData.maxRestaurants} 
-                  onChange={e => setFormData({ ...formData, maxRestaurants: parseInt(e.target.value) })} 
+                  value={formData.maxBusinesses} 
+                  onChange={e => setFormData({ ...formData, maxBusinesses: parseInt(e.target.value) })} 
                   subtitle="-1 pour illimité"
                 />
                 <Input 

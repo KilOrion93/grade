@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       db.review.findMany({
         where,
         include: {
-          restaurant: { select: { name: true, slug: true } },
+          business: { select: { name: true, slug: true } },
           criterionScores: true,
           flags: true,
         },
@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
         moderationStatus: r.moderationStatus,
         trustScore: r.trustScore,
         createdAt: r.createdAt,
-        restaurantName: r.restaurant.name,
-        restaurantSlug: r.restaurant.slug,
+        businessName: r.business.name,
+        businessSlug: r.business.slug,
         criteria: r.criterionScores.map((cs) => ({
           name: cs.criterionName,
           score: cs.score,

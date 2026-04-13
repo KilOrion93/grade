@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireRestaurantAccess } from "@/lib/session";
+import { requireBusinessAccess } from "@/lib/session";
 import { subDays } from "date-fns";
 
 export async function GET(req: NextRequest) {
   try {
-    const restaurantId = req.nextUrl.searchParams.get("restaurantId");
+    const businessId = req.nextUrl.searchParams.get("businessId");
     const period = req.nextUrl.searchParams.get("period") || "30";
 
-    if (!restaurantId) {
-      return NextResponse.json({ error: "restaurantId requis" }, { status: 400 });
+    if (!businessId) {
+      return NextResponse.json({ error: "businessId requis" }, { status: 400 });
     }
 
-    await requireRestaurantAccess(restaurantId);
+    await requireBusinessAccess(businessId);
 
     const periodDays = parseInt(period);
     const dateFrom = subDays(new Date(), periodDays);
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     // Get reviews for the period
     const reviews = await db.review.findMany({
       where: {
-        restaurantId,
+        businessId,
         createdAt: { gte: dateFrom },
       },
       include: {
@@ -31,14 +31,14 @@ export async function GET(req: NextRequest) {
 
     // Total count
     const totalReviews = await db.review.count({
-      where: { restaurantId },
+      where: { businessId },
     });
 
     // Previous period for trend
     const prevFrom = subDays(dateFrom, periodDays);
     const prevReviews = await db.review.findMany({
       where: {
-        restaurantId,
+        businessId,
         createdAt: { gte: prevFrom, lt: dateFrom },
       },
     });

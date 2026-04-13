@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireRestaurantAccess } from "@/lib/session";
+import { requireBusinessAccess } from "@/lib/session";
 import { tokenGenerationSchema } from "@/lib/validations";
 import { generateToken } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
@@ -21,13 +21,13 @@ export async function generateTokensAction(
     return { success: false, error: "Paramètres invalides" };
   }
 
-  const { restaurantId, count, expiresInHours } = parsed.data;
+  const { businessId, count, expiresInHours } = parsed.data;
 
-  const session = await requireRestaurantAccess(restaurantId);
+  const session = await requireBusinessAccess(businessId);
 
   const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
 
-  const tokensToCreate: { token: string; restaurantId: string; expiresAt: Date }[] = [];
+  const tokensToCreate: { token: string; businessId: string; expiresAt: Date }[] = [];
   const existingTokens = new Set<string>();
 
   // Generate unique tokens
@@ -43,7 +43,7 @@ export async function generateTokensAction(
       existingTokens.add(token);
       tokensToCreate.push({
         token,
-        restaurantId,
+        businessId,
         expiresAt,
       });
     }
@@ -56,8 +56,8 @@ export async function generateTokensAction(
   await logAudit({
     userId: session.userId,
     action: "token.generate",
-    entity: "restaurant",
-    entityId: restaurantId,
+    entity: "business",
+    entityId: businessId,
     metadata: { count, expiresInHours },
   });
 
@@ -71,21 +71,21 @@ export async function generateTokensAction(
 }
 
 export async function generateQrCodeAction(
-  restaurantId: string,
+  businessId: string,
   label?: string
 ): Promise<{ success: boolean; qrCodeId?: string; url?: string; dataUrl?: string; error?: string }> {
-  const session = await requireRestaurantAccess(restaurantId);
+  const session = await requireBusinessAccess(businessId);
 
-  const restaurant = await db.restaurant.findUnique({
-    where: { id: restaurantId },
+  const business = await db.business.findUnique({
+    where: { id: businessId },
   });
 
-  if (!restaurant) {
-    return { success: false, error: "Restaurant introuvable" };
+  if (!business) {
+    return { success: false, error: "Business introuvable" };
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${appUrl}/r/${restaurant.slug}/review`;
+  const url = `${appUrl}/r/${business.slug}/review`;
 
   const dataUrl = await QRCode.toDataURL(url, {
     width: 512,
@@ -99,9 +99,9 @@ export async function generateQrCodeAction(
 
   const qr = await db.qrCode.create({
     data: {
-      restaurantId,
+      businessId,
       url,
-      label: label || `QR ${restaurant.name}`,
+      label: label || `QR ${business.name}`,
     },
   });
 
@@ -110,7 +110,7 @@ export async function generateQrCodeAction(
     action: "qrcode.create",
     entity: "qrcode",
     entityId: qr.id,
-    metadata: { restaurantId, url },
+    metadata: { businessId, url },
   });
 
   return { success: true, qrCodeId: qr.id, url, dataUrl };

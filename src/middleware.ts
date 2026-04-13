@@ -14,7 +14,7 @@ export async function middleware(req: NextRequest) {
   if (publicPaths.some((p) => pathname === p || pathname.startsWith(p))) {
     // Protect dashboard API routes
     if (pathname.startsWith("/api/analytics") || pathname.startsWith("/api/reviews") || pathname.startsWith("/api/export")) {
-      const token = req.cookies.get("trustreview-session")?.value;
+      const token = req.cookies.get("grade-session")?.value;
       if (!token) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
@@ -27,7 +27,7 @@ export async function middleware(req: NextRequest) {
 
     // Protect admin API routes
     if (pathname.startsWith("/api/admin")) {
-      const token = req.cookies.get("trustreview-session")?.value;
+      const token = req.cookies.get("grade-session")?.value;
       if (!token) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
@@ -45,7 +45,7 @@ export async function middleware(req: NextRequest) {
   }
 
   // Protected pages (dashboard, admin)
-  const token = req.cookies.get("trustreview-session")?.value;
+  const token = req.cookies.get("grade-session")?.value;
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url));
   }

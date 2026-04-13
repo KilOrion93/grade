@@ -5,7 +5,7 @@ import { Card, Badge, Skeleton, EmptyState, Button } from "@/components/ui";
 import { Users, ChevronDown, ChevronUp, Mail, Calendar, Store, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
-interface RestaurantInfo {
+interface BusinessInfo {
   id: string;
   name: string;
   slug: string;
@@ -22,7 +22,7 @@ interface UserItem {
   role: string;
   isActive: boolean;
   createdAt: string;
-  memberships: { restaurant: RestaurantInfo }[];
+  memberships: { business: BusinessInfo }[];
 }
 
 export default function AdminUsersPage() {
@@ -160,30 +160,30 @@ export default function AdminUsersPage() {
                           <div className="space-y-2">
                             {u.memberships.map((m) => (
                               <div
-                                key={m.restaurant.id || m.restaurant.slug}
+                                key={m.business.id || m.business.slug}
                                 className="p-3 rounded-xl bg-white border border-[var(--color-border)] space-y-1"
                               >
                                 <div className="flex items-center gap-2">
                                   <Store className="w-4 h-4 text-[var(--color-brand-600)]" />
                                   <a
-                                    href={`/r/${m.restaurant.slug}`}
+                                    href={`/r/${m.business.slug}`}
                                     target="_blank"
                                     className="text-sm font-semibold text-[var(--color-brand-600)] hover:underline"
                                   >
-                                    {m.restaurant.name}
+                                    {m.business.name}
                                   </a>
-                                  <Badge variant={m.restaurant.isActive ? "success" : "danger"} className="text-[10px]">
-                                    {m.restaurant.isActive ? "Actif" : "Inactif"}
+                                  <Badge variant={m.business.isActive ? "success" : "danger"} className="text-[10px]">
+                                    {m.business.isActive ? "Actif" : "Inactif"}
                                   </Badge>
                                 </div>
-                                {m.restaurant.address && (
+                                {m.business.address && (
                                   <div className="flex items-start gap-1.5 text-xs text-[var(--color-text-muted)]">
                                     <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
-                                    {m.restaurant.address}
+                                    {m.business.address}
                                   </div>
                                 )}
-                                {m.restaurant.description && (
-                                  <p className="text-xs text-[var(--color-text-muted)] line-clamp-2">{m.restaurant.description}</p>
+                                {m.business.description && (
+                                  <p className="text-xs text-[var(--color-text-muted)] line-clamp-2">{m.business.description}</p>
                                 )}
                               </div>
                             ))}

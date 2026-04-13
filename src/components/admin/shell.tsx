@@ -2,11 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/actions/auth";
 import {
-  ShieldCheck,
   LayoutDashboard,
   Store,
   Users,
@@ -20,7 +20,7 @@ import {
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/restaurants", label: "Restaurants", icon: Store },
+  { href: "/admin/businesses", label: "Businesses", icon: Store },
   { href: "/admin/users", label: "Utilisateurs", icon: Users },
   { href: "/admin/moderation", label: "Modération", icon: MessageSquare },
   { href: "/admin/logs", label: "Logs", icon: ScrollText },
@@ -48,11 +48,13 @@ export default function AdminShell({ user, children }: Props) {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center text-white">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <span className="font-semibold text-sm">Admin</span>
+            <div className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="Grade Logo" 
+                width={28} 
+                height={28}
+              />
             </div>
           </div>
         </div>
@@ -97,11 +99,14 @@ function SidebarContent({
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-5 py-5 border-b border-[var(--color-border)]">
         <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center text-white shadow-md">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
+          <Image 
+            src="/logo.png" 
+            alt="Grade Logo" 
+            width={36} 
+            height={36}
+          />
           <div>
-            <p className="font-bold text-sm">TrustReview</p>
+            <p className="font-bold text-sm">Grade</p>
             <p className="text-xs text-[var(--color-brand-500)] font-medium">Admin</p>
           </div>
         </div>

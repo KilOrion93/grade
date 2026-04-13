@@ -6,7 +6,7 @@ import { Store, Users, MessageSquare, ShieldAlert } from "lucide-react";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<{
-    restaurants: number;
+    businesses: number;
     users: number;
     reviews: number;
     flagged: number;
@@ -15,14 +15,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/admin/restaurants").then((r) => r.json()),
+      fetch("/api/admin/businesses").then((r) => r.json()),
       fetch("/api/admin/users").then((r) => r.json()),
       fetch("/api/admin/reviews?status=FLAGGED").then((r) => r.json()),
       fetch("/api/admin/reviews").then((r) => r.json()),
     ])
-      .then(([restData, userData, flagData, allReviewsData]) => {
+      .then(([businessData, userData, flagData, allReviewsData]) => {
         setStats({
-          restaurants: restData.restaurants?.length || 0,
+          businesses: businessData.businesses?.length || 0,
           users: userData.users?.length || 0,
           reviews: allReviewsData.total || 0,
           flagged: flagData.total || 0,
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
         <div>
           <h1 className="text-3xl font-black tracking-tight text-[var(--color-text)]">Console d'Administration</h1>
           <p className="text-[var(--color-text-secondary)] mt-1">
-            Pilotage global de la plateforme TrustReview
+            Pilotage global de la plateforme Grade
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest bg-white px-3 py-1.5 rounded-full border border-[var(--color-border)] shadow-sm">
@@ -60,8 +60,8 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Restaurants Actifs"
-          value={stats?.restaurants || 0}
+          title="Businesses actifs"
+          value={stats?.businesses || 0}
           icon={<Store className="w-6 h-6 text-[var(--color-brand-600)]" />}
         />
         <StatCard
@@ -131,12 +131,12 @@ export default function AdminDashboard() {
             <h3 className="font-bold text-lg">Actions de Service</h3>
             <div className="space-y-3">
               <a
-                href="/admin/restaurants"
+                href="/admin/businesses"
                 className="flex items-center justify-between p-4 rounded-xl bg-white border border-[var(--color-border)] hover:border-[var(--color-brand-400)] hover:shadow-md transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <Store className="w-5 h-5 text-[var(--color-brand-600)]" />
-                  <span className="text-sm font-medium">Gestion Etablissement</span>
+                  <span className="text-sm font-medium">Gestion businesses</span>
                 </div>
                 <div className="text-[var(--color-text-muted)] group-hover:translate-x-1 transition-transform">&rarr;</div>
               </a>

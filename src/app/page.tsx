@@ -1,7 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { db } from "@/lib/db";
 import {
-  ShieldCheck,
   QrCode,
   BarChart3,
   Star,
@@ -9,10 +9,11 @@ import {
   Smartphone,
   Lock,
   Zap,
+  Check,
 } from "lucide-react";
 
 export default async function HomePage() {
-  const partners = await db.restaurant.findMany({
+  const partners = await db.business.findMany({
     where: { isActive: true },
     include: {
       reviews: {
@@ -36,11 +37,13 @@ export default async function HomePage() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-32">
           <nav className="flex items-center justify-between mb-16">
-            <div className="flex items-center gap-2.5">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[var(--color-brand-500)] to-[var(--color-brand-700)] flex items-center justify-center text-white shadow-lg">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <span className="text-xl font-bold">TrustReview</span>
+            <div className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="Grade Logo" 
+                width={40} 
+                height={40}
+              />
             </div>
             <div className="flex items-center gap-3">
               <Link
@@ -60,16 +63,21 @@ export default async function HomePage() {
 
           <div className="text-center max-w-3xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] text-[var(--color-brand-700)] text-xs font-medium mb-6">
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <Image 
+                src="/logo.png" 
+                alt="Grade Logo" 
+                width={14} 
+                height={14}
+              />
               Avis vérifiés par preuve de visite
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
               Des avis clients{" "}
               <span className="gradient-text">vraiment fiables</span>{" "}
-              pour votre restaurant
+              pour votre commerce
             </h1>
             <p className="mt-6 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
-              TrustReview associe chaque avis à une preuve de visite vérifiée.
+              Grade associe chaque avis à une preuve de visite vérifiée.
               Fini les faux avis. Analysez vos performances réelles et améliorez
               votre service grâce à des retours authentiques.
             </p>
@@ -82,10 +90,10 @@ export default async function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/restaurants"
+                href="/businesses"
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] bg-white border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-sm hover:shadow-md transition-all"
               >
-                Explorer nos restaurants
+                Explorer nos établissements
               </Link>
             </div>
           </div>
@@ -97,7 +105,7 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold">
-              Tout ce dont votre restaurant a besoin
+              Tout ce dont votre commerce a besoin
             </h2>
             <p className="mt-3 text-[var(--color-text-secondary)]">
               Une solution complète pour collecter, vérifier et analyser les avis
@@ -114,7 +122,7 @@ export default async function HomePage() {
                 color: "bg-blue-50 text-blue-600",
               },
               {
-                icon: ShieldCheck,
+                icon: Check,
                 title: "Vérification par token",
                 desc: "Chaque avis est lié à un code de visite unique à usage unique. Impossible de tricher.",
                 color: "bg-emerald-50 text-emerald-600",
@@ -169,7 +177,7 @@ export default async function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold">Nos établissements de confiance</h2>
             <p className="mt-3 text-[var(--color-text-secondary)]">
-              Découvrez les restaurants qui s'engagent pour 100% de transparence.
+              Découvrez les businesses qui s'engagent pour 100% de transparence.
             </p>
           </div>
           
@@ -255,7 +263,7 @@ export default async function HomePage() {
               Prêt à collecter des avis vérifiés ?
             </h2>
             <p className="text-blue-100 mb-8 max-w-lg mx-auto">
-              Rejoignez les restaurants qui font confiance à TrustReview pour une
+              Rejoignez les businesses qui font confiance à Grade pour une
               réputation authentique.
             </p>
             <Link
@@ -273,11 +281,16 @@ export default async function HomePage() {
       <footer className="py-8 border-t border-[var(--color-border)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[var(--color-brand-600)]" />
-            <span className="text-sm font-medium">TrustReview</span>
+            <Image 
+              src="/logo.png" 
+              alt="Grade Logo" 
+              width={16} 
+              height={16}
+            />
+            <span className="text-sm font-medium">Grade</span>
           </div>
           <p className="text-xs text-[var(--color-text-muted)]">
-            © {new Date().getFullYear()} TrustReview. Avis vérifiés.
+            © {new Date().getFullYear()} Grade. Avis vérifiés.
           </p>
         </div>
       </footer>

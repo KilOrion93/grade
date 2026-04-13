@@ -19,7 +19,7 @@ export async function submitReviewAction(
     return { success: false, error: "Données invalides. Veuillez vérifier votre saisie." };
   }
 
-  const { visitTokenId, restaurantId, overallScore, criteria, comment, visibilityType } =
+  const { visitTokenId, businessId, overallScore, criteria, comment, visibilityType } =
     parsed.data;
 
   // Validate criteria keys
@@ -49,7 +49,7 @@ export async function submitReviewAction(
         throw new Error("Ce token a expiré");
       }
 
-      if (token.restaurantId !== restaurantId) {
+      if (token.businessId !== businessId) {
         throw new Error("Token invalide pour cet établissement");
       }
 
@@ -74,7 +74,7 @@ export async function submitReviewAction(
       // Create review
       const review = await tx.review.create({
         data: {
-          restaurantId,
+          businessId,
           visitTokenId,
           overallScore,
           comment: comment || null,
@@ -99,7 +99,7 @@ export async function submitReviewAction(
       action: "review.create",
       entity: "review",
       entityId: result.id,
-      metadata: { restaurantId, trustScore: result.trustScore },
+      metadata: { businessId, trustScore: result.trustScore },
     });
 
     return { success: true };
@@ -112,27 +112,27 @@ export async function submitReviewAction(
 
 export async function validateTokenAction(
   token: string,
-  restaurantSlug: string
+  businessSlug: string
 ): Promise<{
   valid: boolean;
   tokenId?: string;
-  restaurantId?: string;
-  restaurantName?: string;
+  businessId?: string;
+  businessName?: string;
   error?: string;
 }> {
   try {
-    const restaurant = await db.restaurant.findUnique({
-      where: { slug: restaurantSlug },
+    const business = await db.business.findUnique({
+      where: { slug: businessSlug },
     });
 
-    if (!restaurant || !restaurant.isActive) {
+    if (!business || !business.isActive) {
       return { valid: false, error: "Établissement introuvable" };
     }
 
     const visitToken = await db.visitToken.findFirst({
       where: {
         token: token.toUpperCase().trim(),
-        restaurantId: restaurant.id,
+        businessId: business.id,
       },
     });
 
@@ -151,8 +151,8 @@ export async function validateTokenAction(
     return {
       valid: true,
       tokenId: visitToken.id,
-      restaurantId: restaurant.id,
-      restaurantName: restaurant.name,
+      businessId: business.id,
+      businessName: business.name,
     };
   } catch {
     return { valid: false, error: "Erreur de vérification" };

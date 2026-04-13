@@ -8,10 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "TrustReview — Avis vérifiés pour restaurants",
+  title: "Grade — Avis vérifiés pour votre business",
   description:
-    "Collectez des avis clients vérifiés pour votre restaurant. QR code, preuve de visite, analytics en temps réel.",
-  keywords: ["avis restaurant", "avis vérifiés", "QR code", "feedback client"],
+    "Collectez des avis clients vérifiés pour votre business. QR code, preuve de visite, analytics en temps réel.",
+  keywords: ["avis business", "avis vérifiés", "QR code", "feedback client"],
 };
 
 export default function RootLayout({

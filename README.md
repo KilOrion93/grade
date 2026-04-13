@@ -1,7 +1,7 @@
-# TrustReview — Plateforme d'avis vérifiés pour restaurants
+# Grade — Plateforme d'avis vérifiés pour votre business
 
 > Collectez des avis clients vérifiés grâce à un système de preuve de visite par token unique.  
-> Dashboard restaurateur complet + Back-office admin + Interface mobile client.
+> Dashboard business complet + Back-office admin + Interface mobile client.
 
 ---
 
@@ -61,9 +61,9 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 
 | Rôle | Email | Mot de passe |
 |------|-------|-------------|
-| **Admin** | `admin@trustreview.fr` | `admin123` |
-| **Restaurateur** | `marie@lebistrot.fr` | `owner123` |
-| **Restaurateur 2** | `pierre@sushi-zen.fr` | `owner123` |
+| **Admin** | `admin@grade.com` | `admin123` |
+| **Business Owner** | `marie@lebistrot.fr` | `owner123` |
+| **Business Owner 2** | `pierre@sushi-zen.fr` | `owner123` |
 
 ---
 
@@ -73,7 +73,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 |------|-----|
 | Accueil (Landing) | `http://localhost:3000` |
 | Connexion | `http://localhost:3000/login` |
-| Dashboard restaurateur | `http://localhost:3000/dashboard` |
+| Dashboard business | `http://localhost:3000/dashboard` |
 | Admin | `http://localhost:3000/admin` |
 | Avis client - Le Bistrot | `http://localhost:3000/r/le-bistrot-parisien` |
 | Avis client - Sushi Zen | `http://localhost:3000/r/sushi-zen` |
@@ -87,7 +87,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 │                  Next.js (App Router)            │
 │  ┌─────────┐  ┌──────────┐  ┌────────────────┐  │
 │  │ Public  │  │Dashboard │  │  Admin Panel   │  │
-│  │(Mobile) │  │(Restau.) │  │  (Plateforme)  │  │
+│  │(Mobile) │  │(Business) │  │  (Plateforme)  │  │
 │  └────┬────┘  └────┬─────┘  └───────┬────────┘  │
 │       │             │                │            │
 │  ┌────┴─────────────┴────────────────┴────────┐  │
@@ -96,8 +96,8 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 │  └────────────────────┬───────────────────────┘  │
 │                       │                          │
 │  ┌────────────────────┴───────────────────────┐  │
-│  │      Prisma ORM + PostgreSQL               │  │
-│  │  (Users, Restaurants, Reviews, Tokens...)  │  │
+│  │      Prisma ORM + PostgreSQL               │
+│  │  (Users, Businesses, Reviews, Tokens...)  │  │
 │  └────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────┘
 ```
@@ -119,7 +119,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000)
 ## 📂 Structure du projet
 
 ```
-trustreview/
+grade/
 ├── prisma/
 │   ├── schema.prisma          # Modèle de données complet
 │   └── seed.ts                # Données de démonstration
@@ -130,7 +130,7 @@ trustreview/
 │   │   ├── globals.css        # Design system CSS tokens
 │   │   ├── login/page.tsx     # Login / Register
 │   │   ├── r/[slug]/page.tsx  # Interface client public (QR)
-│   │   ├── dashboard/         # Espace restaurateur
+│   │   ├── dashboard/         # Espace business
 │   │   │   ├── layout.tsx     # Auth + sidebar
 │   │   │   ├── page.tsx       # Overview analytics
 │   │   │   ├── reviews/       # Liste des avis
@@ -140,7 +140,7 @@ trustreview/
 │   │   ├── admin/             # Back-office admin
 │   │   │   ├── layout.tsx     # Auth admin
 │   │   │   ├── page.tsx       # Dashboard admin
-│   │   │   ├── restaurants/   # Gestion restaurants
+│   │   │   ├── businesses/   # Gestion businesses
 │   │   │   ├── users/         # Gestion utilisateurs
 │   │   │   ├── reviews/       # Modération avis
 │   │   │   ├── logs/          # Journal d'audit
@@ -183,15 +183,15 @@ trustreview/
 | Modèle | Description |
 |--------|-------------|
 | `User` | Utilisateurs (admin, owner, manager) |
-| `Restaurant` | Établissements avec slug unique |
-| `StaffMembership` | Lien user ↔ restaurant avec rôle |
-| `QrCode` | QR codes générés par restaurant |
+| `Business` | Établissements avec slug unique |
+| `StaffMembership` | Lien user ↔ business avec rôle |
+| `QrCode` | QR codes générés par business |
 | `VisitToken` | Codes de visite uniques à usage unique |
 | `Review` | Avis avec note globale, statut, confiance |
 | `ReviewCriterionScore` | Notes détaillées par critère |
 | `ReviewFlag` | Signalements d'avis |
 | `SubscriptionPlan` | Plans tarifaires |
-| `Subscription` | Abonnements restaurants |
+| `Subscription` | Abonnements businesses |
 | `AuditLog` | Journal d'audit des actions |
 
 ---
@@ -200,10 +200,10 @@ trustreview/
 
 | Route | Méthode | Description |
 |-------|---------|-------------|
-| `/api/analytics` | GET | Calculs analytics (exige auth + restaurantId) |
+| `/api/analytics` | GET | Calculs analytics (exige auth + businessId) |
 | `/api/reviews` | GET | Liste paginée et filtrée des avis |
 | `/api/export` | GET | Export CSV des avis |
-| `/api/admin/restaurants` | GET/PATCH | Gestion restaurants (admin) |
+| `/api/admin/businesses` | GET/PATCH | Gestion businesses (admin) |
 | `/api/admin/users` | GET/PATCH | Gestion utilisateurs (admin) |
 | `/api/admin/reviews` | GET/PATCH | Modération avis (admin) |
 | `/api/admin/logs` | GET | Journal d'audit (admin) |
@@ -216,13 +216,13 @@ trustreview/
 - [x] Interface mobile client (QR → token → avis → confirmation)
 - [x] 5 critères de notation (accueil, hygiène, rapidité, prix, qualité)
 - [x] Tokens de visite à usage unique avec expiration
-- [x] Dashboard restaurateur (analytics, avis, QR, tokens)
+- [x] Dashboard business (analytics, avis, QR, tokens)
 - [x] Moyennes globales et par critère
 - [x] Tendances et répartition des notes
 - [x] Avis publics vs privés
 - [x] Export CSV
 - [x] Multi-établissements par compte
-- [x] Back-office admin (restaurants, users, modération, logs, plans)
+- [x] Back-office admin (businesses, users, modération, logs, plans)
 - [x] Authentification JWT sécurisée
 - [x] Middleware de protection des routes
 - [x] Score de confiance des avis
@@ -271,4 +271,4 @@ npm run db:studio    # Prisma Studio (GUI pour la DB)
 
 ---
 
-**Made with ❤️ by TrustReview**
+**Made with ❤️ by Grade**
