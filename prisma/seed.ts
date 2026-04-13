@@ -157,7 +157,7 @@ async function main() {
   await prisma.qrCode.create({
     data: {
       businessId: bistrot.id,
-      url: "http://localhost:3000/r/le-bistrot-parisien/review",
+      url: "/r/le-bistrot-parisien/review",
       label: "QR Principal",
     },
   });

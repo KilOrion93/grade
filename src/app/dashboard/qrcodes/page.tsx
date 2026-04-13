@@ -20,40 +20,36 @@ export default function QrCodesPage() {
   const [label, setLabel] = useState("");
   const [isFetching, setIsFetching] = useState(true);
 
-  React.useEffect(() => {
+  const fetchQrCodes = React.useCallback(async () => {
     if (!businessId) return;
     setIsFetching(true);
-    fetch(`/api/qrcodes?businessId=${businessId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.qrCodes) {
-          setQrCodes(
-            data.qrCodes.map((qr: any) => ({
-              qrCodeId: qr.id,
-              url: qr.url,
-              dataUrl: qr.dataUrl,
-              label: qr.label,
-            }))
-          );
-        }
-        setIsFetching(false);
-      });
+    const response = await fetch(`/api/qrcodes?businessId=${businessId}`);
+    const data = await response.json();
+    if (data.qrCodes) {
+      setQrCodes(
+        data.qrCodes.map((qr: any) => ({
+          qrCodeId: qr.id,
+          url: qr.url,
+          dataUrl: qr.dataUrl,
+          label: qr.label,
+        }))
+      );
+    }
+    setIsFetching(false);
   }, [businessId]);
 
+  React.useEffect(() => {
+    if (!businessId) return;
+    void fetchQrCodes();
+  }, [fetchQrCodes, businessId]);
+
   const handleGenerate = async () => {
+    if (!businessId) return;
     setIsLoading(true);
     const result = await generateQrCodeAction(businessId, label || undefined);
 
-    if (result.success && result.dataUrl) {
-      setQrCodes((prev) => [
-        {
-          qrCodeId: result.qrCodeId!,
-          url: result.url!,
-          dataUrl: result.dataUrl!,
-          label: label || undefined,
-        },
-        ...prev,
-      ]);
+    if (result.success) {
+      await fetchQrCodes();
       setLabel("");
     }
     setIsLoading(false);

@@ -3,6 +3,19 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import QRCode from "qrcode";
 
+function normalizeQrPath(value: string) {
+  if (value.startsWith("/")) {
+    return value;
+  }
+
+  try {
+    const parsed = new URL(value);
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return value;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const session = await getSession();
   if (!session) {
@@ -35,7 +48,9 @@ export async function GET(req: NextRequest) {
   // Generate data URLs for existing QR codes
   const qrCodesWithDataUrl = await Promise.all(
     qrCodes.map(async (qr) => {
-      const dataUrl = await QRCode.toDataURL(qr.url, {
+      const url = normalizeQrPath(qr.url);
+      const absoluteUrl = new URL(url, req.nextUrl.origin).toString();
+      const dataUrl = await QRCode.toDataURL(absoluteUrl, {
         width: 400,
         margin: 2,
         color: {
@@ -43,7 +58,7 @@ export async function GET(req: NextRequest) {
           light: "#ffffff",
         },
       });
-      return { ...qr, dataUrl };
+      return { ...qr, url, dataUrl };
     })
   );
 

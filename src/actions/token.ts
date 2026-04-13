@@ -5,7 +5,6 @@ import { requireBusinessAccess } from "@/lib/session";
 import { tokenGenerationSchema } from "@/lib/validations";
 import { generateToken } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
-import QRCode from "qrcode";
 
 interface TokenResult {
   success: boolean;
@@ -73,7 +72,7 @@ export async function generateTokensAction(
 export async function generateQrCodeAction(
   businessId: string,
   label?: string
-): Promise<{ success: boolean; qrCodeId?: string; url?: string; dataUrl?: string; error?: string }> {
+): Promise<{ success: boolean; qrCodeId?: string; url?: string; error?: string }> {
   const session = await requireBusinessAccess(businessId);
 
   const business = await db.business.findUnique({
@@ -84,18 +83,7 @@ export async function generateQrCodeAction(
     return { success: false, error: "Business introuvable" };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const url = `${appUrl}/r/${business.slug}/review`;
-
-  const dataUrl = await QRCode.toDataURL(url, {
-    width: 512,
-    margin: 2,
-    color: {
-      dark: "#0f172a",
-      light: "#ffffff",
-    },
-    errorCorrectionLevel: "H",
-  });
+  const url = `/r/${business.slug}/review`;
 
   const qr = await db.qrCode.create({
     data: {
@@ -113,5 +101,5 @@ export async function generateQrCodeAction(
     metadata: { businessId, url },
   });
 
-  return { success: true, qrCodeId: qr.id, url, dataUrl };
+  return { success: true, qrCodeId: qr.id, url };
 }
