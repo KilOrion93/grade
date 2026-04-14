@@ -46,10 +46,11 @@ export async function GET(req: NextRequest) {
   });
 
   // Generate data URLs for existing QR codes
+  const baseUrl = req.nextUrl.origin;
   const qrCodesWithDataUrl = await Promise.all(
     qrCodes.map(async (qr) => {
       const url = normalizeQrPath(qr.url);
-      const absoluteUrl = new URL(url, req.nextUrl.origin).toString();
+      const absoluteUrl = new URL(url, baseUrl).toString();
       const dataUrl = await QRCode.toDataURL(absoluteUrl, {
         width: 400,
         margin: 2,
