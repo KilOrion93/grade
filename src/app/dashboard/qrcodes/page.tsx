@@ -5,6 +5,7 @@ import { useBusinessId } from "@/components/dashboard/shell";
 import { Button, Card, EmptyState } from "@/components/ui";
 import { generateQrCodeAction } from "@/actions/token";
 import { QrCode, Download, Plus } from "lucide-react";
+import QRCode from "qrcode";
 
 interface GeneratedQr {
   qrCodeId: string;
@@ -20,23 +21,38 @@ export default function QrCodesPage() {
   const [label, setLabel] = useState("");
   const [isFetching, setIsFetching] = useState(true);
 
+  const createQrDataUrl = React.useCallback(async (url: string) => {
+    const absoluteUrl = new URL(url, window.location.origin).toString();
+
+    return QRCode.toDataURL(absoluteUrl, {
+      width: 400,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    });
+  }, []);
+
   const fetchQrCodes = React.useCallback(async () => {
     if (!businessId) return;
     setIsFetching(true);
     const response = await fetch(`/api/qrcodes?businessId=${businessId}`);
     const data = await response.json();
     if (data.qrCodes) {
-      setQrCodes(
-        data.qrCodes.map((qr: any) => ({
+      const normalizedQrCodes = await Promise.all(
+        data.qrCodes.map(async (qr: any) => ({
           qrCodeId: qr.id,
           url: qr.url,
-          dataUrl: qr.dataUrl,
+          dataUrl: await createQrDataUrl(qr.url),
           label: qr.label,
         }))
       );
+
+      setQrCodes(normalizedQrCodes);
     }
     setIsFetching(false);
-  }, [businessId]);
+  }, [businessId, createQrDataUrl]);
 
   React.useEffect(() => {
     if (!businessId) return;

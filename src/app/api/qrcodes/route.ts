@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import QRCode from "qrcode";
 
 function normalizeQrPath(value: string) {
   if (value.startsWith("/")) {
@@ -45,26 +44,10 @@ export async function GET(req: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  // Generate data URLs for existing QR codes
-  // Use forwarded headers to detect real public URL on Render/proxy
-  const protocol = req.headers.get("x-forwarded-proto") || "http";
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || req.nextUrl.host;
-  const baseUrl = `${protocol}://${host}`;
-  const qrCodesWithDataUrl = await Promise.all(
-    qrCodes.map(async (qr) => {
-      const url = normalizeQrPath(qr.url);
-      const absoluteUrl = new URL(url, baseUrl).toString();
-      const dataUrl = await QRCode.toDataURL(absoluteUrl, {
-        width: 400,
-        margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#ffffff",
-        },
-      });
-      return { ...qr, url, dataUrl };
-    })
-  );
+  const normalizedQrCodes = qrCodes.map((qr) => ({
+    ...qr,
+    url: normalizeQrPath(qr.url),
+  }));
 
-  return NextResponse.json({ qrCodes: qrCodesWithDataUrl });
+  return NextResponse.json({ qrCodes: normalizedQrCodes });
 }
