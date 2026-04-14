@@ -10,7 +10,8 @@ import QRCode from "qrcode";
 interface GeneratedQr {
   qrCodeId: string;
   url: string;
-  dataUrl: string;
+  previewDataUrl: string;
+  downloadDataUrl: string;
   label?: string;
 }
 
@@ -21,17 +22,34 @@ export default function QrCodesPage() {
   const [label, setLabel] = useState("");
   const [isFetching, setIsFetching] = useState(true);
 
-  const createQrDataUrl = React.useCallback(async (url: string) => {
+  const createQrAssets = React.useCallback(async (url: string) => {
     const absoluteUrl = new URL(url, window.location.origin).toString();
 
-    return QRCode.toDataURL(absoluteUrl, {
-      width: 400,
+    const previewCanvas = document.createElement("canvas");
+    await QRCode.toCanvas(previewCanvas, absoluteUrl, {
+      width: 320,
       margin: 2,
       color: {
         dark: "#000000",
         light: "#ffffff",
       },
     });
+
+    const previewDataUrl = previewCanvas.toDataURL("image/png");
+
+    const downloadCanvas = document.createElement("canvas");
+    await QRCode.toCanvas(downloadCanvas, absoluteUrl, {
+      width: 1024,
+      margin: 2,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    });
+
+    const downloadDataUrl = downloadCanvas.toDataURL("image/png");
+
+    return { previewDataUrl, downloadDataUrl };
   }, []);
 
   const fetchQrCodes = React.useCallback(async () => {
@@ -42,9 +60,9 @@ export default function QrCodesPage() {
     if (data.qrCodes) {
       const normalizedQrCodes = await Promise.all(
         data.qrCodes.map(async (qr: any) => ({
+          ...(await createQrAssets(qr.url)),
           qrCodeId: qr.id,
           url: qr.url,
-          dataUrl: await createQrDataUrl(qr.url),
           label: qr.label,
         }))
       );
@@ -52,7 +70,7 @@ export default function QrCodesPage() {
       setQrCodes(normalizedQrCodes);
     }
     setIsFetching(false);
-  }, [businessId, createQrDataUrl]);
+  }, [businessId, createQrAssets]);
 
   React.useEffect(() => {
     if (!businessId) return;
@@ -126,9 +144,10 @@ export default function QrCodesPage() {
               <div className="flex flex-col items-center gap-3">
                 <div className="p-3 bg-white rounded-xl shadow-inner">
                   <img
-                    src={qr.dataUrl}
+                    src={qr.previewDataUrl}
                     alt="QR Code"
                     className="w-40 h-40"
+                    style={{ imageRendering: "pixelated" }}
                   />
                 </div>
                 {qr.label && (
@@ -141,7 +160,7 @@ export default function QrCodesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    downloadQr(qr.dataUrl, qr.label ? qr.label : qr.qrCodeId.slice(-6))
+                    downloadQr(qr.downloadDataUrl, qr.label ? qr.label : qr.qrCodeId.slice(-6))
                   }
                 >
                   <Download className="w-4 h-4" />
