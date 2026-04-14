@@ -46,7 +46,10 @@ export async function GET(req: NextRequest) {
   });
 
   // Generate data URLs for existing QR codes
-  const baseUrl = req.nextUrl.origin;
+  // Use forwarded headers to detect real public URL on Render/proxy
+  const protocol = req.headers.get("x-forwarded-proto") || "http";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || req.nextUrl.host;
+  const baseUrl = `${protocol}://${host}`;
   const qrCodesWithDataUrl = await Promise.all(
     qrCodes.map(async (qr) => {
       const url = normalizeQrPath(qr.url);
