@@ -36,6 +36,8 @@ model Business {
   updatedAt      DateTime          @updatedAt
   subscriptionId String?           @unique
   description    String?
+  city           String?
+  citySlug       String?
   qrCodes        QrCode[]
   subscription   Subscription?     @relation(fields: [subscriptionId], references: [id])
   reviews        Review[]
@@ -181,6 +183,36 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model BusinessListing {
+  id         String        @id @default(cuid())
+  name       String
+  slug       String
+  city       String
+  citySlug   String
+  address    String?
+  phone      String?
+  website    String?
+  category   String?
+  source     ListingSource
+  externalId String
+  lat        Float?
+  lng        Float?
+  country    String        @default("FR")
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([source, externalId])
+  @@unique([citySlug, slug])
+  @@index([citySlug])
+  @@map("business_listings")
+}
+
+enum ListingSource {
+  OSM
+  SIRENE
+  MANUAL
 }
 
 enum UserRole {
