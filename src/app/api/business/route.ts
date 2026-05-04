@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/session";
+import { extractCityFromAddress } from "@/lib/slug-utils";
 
 export async function GET(req: NextRequest) {
   try {
@@ -61,6 +62,8 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    const cityInfo = address ? extractCityFromAddress(address) : null
+
     const business = await db.business.update({
       where: { id },
       data: {
@@ -69,6 +72,7 @@ export async function PATCH(req: NextRequest) {
         ...(description !== undefined && { description }),
         ...(phone !== undefined && { phone }),
         ...(website !== undefined && { website }),
+        ...(cityInfo ? { city: cityInfo.city, citySlug: cityInfo.citySlug } : {}),
       },
     });
 

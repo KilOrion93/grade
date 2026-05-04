@@ -88,6 +88,8 @@ async function main() {
       address: "42 rue de la Paix, 75002 Paris",
       phone: "01 42 68 12 34",
       website: "https://lebistrotparisien.fr",
+      city: "Paris",
+      citySlug: "paris",
     },
   });
 
@@ -97,6 +99,8 @@ async function main() {
       slug: "sushi-zen",
       address: "15 rue du Temple, 75003 Paris",
       phone: "01 45 78 90 12",
+      city: "Paris",
+      citySlug: "paris",
     },
   });
 

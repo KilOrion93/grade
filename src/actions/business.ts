@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
+import { extractCityFromAddress } from "@/lib/slug-utils";
 import { z } from "zod";
 
 const createBusinessSchema = z.object({
@@ -33,6 +34,8 @@ export async function createBusinessAction(data: z.infer<typeof createBusinessSc
   }
 
   try {
+    const cityInfo = extractCityFromAddress(parsed.data.address)
+
     const business = await db.business.create({
       data: {
         name: parsed.data.name,
@@ -40,6 +43,7 @@ export async function createBusinessAction(data: z.infer<typeof createBusinessSc
         description: parsed.data.description,
         slug: uniqueSlug,
         isActive: true,
+        ...(cityInfo ? { city: cityInfo.city, citySlug: cityInfo.citySlug } : {}),
         memberships: {
           create: {
             userId: session.userId,
