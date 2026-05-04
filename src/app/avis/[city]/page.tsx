@@ -11,9 +11,13 @@ interface Props {
 export async function generateMetadata({ params }: Props) {
   const { city } = await params
   const cityDisplay = citySlugToName(city)
+  const BASE = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const url = `${BASE}/avis/${city}`
   return {
     title: `Avis commerces à ${cityDisplay} — Grade`,
     description: `Découvrez les avis vérifiés des commerces à ${cityDisplay}. Restaurants, boulangeries, pharmacies et plus.`,
+    alternates: { canonical: url },
+    openGraph: { title: `Avis commerces à ${cityDisplay}`, description: `Annuaire des avis vérifiés à ${cityDisplay}`, url, siteName: 'Grade', locale: 'fr_FR', type: 'website' },
   }
 }
 

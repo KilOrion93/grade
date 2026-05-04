@@ -61,15 +61,20 @@ export async function generateMetadata({ params }: Props) {
     } : {}),
   }
 
+  const BASE = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const canonicalUrl = `${BASE}/avis/${city}/${slug}`
+
   return {
     title: `Avis ${name} à ${cityDisplay} — Grade`,
     description: `Consultez les avis authentiques et vérifiés pour ${name} à ${cityDisplay}. Témoignages certifiés par de vrais clients.`,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `Avis ${name} à ${cityDisplay}`,
       description: `Avis vérifiés pour ${name} à ${cityDisplay}`,
-    },
-    other: {
-      'script:ld+json': JSON.stringify(structuredData),
+      url: canonicalUrl,
+      siteName: 'Grade',
+      locale: 'fr_FR',
+      type: 'website',
     },
   }
 }
@@ -107,18 +112,48 @@ export default async function AvisPage({ params }: Props) {
     },
   })
 
+  const BASE = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+  const localBusinessLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name,
+    url: `${BASE}/avis/${city}/${slug}`,
+    ...(address ? { address: { '@type': 'PostalAddress', streetAddress: address, addressLocality: cityDisplay, addressCountry: 'FR' } } : {}),
+    ...(listing?.lat ? { geo: { '@type': 'GeoCoordinates', latitude: listing.lat, longitude: listing.lng } } : {}),
+    ...(business?.phone || listing?.phone ? { telephone: business?.phone ?? listing?.phone } : {}),
+    ...(business?.website || listing?.website ? { url: business?.website ?? listing?.website } : {}),
+    ...(type === 'customer' && business!.reviews.length > 0 ? {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: (business!.reviews.reduce((s, r) => s + r.overallScore, 0) / business!.reviews.length).toFixed(1),
+        reviewCount: business!.reviews.length,
+        bestRating: '5',
+        worstRating: '1',
+      },
+    } : {}),
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: BASE },
+      { '@type': 'ListItem', position: 2, name: 'Avis', item: `${BASE}/avis` },
+      { '@type': 'ListItem', position: 3, name: cityDisplay, item: `${BASE}/avis/${city}` },
+      { '@type': 'ListItem', position: 4, name, item: `${BASE}/avis/${city}/${slug}` },
+    ],
+  }
+
   return (
     <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'LocalBusiness',
-            name,
-            ...(address ? { address: { '@type': 'PostalAddress', streetAddress: address, addressLocality: cityDisplay } } : {}),
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
