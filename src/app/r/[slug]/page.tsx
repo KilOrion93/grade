@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, Info } from "lucide-react";
@@ -30,6 +30,10 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
 
   if (!business || !business.isActive) {
     notFound();
+  }
+
+  if ((business as any).citySlug) {
+    redirect(`/avis/${(business as any).citySlug}/${business.slug}`)
   }
 
   const reviews = await db.review.findMany({

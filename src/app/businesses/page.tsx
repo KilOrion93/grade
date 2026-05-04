@@ -65,7 +65,7 @@ export default async function BusinessesPage() {
               return (
                 <Link
                   key={business.id}
-                  href={`/r/${business.slug}`}
+                  href={(business as any).citySlug ? `/avis/${(business as any).citySlug}/${business.slug}` : `/r/${business.slug}`}
                   className="group rounded-[var(--radius-2xl)] border border-[var(--color-border)] bg-white p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
                 >
                   <div className="flex items-start justify-between gap-4 mb-5">
