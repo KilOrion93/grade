@@ -4,7 +4,7 @@ import { fetchSIRENEBusinesses } from '@/lib/sirene'
 import { generateBusinessSlug } from '@/lib/slug-utils'
 import { ListingSource } from '@prisma/client'
 
-const INGESTION_THRESHOLD = 10
+const INGESTION_THRESHOLD = 50
 
 export async function shouldIngestCity(citySlug: string): Promise<boolean> {
   const count = await db.businessListing.count({ where: { citySlug } })

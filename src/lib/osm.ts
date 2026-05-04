@@ -9,7 +9,7 @@ export interface OSMBusiness {
   lng?: number
 }
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
+const OVERPASS_URL = 'https://overpass.kumi.systems/api/interpreter'
 
 function formatOSMAddress(tags: Record<string, string>): string | undefined {
   const parts = [
@@ -36,7 +36,7 @@ function inferCategory(tags: Record<string, string>): string {
 
 export async function fetchOSMBusinesses(
   cityName: string,
-  limit = 200
+  limit = 50
 ): Promise<OSMBusiness[]> {
   const query = `
 [out:json][timeout:30];
@@ -52,7 +52,11 @@ out center ${limit};
   try {
     const res = await fetch(OVERPASS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
+        'User-Agent': 'Grade/1.0 (grade.app)',
+      },
       body: `data=${encodeURIComponent(query)}`,
       next: { revalidate: 3600 },
     })
