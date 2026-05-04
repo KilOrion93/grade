@@ -5,30 +5,9 @@ import { logAudit } from "@/lib/audit";
 
 const defaultPlans = [
   {
-    name: "Starter",
-    price: 0,
-    maxBusinesses: 1,
-    maxTokensPerMonth: 50,
-    hasAnalytics: true,
-    hasAiSummary: false,
-    hasPosIntegration: false,
-    hasDedicatedApi: false,
-    hasPrioritySupport: false,
-  },
-  {
     name: "Pro",
     price: 29,
-    maxBusinesses: 3,
-    maxTokensPerMonth: 500,
-    hasAnalytics: true,
-    hasAiSummary: true,
-    hasPosIntegration: false,
-    hasDedicatedApi: false,
-    hasPrioritySupport: true,
-  },
-  {
-    name: "Enterprise",
-    price: 99,
+    stripePriceId: null,
     maxBusinesses: -1,
     maxTokensPerMonth: -1,
     hasAnalytics: true,
@@ -36,7 +15,7 @@ const defaultPlans = [
     hasPosIntegration: true,
     hasDedicatedApi: true,
     hasPrioritySupport: true,
-  }
+  },
 ];
 
 // GET /api/admin/plans
@@ -74,6 +53,7 @@ export async function PATCH(req: NextRequest) {
       id, 
       name, 
       price, 
+      stripePriceId,
       maxBusinesses, 
       maxTokensPerMonth, 
       hasAiSummary, 
@@ -92,6 +72,7 @@ export async function PATCH(req: NextRequest) {
       data: { 
         name, 
         price: parseFloat(price), 
+        stripePriceId: stripePriceId || null,
         maxBusinesses: parseInt(maxBusinesses),
         maxTokensPerMonth: parseInt(maxTokensPerMonth),
         hasAiSummary: !!hasAiSummary,
@@ -117,6 +98,44 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
+// DELETE /api/admin/plans
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await requireAdmin();
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID requis" }, { status: 400 });
+    }
+
+    const activeSubscriptions = await db.subscription.count({
+      where: { planId: id, status: "active" },
+    });
+
+    if (activeSubscriptions > 0) {
+      return NextResponse.json(
+        { error: `Impossible de supprimer : ${activeSubscriptions} abonnement(s) actif(s) sur ce plan.` },
+        { status: 409 }
+      );
+    }
+
+    await db.subscriptionPlan.delete({ where: { id } });
+
+    await logAudit({
+      userId: session.userId,
+      action: "plan.delete",
+      entity: "subscriptionPlan",
+      entityId: id,
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur serveur";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 // POST /api/admin/plans
 export async function POST(req: NextRequest) {
   try {
@@ -125,6 +144,7 @@ export async function POST(req: NextRequest) {
     const { 
       name, 
       price, 
+      stripePriceId,
       maxBusinesses, 
       maxTokensPerMonth, 
       hasAiSummary, 
@@ -138,6 +158,7 @@ export async function POST(req: NextRequest) {
       data: { 
         name, 
         price: parseFloat(price), 
+        stripePriceId: stripePriceId || null,
         maxBusinesses: parseInt(maxBusinesses),
         maxTokensPerMonth: parseInt(maxTokensPerMonth),
         hasAiSummary: !!hasAiSummary,

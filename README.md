@@ -24,13 +24,17 @@ npm install
 
 ### 2. Configuration
 
-Créez/modifiez le fichier `.env` à la racine :
+Créez/modifiez le fichier `.env` à la racine à partir de `.env.example` :
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/trustreview?schema=public"
 JWT_SECRET="changez-cette-cle-en-production-minimum-32-caracteres"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_NAME="TrustReview"
+APP_URL="http://localhost:3000"
+STRIPE_SECRET_KEY="sk_test_xxxxxxxxxxxxxxxxxxxxx"
+STRIPE_WEBHOOK_SECRET="whsec_xxxxxxxxxxxxxxxxxxxxx"
+STRIPE_PRICE_PRO="price_xxxxxxxxxxxxxxxxxxxxx"
+STRIPE_PRICE_ENTERPRISE="price_xxxxxxxxxxxxxxxxxxxxx"
 ```
 
 ### 3. Base de données
@@ -54,6 +58,24 @@ npm run dev
 ```
 
 Ouvrir [http://localhost:3000](http://localhost:3000)
+
+### 5. Test Stripe en sandbox
+
+  1. Créez un compte Stripe et activez le mode test.
+  2. Créez deux prix récurrents mensuels dans Stripe pour `Pro` et `Enterprise`.
+  3. Renseignez `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PRO` et `STRIPE_PRICE_ENTERPRISE` dans `.env`.
+  4. Relancez le seed avec `npm run db:seed` pour injecter automatiquement les `stripePriceId` dans les plans.
+  5. Lancez l'app avec `npm run dev`.
+  6. Depuis le dashboard billing, testez le checkout sur un business de démo qui démarre sans abonnement Stripe.
+  7. Ouvrez ensuite le portail client Stripe après un checkout réussi.
+
+Exemple Stripe CLI pour les webhooks locaux :
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+Carte de test Stripe : `4242 4242 4242 4242`
 
 ---
 
@@ -231,10 +253,10 @@ grade/
 - [x] Pseudonymisation IP
 - [x] Journalisation d'audit
 - [x] Seed de démonstration complet
+- [x] Intégration Stripe business en mode test
 
 ## 🔮 Préparé pour le futur
 
-- [ ] Intégration Stripe (tables prêtes)
 - [ ] Résumé IA des avis
 - [ ] Détection de thèmes récurrents
 - [ ] Intégration POS/caisse

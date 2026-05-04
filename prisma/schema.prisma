@@ -34,7 +34,7 @@ model Business {
   isActive       Boolean           @default(true)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  subscriptionId String?
+  subscriptionId String?           @unique
   description    String?
   qrCodes        QrCode[]
   subscription   Subscription?     @relation(fields: [subscriptionId], references: [id])
@@ -134,6 +134,7 @@ model SubscriptionPlan {
   id                String         @id @default(cuid())
   name              String
   price             Float
+  stripePriceId     String?
   maxBusinesses     Int            @default(1)
   maxTokensPerMonth Int            @default(50)
   hasAiSummary      Boolean        @default(false)
@@ -148,13 +149,21 @@ model SubscriptionPlan {
 }
 
 model Subscription {
-  id        String           @id @default(cuid())
-  planId    String
-  status    String           @default("active")
-  startDate DateTime         @default(now())
-  endDate   DateTime?
-  businesses Business[]
-  plan      SubscriptionPlan @relation(fields: [planId], references: [id])
+  id                    String           @id @default(cuid())
+  planId                String
+  status                String           @default("active")
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?          @unique
+  stripePriceId         String?
+  stripeCheckoutSessionId String?
+  cancelAtPeriodEnd     Boolean          @default(false)
+  currentPeriodEnd      DateTime?
+  startDate             DateTime         @default(now())
+  endDate               DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  business              Business?
+  plan                  SubscriptionPlan @relation(fields: [planId], references: [id])
 
   @@map("subscriptions")
 }

@@ -15,6 +15,7 @@ type AuditAction =
   | "qrcode.create"
   | "plan.create"
   | "plan.update"
+  | "plan.delete"
   | "subscription.update";
 
 export async function logAudit(params: {

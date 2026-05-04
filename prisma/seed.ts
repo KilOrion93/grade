@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -21,39 +22,12 @@ async function main() {
 
   console.log("✅ Cleaned existing data");
 
-  // Create subscription plans (using new structured schema)
-  const starterPlan = await prisma.subscriptionPlan.create({
-    data: {
-      name: "Starter",
-      price: 0,
-      maxBusinesses: 1,
-      maxTokensPerMonth: 50,
-      hasAnalytics: true,
-      hasAiSummary: false,
-      hasPosIntegration: false,
-      hasDedicatedApi: false,
-      hasPrioritySupport: false,
-    },
-  });
-
+  // Single plan: Pro at 29€/month, everything included
   const proPlan = await prisma.subscriptionPlan.create({
     data: {
       name: "Pro",
       price: 29,
-      maxBusinesses: 3,
-      maxTokensPerMonth: 500,
-      hasAnalytics: true,
-      hasAiSummary: true,
-      hasPosIntegration: false,
-      hasDedicatedApi: false,
-      hasPrioritySupport: true,
-    },
-  });
-
-  await prisma.subscriptionPlan.create({
-    data: {
-      name: "Enterprise",
-      price: 99,
+      stripePriceId: process.env.STRIPE_PRICE_PRO || null,
       maxBusinesses: -1,
       maxTokensPerMonth: -1,
       hasAnalytics: true,
@@ -64,7 +38,8 @@ async function main() {
     },
   });
 
-  console.log("✅ Created structured subscription plans");
+  console.log("✅ Created subscription plan: Pro 29€/mois");
+  console.log(`   - Stripe Price ID: ${proPlan.stripePriceId || "not configured (set STRIPE_PRICE_PRO)"}`);
 
   // Create admin user
   const adminHash = await bcrypt.hash("admin123", 12);
@@ -105,15 +80,6 @@ async function main() {
 
   console.log("✅ Created owner: pierre@sushi-zen.fr / owner123");
 
-  // Create subscription
-  const subscription = await prisma.subscription.create({
-    data: {
-      planId: proPlan.id,
-      status: "active",
-      startDate: new Date(),
-    },
-  });
-
   // Create businesses
   const bistrot = await prisma.business.create({
     data: {
@@ -122,7 +88,6 @@ async function main() {
       address: "42 rue de la Paix, 75002 Paris",
       phone: "01 42 68 12 34",
       website: "https://lebistrotparisien.fr",
-      subscriptionId: subscription.id,
     },
   });
 
