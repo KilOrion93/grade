@@ -9,7 +9,6 @@ export interface OSMBusiness {
   lng?: number
 }
 
-// Mirrors tried in order — first success wins
 const OVERPASS_MIRRORS = [
   'https://overpass.kumi.systems/api/interpreter',
   'https://overpass.openstreetmap.fr/api/interpreter',
@@ -61,44 +60,74 @@ async function fetchFromMirror(url: string, query: string): Promise<any[] | null
   }
 }
 
-export async function fetchOSMBusinesses(
-  cityName: string,
-  limit = 50
-): Promise<OSMBusiness[]> {
-  // admin_level 8 = French communes. Use union with boundary=administrative
-  // as fallback to catch cities with non-standard admin levels (e.g. Paris = 6+8)
-  const query = `
-[out:json][timeout:50];
+// Split into 3 focused queries to avoid timeout and get real coverage
+const CATEGORY_QUERIES = (cityName: string, limit: number) => [
+  // Food & drink
+  `[out:json][timeout:60];
+(area["name"="${cityName}"]["admin_level"="8"]->.a;area["name"="${cityName}"]["admin_level"="6"]->.a;);
+(nwr["name"]["amenity"~"restaurant|cafe|bar|fast_food|brasserie|bistro"](area.a););
+out center ${limit};`,
+
+  // Shops & services
+  `[out:json][timeout:60];
+(area["name"="${cityName}"]["admin_level"="8"]->.a;area["name"="${cityName}"]["admin_level"="6"]->.a;);
+(nwr["name"]["shop"](area.a););
+out center ${limit};`,
+
+  // Health, accommodation & auto
+  `[out:json][timeout:60];
+(area["name"="${cityName}"]["admin_level"="8"]->.a;area["name"="${cityName}"]["admin_level"="6"]->.a;);
 (
-  area["name"="${cityName}"]["admin_level"="8"]->.a;
-  area["name"="${cityName}"]["admin_level"="6"]->.a;
-);
-(
-  nwr["name"]["shop"](area.a);
-  nwr["name"]["amenity"~"restaurant|cafe|bar|pharmacy|doctors|dentist|car_repair"](area.a);
+  nwr["name"]["amenity"~"pharmacy|doctors|dentist|car_repair|hospital|veterinary"](area.a);
   nwr["name"]["tourism"="hotel"](area.a);
 );
-out center ${limit};
-`
+out center ${limit};`,
+]
 
-  for (const mirror of OVERPASS_MIRRORS) {
-    const elements = await fetchFromMirror(mirror, query)
-    if (elements && elements.length > 0) {
-      return elements
-        .filter(el => el.tags?.name)
-        .map(el => ({
-          externalId: `${el.id}`,
-          name: el.tags.name as string,
-          address: formatOSMAddress(el.tags),
-          phone: el.tags['contact:phone'] || el.tags.phone,
-          website: el.tags.website || el.tags['contact:website'],
-          category: inferCategory(el.tags),
-          lat: el.lat ?? el.center?.lat,
-          lng: el.lon ?? el.center?.lon,
-        }))
+function elementsToBusinesses(elements: any[]): OSMBusiness[] {
+  return elements
+    .filter(el => el.tags?.name)
+    .map(el => ({
+      externalId: `${el.id}`,
+      name: el.tags.name as string,
+      address: formatOSMAddress(el.tags),
+      phone: el.tags['contact:phone'] || el.tags.phone,
+      website: el.tags.website || el.tags['contact:website'],
+      category: inferCategory(el.tags),
+      lat: el.lat ?? el.center?.lat,
+      lng: el.lon ?? el.center?.lon,
+    }))
+}
+
+export async function fetchOSMBusinesses(
+  cityName: string,
+  limitPerCategory = 500
+): Promise<OSMBusiness[]> {
+  const queries = CATEGORY_QUERIES(cityName, limitPerCategory)
+  const allElements: any[] = []
+
+  for (const query of queries) {
+    let fetched = false
+    for (const mirror of OVERPASS_MIRRORS) {
+      const elements = await fetchFromMirror(mirror, query)
+      if (elements && elements.length >= 0) {
+        allElements.push(...elements)
+        fetched = true
+        break
+      }
+    }
+    if (!fetched) {
+      console.error(`[OSM] all mirrors failed for "${cityName}" (one category batch)`)
     }
   }
 
-  console.error(`[OSM] all mirrors failed for "${cityName}"`)
-  return []
+  // Dedupe by OSM element ID
+  const seen = new Set<string>()
+  const unique = allElements.filter(el => {
+    if (seen.has(`${el.id}`)) return false
+    seen.add(`${el.id}`)
+    return true
+  })
+
+  return elementsToBusinesses(unique)
 }

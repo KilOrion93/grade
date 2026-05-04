@@ -17,24 +17,21 @@ export default async function SearchPage({ searchParams }: Props) {
   const query = q.trim()
   const citySlug = city ? nameToSlug(city) : undefined
 
-  const [businesses, listings] = query.length >= 2
+  const hasQuery = query.length >= 1
+  const hasCity = !!citySlug
+  const nameFilter = hasQuery ? { name: { contains: query, mode: 'insensitive' as const } } : {}
+
+  const [businesses, listings] = (hasQuery || hasCity)
     ? await Promise.all([
         db.business.findMany({
-          where: {
-            name: { contains: query, mode: 'insensitive' },
-            isActive: true,
-            ...(citySlug ? { citySlug } : {}),
-          },
-          take: 10,
+          where: { ...nameFilter, isActive: true, ...(citySlug ? { citySlug } : {}) },
+          take: 50,
           orderBy: { name: 'asc' },
           select: { name: true, slug: true, city: true, citySlug: true, address: true },
         }),
         db.businessListing.findMany({
-          where: {
-            name: { contains: query, mode: 'insensitive' },
-            ...(citySlug ? { citySlug } : {}),
-          },
-          take: 20,
+          where: { ...nameFilter, ...(citySlug ? { citySlug } : {}) },
+          take: 200,
           orderBy: { name: 'asc' },
           select: { name: true, slug: true, city: true, citySlug: true, category: true, address: true },
         }),
@@ -81,8 +78,8 @@ export default async function SearchPage({ searchParams }: Props) {
           </button>
         </form>
 
-        {query.length < 2 ? (
-          <p className="text-center text-[var(--color-text-muted)] py-16">Saisissez au moins 2 caractères pour lancer une recherche.</p>
+        {!hasQuery && !hasCity ? (
+          <p className="text-center text-[var(--color-text-muted)] py-16">Saisissez un nom ou une ville pour rechercher.</p>
         ) : businesses.length === 0 && listings.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <div className="text-4xl">🔍</div>

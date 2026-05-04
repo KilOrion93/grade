@@ -6,29 +6,31 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q')?.trim() || ''
   const city = req.nextUrl.searchParams.get('city')?.trim() || ''
 
-  if (q.length < 2) {
+  // Require either a query term OR a city — bare empty search returns nothing
+  if (q.length < 2 && !city) {
     return NextResponse.json({ results: [] })
   }
 
   const citySlug = city ? nameToSlug(city) : undefined
+  const nameFilter = q.length >= 1 ? { name: { contains: q, mode: 'insensitive' as const } } : {}
 
   const [listings, businesses] = await Promise.all([
     db.businessListing.findMany({
       where: {
-        name: { contains: q, mode: 'insensitive' },
+        ...nameFilter,
         ...(citySlug ? { citySlug } : {}),
       },
-      take: 10,
+      take: 50,
       orderBy: { name: 'asc' },
       select: { name: true, slug: true, city: true, citySlug: true, category: true, address: true },
     }),
     db.business.findMany({
       where: {
-        name: { contains: q, mode: 'insensitive' },
+        ...nameFilter,
         isActive: true,
         ...(citySlug ? { citySlug } : {}),
       },
-      take: 5,
+      take: 20,
       orderBy: { name: 'asc' },
       select: { name: true, slug: true, city: true, citySlug: true },
     }),

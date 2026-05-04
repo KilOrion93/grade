@@ -39,7 +39,7 @@ export default async function CityPage({ params }: Props) {
     db.businessListing.findMany({
       where: { citySlug: city },
       orderBy: { name: 'asc' },
-      take: 100,
+      take: 2000,
     }),
   ])
 
