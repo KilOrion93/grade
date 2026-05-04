@@ -9,7 +9,18 @@ export interface OSMBusiness {
   lng?: number
 }
 
-const OVERPASS_URL = 'https://overpass.kumi.systems/api/interpreter'
+// Mirrors tried in order — first success wins
+const OVERPASS_MIRRORS = [
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.openstreetmap.fr/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+]
+
+const HEADERS = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'Accept': 'application/json',
+  'User-Agent': 'Grade/1.0 (grade.app)',
+}
 
 function formatOSMAddress(tags: Record<string, string>): string | undefined {
   const parts = [
@@ -34,54 +45,60 @@ function inferCategory(tags: Record<string, string>): string {
   return mapping[shop] || mapping[amenity] || mapping[tourism] || shop || amenity || tourism || 'commerce'
 }
 
+async function fetchFromMirror(url: string, query: string): Promise<any[] | null> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: HEADERS,
+      body: `data=${encodeURIComponent(query)}`,
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.elements ?? null
+  } catch {
+    return null
+  }
+}
+
 export async function fetchOSMBusinesses(
   cityName: string,
   limit = 50
 ): Promise<OSMBusiness[]> {
+  // admin_level 8 = French communes. Use union with boundary=administrative
+  // as fallback to catch cities with non-standard admin levels (e.g. Paris = 6+8)
   const query = `
-[out:json][timeout:30];
-area["name"="${cityName}"]["admin_level"~"6|7|8"]->.searchArea;
+[out:json][timeout:50];
 (
-  nwr["name"]["shop"](area.searchArea);
-  nwr["name"]["amenity"~"restaurant|cafe|bar|pharmacy|doctors|dentist|car_repair"](area.searchArea);
-  nwr["name"]["tourism"="hotel"](area.searchArea);
+  area["name"="${cityName}"]["admin_level"="8"]->.a;
+  area["name"="${cityName}"]["admin_level"="6"]->.a;
+);
+(
+  nwr["name"]["shop"](area.a);
+  nwr["name"]["amenity"~"restaurant|cafe|bar|pharmacy|doctors|dentist|car_repair"](area.a);
+  nwr["name"]["tourism"="hotel"](area.a);
 );
 out center ${limit};
 `
 
-  try {
-    const res = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'User-Agent': 'Grade/1.0 (grade.app)',
-      },
-      body: `data=${encodeURIComponent(query)}`,
-      next: { revalidate: 3600 },
-    })
-
-    if (!res.ok) {
-      console.error(`[OSM] fetch failed for "${cityName}": ${res.status}`)
-      return []
+  for (const mirror of OVERPASS_MIRRORS) {
+    const elements = await fetchFromMirror(mirror, query)
+    if (elements && elements.length > 0) {
+      return elements
+        .filter(el => el.tags?.name)
+        .map(el => ({
+          externalId: `${el.id}`,
+          name: el.tags.name as string,
+          address: formatOSMAddress(el.tags),
+          phone: el.tags['contact:phone'] || el.tags.phone,
+          website: el.tags.website || el.tags['contact:website'],
+          category: inferCategory(el.tags),
+          lat: el.lat ?? el.center?.lat,
+          lng: el.lon ?? el.center?.lon,
+        }))
     }
-
-    const data = await res.json()
-
-    return (data.elements as any[])
-      .filter(el => el.tags?.name)
-      .map(el => ({
-        externalId: `${el.id}`,
-        name: el.tags.name as string,
-        address: formatOSMAddress(el.tags),
-        phone: el.tags['contact:phone'] || el.tags.phone,
-        website: el.tags.website || el.tags['contact:website'],
-        category: inferCategory(el.tags),
-        lat: el.lat ?? el.center?.lat,
-        lng: el.lon ?? el.center?.lon,
-      }))
-  } catch (err) {
-    console.error(`[OSM] error for "${cityName}":`, err)
-    return []
   }
+
+  console.error(`[OSM] all mirrors failed for "${cityName}"`)
+  return []
 }

@@ -1,6 +1,5 @@
 import { db } from '@/lib/db'
 import { fetchOSMBusinesses } from '@/lib/osm'
-import { fetchSIRENEBusinesses } from '@/lib/sirene'
 import { generateBusinessSlug } from '@/lib/slug-utils'
 import { ListingSource } from '@prisma/client'
 
@@ -53,10 +52,7 @@ async function upsertListing(data: {
 
 export async function ingestCity(cityName: string, citySlug: string): Promise<void> {
   try {
-    const [osmResults, sireneResults] = await Promise.all([
-      fetchOSMBusinesses(cityName),
-      fetchSIRENEBusinesses(cityName),
-    ])
+    const osmResults = await fetchOSMBusinesses(cityName)
 
     for (const biz of osmResults) {
       if (!biz.name) continue
@@ -69,22 +65,6 @@ export async function ingestCity(cityName: string, citySlug: string): Promise<vo
         website: biz.website,
         category: biz.category,
         source: ListingSource.OSM,
-        externalId: biz.externalId,
-        lat: biz.lat,
-        lng: biz.lng,
-        country: 'FR',
-      })
-    }
-
-    for (const biz of sireneResults) {
-      if (!biz.name) continue
-      await upsertListing({
-        name: biz.name,
-        city: biz.city || cityName,
-        citySlug,
-        address: biz.address,
-        category: biz.category,
-        source: ListingSource.SIRENE,
         externalId: biz.externalId,
         lat: biz.lat,
         lng: biz.lng,
