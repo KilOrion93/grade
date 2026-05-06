@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { requireBusinessAccess } from "@/lib/session";
+import { requireBusinessAccess, requireActiveSubscription } from "@/lib/session";
 import { tokenGenerationSchema } from "@/lib/validations";
 import { generateToken } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
@@ -23,6 +23,30 @@ export async function generateTokensAction(
   const { businessId, count, expiresInHours } = parsed.data;
 
   const session = await requireBusinessAccess(businessId);
+
+  // Require active subscription
+  const { plan } = await requireActiveSubscription(businessId);
+
+  // Enforce monthly token limit
+  if (plan.maxTokensPerMonth !== -1) {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const monthlyCount = await db.visitToken.count({
+      where: {
+        businessId,
+        createdAt: { gte: startOfMonth },
+      },
+    });
+
+    if (monthlyCount + count > plan.maxTokensPerMonth) {
+      return {
+        success: false,
+        error: `Limite mensuelle atteinte. Votre plan autorise ${plan.maxTokensPerMonth} tokens / mois (${monthlyCount} déjà générés).`,
+      };
+    }
+  }
 
   const expiresAt = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
 
@@ -74,6 +98,8 @@ export async function generateQrCodeAction(
   label?: string
 ): Promise<{ success: boolean; qrCodeId?: string; url?: string; error?: string }> {
   const session = await requireBusinessAccess(businessId);
+
+  await requireActiveSubscription(businessId);
 
   const business = await db.business.findUnique({
     where: { id: businessId },

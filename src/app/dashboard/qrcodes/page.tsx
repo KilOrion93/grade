@@ -21,6 +21,7 @@ export default function QrCodesPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [label, setLabel] = useState("");
   const [isFetching, setIsFetching] = useState(true);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const createQrAssets = React.useCallback(async (url: string) => {
     const absoluteUrl = new URL(url, window.location.origin).toString();
@@ -80,11 +81,14 @@ export default function QrCodesPage() {
   const handleGenerate = async () => {
     if (!businessId) return;
     setIsLoading(true);
+    setGenerateError(null);
     const result = await generateQrCodeAction(businessId, label || undefined);
 
     if (result.success) {
       await fetchQrCodes();
       setLabel("");
+    } else if (!result.success && result.error) {
+      setGenerateError(result.error);
     }
     setIsLoading(false);
   };
@@ -125,6 +129,13 @@ export default function QrCodesPage() {
           </Button>
         </div>
       </Card>
+
+      {/* Subscription error */}
+      {generateError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {generateError}
+        </div>
+      )}
 
       {/* Generated QR codes */}
       {isFetching ? (

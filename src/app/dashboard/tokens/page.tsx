@@ -23,6 +23,7 @@ export default function TokensPage() {
   const [count, setCount] = useState(10);
   const [expiry, setExpiry] = useState(48);
   const [copiedToken, setCopiedToken] = useState("");
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const fetchTokens = useCallback(async () => {
     if (!businessId) return;
@@ -43,6 +44,7 @@ export default function TokensPage() {
 
   const handleGenerate = async () => {
     setIsLoading(true);
+    setGenerateError(null);
     const result = await generateTokensAction({
       businessId,
       count,
@@ -53,6 +55,8 @@ export default function TokensPage() {
       setNewTokens(result.tokens.map(t => t.token));
       // Refresh the list
       await fetchTokens();
+    } else if (!result.success && result.error) {
+      setGenerateError(result.error);
     }
     setIsLoading(false);
   };
@@ -123,6 +127,13 @@ export default function TokensPage() {
           </Button>
         </div>
       </Card>
+
+      {/* Subscription / limit error */}
+      {generateError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {generateError}
+        </div>
+      )}
 
       {/* Stats */}
       {!isFetching && existingTokens.length > 0 && (

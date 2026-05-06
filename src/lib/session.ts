@@ -88,3 +88,26 @@ export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 }
+
+export async function requireActiveSubscription(businessId: string) {
+  const { db } = await import("@/lib/db");
+  const business = await db.business.findUnique({
+    where: { id: businessId },
+    include: {
+      subscription: {
+        include: { plan: true },
+      },
+    },
+  });
+
+  if (!business) {
+    throw new Error("Business introuvable");
+  }
+
+  const sub = business.subscription;
+  if (!sub || !["active", "trialing"].includes(sub.status)) {
+    throw new Error("Un abonnement actif est requis pour utiliser cette fonctionnalité");
+  }
+
+  return { subscription: sub, plan: sub.plan };
+}

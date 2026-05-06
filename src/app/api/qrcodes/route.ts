@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { getSession, requireActiveSubscription } from "@/lib/session";
 
 function normalizeQrPath(value: string) {
   if (value.startsWith("/")) {
@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
     if (!membership && session.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    await requireActiveSubscription(businessId);
 
     const qrCodes = await db.qrCode.findMany({
       where: { businessId },

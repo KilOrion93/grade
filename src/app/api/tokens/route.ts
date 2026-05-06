@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/session";
+import { requireSession, requireActiveSubscription } from "@/lib/session";
 
 export async function GET(req: NextRequest) {
   try {
@@ -26,6 +26,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
       }
     }
+
+    await requireActiveSubscription(businessId);
 
     const tokens = await db.visitToken.findMany({
       where: { businessId },
