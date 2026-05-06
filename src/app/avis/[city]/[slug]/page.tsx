@@ -198,10 +198,9 @@ export default async function AvisPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
 
-        {/* Hero zone */}
-        {photos.length > 0 ? (
-          /* With photos: full-bleed grid with overlay */
-          <div className="relative h-60 overflow-hidden">
+        {/* Photo hero — full-bleed only when photos exist */}
+        {photos.length > 0 && (
+          <div className="relative h-64 overflow-hidden">
             <div className={`absolute inset-0 grid h-full w-full ${photos.length === 1 ? 'grid-cols-1' : photos.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {photos.slice(0, 3).map(photo => (
                 <div key={photo.id} className="relative overflow-hidden">
@@ -209,126 +208,66 @@ export default async function AvisPage({ params }: Props) {
                 </div>
               ))}
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            {avgScore && (
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400/90 text-yellow-900 font-black text-sm shadow-lg backdrop-blur-sm">
-                <span>{avgScore}</span>
-                <Star className="w-3.5 h-3.5 fill-current" />
-              </div>
-            )}
-            <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
-              {logoUrl ? (
-                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/50 shadow-lg shrink-0 relative">
-                  <Image src={logoUrl} alt={name} fill className="object-cover" sizes="56px" />
-                </div>
-              ) : (
-                <div className="w-14 h-14 rounded-2xl bg-white border-2 border-white/50 shadow-lg shrink-0 flex items-center justify-center text-2xl font-black text-[var(--color-brand-600)]">
-                  {name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">{name}</h1>
-                <p className="text-white/80 text-sm font-medium flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 shrink-0" />{address || cityDisplay}
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* No photos: clean identity card */
-          <div className="bg-white border-b border-[var(--color-border)] px-4 pt-8 pb-6 text-center">
-            <div className="flex flex-col items-center gap-3">
-              {logoUrl ? (
-                <div className="w-20 h-20 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md relative">
-                  <Image src={logoUrl} alt={name} fill className="object-cover" sizes="80px" />
-                </div>
-              ) : (
-                <div className={`w-20 h-20 rounded-2xl shadow-md flex items-center justify-center text-3xl font-black border ${type === 'customer' ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-600)] border-[var(--color-brand-200)]' : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
-                  {name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-extrabold">{name}</h1>
-                <p className="text-[var(--color-text-secondary)] text-sm flex items-center justify-center gap-1 mt-1">
-                  <MapPin className="w-3.5 h-3.5 text-[var(--color-brand-500)] shrink-0" />{address || cityDisplay}
-                </p>
-              </div>
-              {avgScore && (
-                <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-700 font-black text-lg">
-                  {avgScore} <Star className="w-4 h-4 fill-current" />
-                  <span className="text-sm font-normal text-yellow-600 ml-1">{business!.reviews.length} avis</span>
-                </div>
-              )}
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
           </div>
         )}
 
-        {/* Action row */}
-        <div className="bg-white border-b border-[var(--color-border)] px-4 py-3 flex items-center gap-3 flex-wrap">
-          {type === 'customer' && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              Certifié Grade
-            </div>
-          )}
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              {phone}
-            </a>
-          )}
-          {website && (
-            <a
-              href={website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              Site web
-            </a>
-          )}
-        </div>
-
+        {/* All content constrained to max-w-4xl */}
         <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-6">
 
-          {/* Info cards */}
-          {(address || phone || website || description) && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {(address || phone || website) && (
-                <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)]">
-                  <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Contact</h2>
-                  <div className="space-y-2">
-                    {address && (
-                      <div className="flex items-start gap-2 text-sm text-[var(--color-text-secondary)]">
-                        <MapPin className="w-4 h-4 text-[var(--color-brand-500)] shrink-0 mt-0.5" />
-                        <span>{address}</span>
-                      </div>
-                    )}
-                    {phone && (
-                      <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] transition-colors">
-                        <Phone className="w-4 h-4 text-[var(--color-brand-500)] shrink-0" />
-                        <span>{phone}</span>
-                      </a>
-                    )}
-                    {website && (
-                      <a href={website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] transition-colors">
-                        <Globe className="w-4 h-4 text-[var(--color-brand-500)] shrink-0" />
-                        <span className="truncate">{website.replace(/^https?:\/\//, '')}</span>
-                      </a>
-                    )}
+          {/* Identity card */}
+          <div className={`flex items-start gap-5 p-5 sm:p-6 rounded-2xl border mb-6 ${photos.length > 0 ? 'bg-white border-[var(--color-border)] shadow-sm -mt-10 relative' : 'bg-white border-[var(--color-border)] shadow-sm'}`}>
+            {/* Avatar */}
+            {logoUrl ? (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow shrink-0 relative">
+                <Image src={logoUrl} alt={name} fill className="object-cover" sizes="80px" />
+              </div>
+            ) : (
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl shrink-0 flex items-center justify-center text-2xl sm:text-3xl font-black border shadow ${type === 'customer' ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-600)] border-[var(--color-brand-200)]' : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
+                {name.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            {/* Info */}
+            <div className="flex-1 min-w-0 pt-1">
+              <h1 className="text-xl sm:text-2xl font-extrabold leading-tight">{name}</h1>
+              {(address || cityDisplay) && (
+                <p className="text-[var(--color-text-secondary)] text-sm flex items-center gap-1 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--color-brand-500)] shrink-0" />
+                  {address || cityDisplay}
+                </p>
+              )}
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                {avgScore && (
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-700 font-black text-sm">
+                    {avgScore} <Star className="w-3.5 h-3.5 fill-current" />
+                    <span className="font-normal text-yellow-600">{business!.reviews.length} avis</span>
                   </div>
-                </div>
-              )}
-              {description && (
-                <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)]">
-                  <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">À propos</h2>
-                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{description}</p>
-                </div>
-              )}
+                )}
+                {type === 'customer' && (
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
+                    <CheckCircle2 className="w-3 h-3" /> Certifié Grade
+                  </div>
+                )}
+                {phone && (
+                  <a href={`tel:${phone}`} className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors">
+                    <Phone className="w-3 h-3" /> {phone}
+                  </a>
+                )}
+                {website && (
+                  <a href={website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors">
+                    <Globe className="w-3 h-3" /> Site web
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Description card */}
+          {description && (
+            <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)] mb-6">
+              <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-2">À propos</h2>
+              <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{description}</p>
             </div>
           )}
 
