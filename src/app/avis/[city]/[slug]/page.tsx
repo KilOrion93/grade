@@ -198,56 +198,70 @@ export default async function AvisPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
 
-        {/* Hero zone — full-bleed, outside max-w container */}
-        <div className="relative h-60 overflow-hidden bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-400)]">
-          {/* Photo grid */}
-          {photos.length > 0 && (
+        {/* Hero zone */}
+        {photos.length > 0 ? (
+          /* With photos: full-bleed grid with overlay */
+          <div className="relative h-60 overflow-hidden">
             <div className={`absolute inset-0 grid h-full w-full ${photos.length === 1 ? 'grid-cols-1' : photos.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {photos.slice(0, 3).map(photo => (
                 <div key={photo.id} className="relative overflow-hidden">
-                  <Image
-                    src={photo.url}
-                    alt={name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+                  <Image src={photo.url} alt={name} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
                 </div>
               ))}
             </div>
-          )}
-
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-          {/* Score pill — top right */}
-          {avgScore && (
-            <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400/90 text-yellow-900 font-black text-sm shadow-lg backdrop-blur-sm">
-              <span>{avgScore}</span>
-              <Star className="w-3.5 h-3.5 fill-current" />
-            </div>
-          )}
-
-          {/* Bottom: logo/avatar + name + city */}
-          <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
-            {logoUrl ? (
-              <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/50 shadow-lg shrink-0 relative">
-                <Image src={logoUrl} alt={name} fill className="object-cover" sizes="56px" />
-              </div>
-            ) : (
-              <div className={`w-14 h-14 rounded-2xl border-2 border-white/50 shadow-lg shrink-0 flex items-center justify-center text-2xl font-black ${type === 'customer' ? 'bg-white text-[var(--color-brand-600)]' : 'bg-white/20 text-white'}`}>
-                {name.charAt(0).toUpperCase()}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            {avgScore && (
+              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400/90 text-yellow-900 font-black text-sm shadow-lg backdrop-blur-sm">
+                <span>{avgScore}</span>
+                <Star className="w-3.5 h-3.5 fill-current" />
               </div>
             )}
-            <div className="min-w-0">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">{name}</h1>
-              <p className="text-white/80 text-sm font-medium flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 shrink-0" />
-                {address || cityDisplay}
-              </p>
+            <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
+              {logoUrl ? (
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/50 shadow-lg shrink-0 relative">
+                  <Image src={logoUrl} alt={name} fill className="object-cover" sizes="56px" />
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-2xl bg-white border-2 border-white/50 shadow-lg shrink-0 flex items-center justify-center text-2xl font-black text-[var(--color-brand-600)]">
+                  {name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">{name}</h1>
+                <p className="text-white/80 text-sm font-medium flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 shrink-0" />{address || cityDisplay}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* No photos: clean identity card */
+          <div className="bg-white border-b border-[var(--color-border)] px-4 pt-8 pb-6 text-center">
+            <div className="flex flex-col items-center gap-3">
+              {logoUrl ? (
+                <div className="w-20 h-20 rounded-2xl overflow-hidden border border-[var(--color-border)] shadow-md relative">
+                  <Image src={logoUrl} alt={name} fill className="object-cover" sizes="80px" />
+                </div>
+              ) : (
+                <div className={`w-20 h-20 rounded-2xl shadow-md flex items-center justify-center text-3xl font-black border ${type === 'customer' ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-600)] border-[var(--color-brand-200)]' : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)] border-[var(--color-border)]'}`}>
+                  {name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold">{name}</h1>
+                <p className="text-[var(--color-text-secondary)] text-sm flex items-center justify-center gap-1 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--color-brand-500)] shrink-0" />{address || cityDisplay}
+                </p>
+              </div>
+              {avgScore && (
+                <div className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-yellow-50 border border-yellow-200 text-yellow-700 font-black text-lg">
+                  {avgScore} <Star className="w-4 h-4 fill-current" />
+                  <span className="text-sm font-normal text-yellow-600 ml-1">{business!.reviews.length} avis</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Action row */}
         <div className="bg-white border-b border-[var(--color-border)] px-4 py-3 flex items-center gap-3 flex-wrap">
