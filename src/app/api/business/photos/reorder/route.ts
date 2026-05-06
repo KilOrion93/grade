@@ -23,7 +23,7 @@ export async function PATCH(req: NextRequest) {
 
     await Promise.all(
       photoIds.map((id, index) =>
-        db.businessPhoto.update({ where: { id }, data: { order: index } })
+        db.businessPhoto.update({ where: { id, businessId }, data: { order: index } })
       )
     );
 
