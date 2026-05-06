@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 type AuditAction =
   | "user.login"
   | "user.register"
+  | "user.update"
   | "user.logout"
   | "review.create"
   | "review.moderate"

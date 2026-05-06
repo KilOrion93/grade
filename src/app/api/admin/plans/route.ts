@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
+import { z } from "zod";
 
 const defaultPlans = [
   {
@@ -44,43 +45,42 @@ export async function GET() {
   }
 }
 
+const planBodySchema = z.object({
+  name: z.string().min(1).max(100),
+  price: z.number().min(0),
+  stripePriceId: z.string().max(200).nullable().optional(),
+  maxBusinesses: z.number().int(),
+  maxTokensPerMonth: z.number().int(),
+  hasAiSummary: z.boolean(),
+  hasAnalytics: z.boolean(),
+  hasPosIntegration: z.boolean(),
+  hasDedicatedApi: z.boolean(),
+  hasPrioritySupport: z.boolean(),
+});
+
 // PATCH /api/admin/plans
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
     const body = await req.json();
-    const { 
-      id, 
-      name, 
-      price, 
-      stripePriceId,
-      maxBusinesses, 
-      maxTokensPerMonth, 
-      hasAiSummary, 
-      hasAnalytics, 
-      hasPosIntegration, 
-      hasDedicatedApi, 
-      hasPrioritySupport 
-    } = body;
 
+    const { id } = body;
     if (!id) {
       return NextResponse.json({ error: "ID requis" }, { status: 400 });
     }
 
+    const parsed = planBodySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    }
+
+    const { name, price, stripePriceId, maxBusinesses, maxTokensPerMonth,
+            hasAiSummary, hasAnalytics, hasPosIntegration, hasDedicatedApi, hasPrioritySupport } = parsed.data;
+
     const plan = await db.subscriptionPlan.update({
       where: { id },
-      data: { 
-        name, 
-        price: parseFloat(price), 
-        stripePriceId: stripePriceId || null,
-        maxBusinesses: parseInt(maxBusinesses),
-        maxTokensPerMonth: parseInt(maxTokensPerMonth),
-        hasAiSummary: !!hasAiSummary,
-        hasAnalytics: !!hasAnalytics,
-        hasPosIntegration: !!hasPosIntegration,
-        hasDedicatedApi: !!hasDedicatedApi,
-        hasPrioritySupport: !!hasPrioritySupport
-      }
+      data: { name, price, stripePriceId: stripePriceId ?? null, maxBusinesses, maxTokensPerMonth,
+              hasAiSummary, hasAnalytics, hasPosIntegration, hasDedicatedApi, hasPrioritySupport },
     });
 
     await logAudit({
@@ -88,7 +88,7 @@ export async function PATCH(req: NextRequest) {
       action: "plan.update",
       entity: "subscriptionPlan",
       entityId: id,
-      metadata: { name, price }
+      metadata: { name, price },
     });
 
     return NextResponse.json({ plan });
@@ -141,32 +141,18 @@ export async function POST(req: NextRequest) {
   try {
     const session = await requireAdmin();
     const body = await req.json();
-    const { 
-      name, 
-      price, 
-      stripePriceId,
-      maxBusinesses, 
-      maxTokensPerMonth, 
-      hasAiSummary, 
-      hasAnalytics, 
-      hasPosIntegration, 
-      hasDedicatedApi, 
-      hasPrioritySupport 
-    } = body;
+
+    const parsed = planBodySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    }
+
+    const { name, price, stripePriceId, maxBusinesses, maxTokensPerMonth,
+            hasAiSummary, hasAnalytics, hasPosIntegration, hasDedicatedApi, hasPrioritySupport } = parsed.data;
 
     const plan = await db.subscriptionPlan.create({
-      data: { 
-        name, 
-        price: parseFloat(price), 
-        stripePriceId: stripePriceId || null,
-        maxBusinesses: parseInt(maxBusinesses),
-        maxTokensPerMonth: parseInt(maxTokensPerMonth),
-        hasAiSummary: !!hasAiSummary,
-        hasAnalytics: !!hasAnalytics,
-        hasPosIntegration: !!hasPosIntegration,
-        hasDedicatedApi: !!hasDedicatedApi,
-        hasPrioritySupport: !!hasPrioritySupport
-      }
+      data: { name, price, stripePriceId: stripePriceId ?? null, maxBusinesses, maxTokensPerMonth,
+              hasAiSummary, hasAnalytics, hasPosIntegration, hasDedicatedApi, hasPrioritySupport },
     });
 
     await logAudit({
@@ -174,7 +160,7 @@ export async function POST(req: NextRequest) {
       action: "plan.create",
       entity: "subscriptionPlan",
       entityId: plan.id,
-      metadata: { name, price }
+      metadata: { name, price },
     });
 
     return NextResponse.json({ plan });

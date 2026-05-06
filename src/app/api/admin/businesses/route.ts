@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
+import { z } from "zod";
 
 export async function GET() {
   try {
@@ -25,15 +26,28 @@ export async function GET() {
   }
 }
 
+const patchBusinessSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(200).optional(),
+  address: z.string().max(500).optional(),
+  description: z.string().max(2000).optional(),
+  phone: z.string().max(30).optional(),
+  website: z.string().url().max(500).optional().or(z.literal("")),
+  logoUrl: z.string().url().max(500).optional().or(z.literal("")),
+  isActive: z.boolean().optional(),
+});
+
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
     const body = await req.json();
-    const { id, ...data } = body;
+    const parsed = patchBusinessSchema.safeParse(body);
 
-    if (!id) {
-      return NextResponse.json({ error: "ID requis" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
     }
+
+    const { id, ...data } = parsed.data;
 
     const business = await db.business.update({
       where: { id },

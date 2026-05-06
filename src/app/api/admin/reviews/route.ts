@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
+import { z } from "zod";
 
 export async function GET(req: NextRequest) {
   try {
@@ -57,11 +58,23 @@ export async function GET(req: NextRequest) {
   }
 }
 
+const patchReviewSchema = z.object({
+  id: z.string().min(1),
+  moderationStatus: z.enum(["PENDING", "PUBLISHED", "FLAGGED", "REJECTED"]).optional(),
+  flagReason: z.string().min(1).max(500).optional(),
+});
+
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
     const body = await req.json();
-    const { id, moderationStatus, flagReason } = body;
+    const parsed = patchReviewSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
+    }
+
+    const { id, moderationStatus, flagReason } = parsed.data;
 
     if (!id) {
       return NextResponse.json({ error: "ID requis" }, { status: 400 });

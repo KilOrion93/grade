@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
+import { z } from "zod";
 
 export async function GET() {
   try {
@@ -32,15 +33,24 @@ export async function GET() {
   }
 }
 
+const patchUserSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(100).optional(),
+  role: z.enum(["ADMIN", "OWNER", "MANAGER"]).optional(),
+  isActive: z.boolean().optional(),
+});
+
 export async function PATCH(req: NextRequest) {
   try {
     const session = await requireAdmin();
     const body = await req.json();
-    const { id, ...data } = body;
+    const parsed = patchUserSchema.safeParse(body);
 
-    if (!id) {
-      return NextResponse.json({ error: "ID requis" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Données invalides" }, { status: 400 });
     }
+
+    const { id, ...data } = parsed.data;
 
     const user = await db.user.update({
       where: { id },
@@ -50,7 +60,7 @@ export async function PATCH(req: NextRequest) {
 
     await logAudit({
       userId: session.userId,
-      action: "user.register",
+      action: "user.update",
       entity: "user",
       entityId: id,
       metadata: { action: "admin_update", ...data },
