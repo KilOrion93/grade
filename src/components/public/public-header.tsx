@@ -13,7 +13,7 @@ interface PublicHeaderProps {
 export default function PublicHeader({ breadcrumbs }: PublicHeaderProps) {
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <Image src="/logo.png" alt="Grade" width={32} height={32} />
