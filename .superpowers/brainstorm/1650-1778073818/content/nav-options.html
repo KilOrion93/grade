@@ -1,0 +1,98 @@
+<h2>Public Nav — Which approach?</h2>
+<p class="subtitle">Home page + all public pages (/avis, /businesses, /r/[slug]) currently have inconsistent headers. Pick a direction.</p>
+
+<div class="section">
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:12px 0 4px;font-family:Inter,sans-serif">
+      <nav style="display:flex;align-items:center;justify-content:space-between;background:white;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;background:#2563eb;border-radius:8px"></div>
+          <span style="font-weight:700;font-size:15px">Grade</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <a style="font-size:13px;color:#475569;text-decoration:none">Annuaire</a>
+          <a style="font-size:13px;color:#475569;text-decoration:none">Connexion</a>
+          <a style="font-size:13px;font-weight:600;color:white;background:#2563eb;padding:6px 14px;border-radius:8px;text-decoration:none">Essai gratuit</a>
+        </div>
+      </nav>
+      <div style="padding:20px 24px;background:#f8fafc">
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:8px">BREADCRUMB (on inner pages)</div>
+        <div style="font-size:12px;color:#475569">← Retour · Annuaire · Paris · Bistrot Dupont</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Shared sticky header</h3>
+      <p>One shared <code>&lt;PublicHeader&gt;</code> component used on all public pages. Nav: Logo + Annuaire + Connexion + CTA. Breadcrumb shown on inner pages. Consistent across all routes.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:12px 0 4px;font-family:Inter,sans-serif">
+      <nav style="display:flex;align-items:center;justify-content:space-between;background:white;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;background:#2563eb;border-radius:8px"></div>
+          <span style="font-weight:700;font-size:15px">Grade</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <a style="font-size:13px;color:#475569;text-decoration:none">Comment ça marche</a>
+          <a style="font-size:13px;color:#475569;text-decoration:none">Annuaire</a>
+          <a style="font-size:13px;color:#475569;text-decoration:none">Tarifs</a>
+          <a style="font-size:13px;color:#475569;text-decoration:none">Connexion</a>
+          <a style="font-size:13px;font-weight:600;color:white;background:#2563eb;padding:6px 14px;border-radius:8px;text-decoration:none">Essai gratuit</a>
+        </div>
+      </nav>
+      <div style="padding:20px 24px;background:#f8fafc">
+        <div style="font-size:12px;color:#94a3b8">Inner pages: same full nav, no breadcrumb — user uses back button or in-page links</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Full marketing nav everywhere</h3>
+      <p>Full nav with marketing links on every page. Adds "Comment ça marche" anchor and "Tarifs" anchor that scroll the home page sections. More links = more surface area, slightly heavier.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:12px 0 4px;font-family:Inter,sans-serif">
+      <nav style="display:flex;align-items:center;justify-content:space-between;background:white;border-bottom:1px solid #e2e8f0;padding:0 24px;height:56px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;background:#2563eb;border-radius:8px"></div>
+          <span style="font-weight:700;font-size:15px">Grade</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <a style="font-size:13px;color:#475569;text-decoration:none">Annuaire</a>
+          <a style="font-size:13px;color:#475569;text-decoration:none">Connexion</a>
+          <a style="font-size:13px;font-weight:600;color:white;background:#2563eb;padding:6px 14px;border-radius:8px;text-decoration:none">Essai gratuit</a>
+        </div>
+      </nav>
+      <div style="background:white;border-bottom:1px solid #e2e8f0;padding:8px 24px;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8">
+          <span style="color:#2563eb">Grade</span>
+          <span>›</span>
+          <span style="color:#2563eb">Annuaire</span>
+          <span>›</span>
+          <span style="color:#2563eb">Paris</span>
+          <span>›</span>
+          <span style="color:#0f172a;font-weight:500">Bistrot Dupont</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Minimal nav + prominent breadcrumb bar</h3>
+      <p>Lean nav (Logo + Annuaire + Auth). Dedicated breadcrumb bar below the nav on all inner pages. Clean separation of "where to go" vs "where you are". Best for SEO directory pages.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="section">
+  <h3>Current problems this fixes</h3>
+  <ul>
+    <li>❌ <code>/avis</code> (main search directory) not linked from home at all</li>
+    <li>❌ 6 different inline <code>&lt;header&gt;</code> blocks — duplicated code, inconsistent</li>
+    <li>❌ Login page has no back-to-home link</li>
+    <li>❌ <code>/businesses</code> and <code>/avis</code> overlap — confusing two directories</li>
+  </ul>
+</div>

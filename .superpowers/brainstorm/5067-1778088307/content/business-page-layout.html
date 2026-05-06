@@ -1,0 +1,127 @@
+<h2>Business Presentation Page — Layout</h2>
+<p class="subtitle">Current page: bare text, no images, no description shown, no phone/website. Which direction?</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0f172a;padding:0;overflow:hidden;border-radius:8px 8px 0 0">
+      <!-- Hero layout mockup -->
+      <div style="height:120px;background:linear-gradient(135deg,#1e3a5f,#2563eb);display:flex;align-items:flex-end;padding:12px;position:relative">
+        <div style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.15);color:white;font-size:9px;padding:2px 6px;border-radius:4px;font-family:monospace">★ 4.7 · 38 avis</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:44px;height:44px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#2563eb;box-shadow:0 2px 8px rgba(0,0,0,0.3)">B</div>
+          <div>
+            <div style="color:white;font-weight:700;font-size:13px">Le Bistrot Parisien</div>
+            <div style="color:rgba(255,255,255,0.7);font-size:10px">📍 Paris · Restaurant</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:white;padding:8px 12px;display:flex;gap:6px">
+        <div style="flex:1;background:#f8fafc;border-radius:4px;padding:4px 8px;font-size:9px;text-align:center;color:#475569;border:1px solid #e2e8f0">📞 Appeler</div>
+        <div style="flex:1;background:#f8fafc;border-radius:4px;padding:4px 8px;font-size:9px;text-align:center;color:#475569;border:1px solid #e2e8f0">🌐 Site web</div>
+        <div style="flex:1;background:#2563eb;border-radius:4px;padding:4px 8px;font-size:9px;text-align:center;color:white">⭐ Avis</div>
+      </div>
+      <div style="background:#f8fafc;padding:8px 12px;display:flex;gap:6px">
+        <div style="width:60px;height:48px;background:#cbd5e1;border-radius:4px;flex-shrink:0"></div>
+        <div style="width:60px;height:48px;background:#94a3b8;border-radius:4px;flex-shrink:0"></div>
+        <div style="width:60px;height:48px;background:#64748b;border-radius:4px;flex-shrink:0"></div>
+        <div style="width:60px;height:48px;background:#475569;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:white;font-size:10px">+5</div>
+      </div>
+      <div style="background:white;padding:8px 12px">
+        <div style="font-size:9px;font-weight:600;color:#0f172a;margin-bottom:4px">Description</div>
+        <div style="font-size:8px;color:#64748b;line-height:1.4">Cuisine française traditionnelle au cœur de Paris. Depuis 1987...</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Mobile-first hero + action bar</h3>
+      <p>Color gradient hero with logo, score overlay. Action bar (call, website, review). Photo strip. Description. Reviews below. Google Maps / Yelp pattern — familiar, conversion-optimized.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f8fafc;padding:12px;font-family:Inter,sans-serif">
+      <!-- Split layout mockup -->
+      <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:8px;height:200px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="background:white;border-radius:6px;padding:8px;border:1px solid #e2e8f0;flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <div style="width:32px;height:32px;border-radius:8px;background:#2563eb;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px">B</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#0f172a">Le Bistrot Parisien</div>
+                <div style="font-size:8px;color:#64748b">📍 Paris</div>
+              </div>
+            </div>
+            <div style="font-size:20px;font-weight:900;color:#2563eb">4.7<span style="font-size:10px;color:#64748b;font-weight:400"> / 5</span></div>
+            <div style="font-size:8px;color:#64748b">38 avis certifiés</div>
+          </div>
+          <div style="background:white;border-radius:6px;padding:8px;border:1px solid #e2e8f0;flex:1">
+            <div style="font-size:8px;font-weight:600;color:#0f172a;margin-bottom:4px">CONTACT</div>
+            <div style="font-size:8px;color:#475569;margin-bottom:2px">📞 01 23 45 67 89</div>
+            <div style="font-size:8px;color:#2563eb;margin-bottom:4px">🌐 bistrot.fr</div>
+            <div style="font-size:8px;color:#64748b;line-height:1.3">Cuisine française traditionnelle au cœur de Paris...</div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <div style="height:40px;flex:1;background:#cbd5e1;border-radius:4px"></div>
+            <div style="height:40px;flex:1;background:#94a3b8;border-radius:4px"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;overflow:hidden">
+          <div style="font-size:9px;font-weight:600;color:#0f172a;padding:2px 0">38 avis</div>
+          <div style="background:white;border-radius:6px;padding:6px;border:1px solid #e2e8f0;font-size:7px;color:#475569;line-height:1.4">"Excellent accueil et plats savoureux. Je recommande le bœuf bourguignon..." <div style="color:#f59e0b;margin-top:2px">★★★★★</div></div>
+          <div style="background:white;border-radius:6px;padding:6px;border:1px solid #e2e8f0;font-size:7px;color:#475569;line-height:1.4">"Service impeccable, cadre agréable. Un peu cher mais ça vaut le coup..." <div style="color:#f59e0b;margin-top:2px">★★★★☆</div></div>
+          <div style="background:white;border-radius:6px;padding:6px;border:1px solid #e2e8f0;font-size:7px;color:#475569;line-height:1.4">"Belle découverte ! Les desserts sont à tomber..." <div style="color:#f59e0b;margin-top:2px">★★★★★</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Two-column editorial split</h3>
+      <p>Left sidebar: business identity, score, contact, photos. Right: reviews stream. Desktop-first, information-dense. TripAdvisor / Trustpilot pattern. Better for review-heavy pages.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fafaf9;padding:12px;font-family:Georgia,serif">
+      <!-- Magazine editorial mockup -->
+      <div style="border-bottom:3px solid #0f172a;padding-bottom:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font-size:9px;letter-spacing:2px;color:#64748b;text-transform:uppercase">Restaurant · Paris</div>
+          <div style="font-size:16px;font-weight:900;color:#0f172a;font-family:Georgia,serif;line-height:1.1">Le Bistrot<br/>Parisien</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:36px;font-weight:900;color:#2563eb;line-height:1">4.7</div>
+          <div style="font-size:8px;color:#64748b;font-family:monospace">38 AVIS CERTIFIÉS</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px">
+        <div style="height:52px;background:#e2e8f0;border-radius:3px"></div>
+        <div style="height:52px;background:#cbd5e1;border-radius:3px"></div>
+        <div style="height:52px;background:#94a3b8;border-radius:3px"></div>
+      </div>
+      <div style="font-size:8px;color:#475569;font-family:Georgia,serif;font-style:italic;margin-bottom:6px;line-height:1.4">"Cuisine française traditionnelle au cœur de Paris. Depuis 1987, le Bistrot accueille..."</div>
+      <div style="display:flex;gap:4px;margin-bottom:6px">
+        <div style="background:#0f172a;color:white;font-size:7px;padding:2px 6px;border-radius:2px;font-family:monospace">CERTIFIÉ GRADE</div>
+        <div style="background:#f0fdf4;color:#16a34a;font-size:7px;padding:2px 6px;border-radius:2px;border:1px solid #bbf7d0">ACHAT VÉRIFIÉ ✓</div>
+      </div>
+      <div style="font-size:7px;font-weight:700;letter-spacing:1px;color:#0f172a;text-transform:uppercase;margin-bottom:4px">Derniers avis</div>
+      <div style="background:white;border:1px solid #e2e8f0;border-radius:3px;padding:5px;font-size:7px;color:#475569;font-family:Georgia,serif;font-style:italic">"Excellent accueil et plats savoureux. Un must parisien."</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Magazine / editorial bold</h3>
+      <p>Serif typography, editorial hierarchy, massive score display, photo grid, italic quotes. Distinctive premium feel. Makes reviews feel like editorial journalism. High-end restaurants, hotels.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:16px">
+  <h3>What all options will include</h3>
+  <ul>
+    <li>Business logo/avatar upload (new)</li>
+    <li>Photo gallery — up to 6 photos (new)</li>
+    <li>Phone + website CTA buttons (new)</li>
+    <li>Description/about section (was hidden, now shown)</li>
+    <li>Review filtering by score (new)</li>
+    <li>Criteria score radar/bars visible at top (new)</li>
+    <li>SEO: structured data already exists, stays</li>
+  </ul>
+</div>

@@ -1,0 +1,49 @@
+<h2>Architecture Approaches</h2>
+<p class="subtitle">How to structure the routing and data layer for both customer pages and on-demand placeholder pages</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Unified Route — <code>/avis/[city]/[slug]</code></h3>
+      <p>Single route handles all cases. Logic inside page.tsx decides: customer → full page, OSM/SIRENE listed → placeholder, unknown → URL-generated placeholder.</p>
+      <p style="margin-top:8px;font-size:13px;color:#6b7280">
+        <strong>Customer lookup:</strong> <code>Business.slug</code> (existing) + optional <code>Business.citySlug</code> for city scoping<br>
+        <strong>Non-customer:</strong> <code>BusinessListing</code> table, populated on-demand from OSM/SIRENE<br>
+        <strong>Unknown:</strong> Generate display name from URL params, show CTA
+      </p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>One URL pattern for everything</li><li>Best SEO (city in URL)</li><li>Clean customer migration path</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Adds <code>city</code> field to Business model</li><li>Existing <code>/r/[slug]</code> becomes legacy</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Split Routes — <code>/r/[slug]</code> for customers, <code>/avis/[city]/[slug]</code> for discovery</h3>
+      <p>Keep existing customer pages at <code>/r/[slug]</code> untouched. New <code>/avis/[city]/[slug]</code> route only handles non-customers (OSM/SIRENE or generated). Customer pages get a canonical link pointing to <code>/avis/</code> for SEO.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>Zero changes to existing customer pages</li><li>Clean separation of concerns</li><li>No schema migration risk</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Two URL patterns for similar content</li><li>Customer avis pages lack city in URL</li><li>Duplicate content SEO risk</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Unified Route with Redirect — <code>/avis/[city]/[slug]</code> is canonical for all</h3>
+      <p>Same as A, but existing <code>/r/[slug]</code> redirects (301) to <code>/avis/[city]/[slug]</code>. Customers keep backward compat, new canonical URL is city-scoped. Customer must provide city when registering.</p>
+      <div class="pros-cons" style="margin-top:10px">
+        <div class="pros"><h4>Pros</h4><ul><li>One canonical URL for all businesses</li><li>301 redirect preserves SEO juice</li><li>City in URL for all pages</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Requires city field in onboarding</li><li>Migration effort for existing customers</li><li>Redirect adds latency</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:20px;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;font-size:13px">
+  <strong>My recommendation: C</strong> — Unified + redirect gives best SEO long-term. City in URL for every business. Old QR codes still work via 301. Small migration cost is worth it.
+</p>

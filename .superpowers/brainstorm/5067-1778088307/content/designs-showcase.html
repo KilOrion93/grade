@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade — Business Page Designs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,700&family=DM+Sans:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111;
+    font-family: 'DM Sans', sans-serif;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .page-title {
+    text-align: center;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+  .page-subtitle {
+    text-align: center;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    opacity: 0.3;
+    margin-bottom: 48px;
+    letter-spacing: 1px;
+  }
+
+  .designs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .design-wrap {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.3s;
+    position: relative;
+  }
+  .design-wrap:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .design-wrap.selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37,99,235,0.3), 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .design-wrap.selected::after {
+    content: '✓ SÉLECTIONNÉ';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    z-index: 100;
+  }
+
+  .design-label {
+    text-align: center;
+    padding: 14px;
+    background: #1a1a1a;
+    border-top: 1px solid #2a2a2a;
+  }
+  .design-label h3 {
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .design-label p {
+    color: rgba(255,255,255,0.4);
+    font-size: 11px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ===================== DESIGN A: PARISIENNE NOIRE ===================== */
+  .design-a {
+    background: #090909;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .a-hero {
+    position: relative;
+    height: 220px;
+    background: linear-gradient(160deg, #0f0f0f 0%, #1a1207 50%, #0f0a00 100%);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+  }
+  .a-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(201,168,76,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 10% 80%, rgba(201,168,76,0.08) 0%, transparent 50%);
+  }
+  .a-hero-photos {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 45%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    opacity: 0.4;
+  }
+  .a-photo-block {
+    background: #1e1a12;
+    position: relative;
+    overflow: hidden;
+  }
+  .a-photo-block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.1), transparent);
+  }
+  .a-photo-block:nth-child(1) { background: linear-gradient(135deg, #2a1f0a, #1a1207); }
+  .a-photo-block:nth-child(2) { background: linear-gradient(135deg, #1a1207, #0d0d0d); }
+  .a-photo-block:nth-child(3) { background: linear-gradient(135deg, #0d0d0d, #1a1207); }
+  .a-photo-block:nth-child(4) { background: linear-gradient(135deg, #1a1207, #2a1f0a); }
+  .a-photo-block span { position: absolute; bottom: 6px; right: 6px; color: rgba(201,168,76,0.5); font-size: 8px; letter-spacing: 1px; }
+
+  .a-vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(9,9,9,1) 40%, rgba(9,9,9,0.3) 100%);
+  }
+
+  .a-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: #c9a84c;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    width: fit-content;
+    position: relative;
+  }
+  .a-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #f5f0e8;
+    line-height: 1.05;
+    letter-spacing: -0.5px;
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .a-meta {
+    font-size: 10px;
+    color: rgba(245,240,232,0.45);
+    letter-spacing: 1.5px;
+    position: relative;
+  }
+
+  .a-score-bar {
+    background: #0f0f0f;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .a-score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #c9a84c;
+    line-height: 1;
+  }
+  .a-score-divider { width: 1px; height: 32px; background: #1e1e1e; }
+  .a-stars { color: #c9a84c; font-size: 11px; letter-spacing: 1px; margin-bottom: 2px; }
+  .a-score-label { font-size: 8px; color: rgba(245,240,232,0.3); letter-spacing: 2px; text-transform: uppercase; }
+  .a-ctabar {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .a-cta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: rgba(245,240,232,0.6);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .a-cta-primary {
+    background: #c9a84c;
+    border-color: #c9a84c;
+    color: #090909;
+  }
+
+  .a-criteria {
+    padding: 12px 24px;
+    display: flex;
+    gap: 8px;
+    background: #0b0b0b;
+    border-bottom: 1px solid #1a1a1a;
+    flex-wrap: wrap;
+  }
+  .a-criterion {
+    flex: 1;
+    min-width: 50px;
+  }
+  .a-criterion-label { font-size: 7px; color: rgba(245,240,232,0.3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+  .a-criterion-bar {
+    height: 2px;
+    background: #1e1e1e;
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+  .a-criterion-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a84c, #e8c96a);
+    border-radius: 1px;
+  }
+  .a-criterion-score { font-size: 8px; color: #c9a84c; font-weight: 700; }
+
+  .a-about {
+    padding: 14px 24px;
+    background: #0b0b0b;
+    border-bottom: 1px solid #1a1a1a;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 10px;
+    color: rgba(245,240,232,0.4);
+    line-height: 1.7;
+  }
+
+  .a-reviews-header {
+    padding: 12px 24px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .a-reviews-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #f5f0e8;
+    letter-spacing: 0.5px;
+  }
+  .a-reviews-count { font-size: 8px; color: rgba(245,240,232,0.3); letter-spacing: 1px; }
+
+  .a-review-card {
+    margin: 0 24px 8px;
+    padding: 10px 12px;
+    border: 1px solid #1a1a1a;
+    border-radius: 3px;
+    background: #0d0d0d;
+    position: relative;
+  }
+  .a-review-card::before {
+    content: '"';
+    position: absolute;
+    top: -4px;
+    left: 8px;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: rgba(201,168,76,0.25);
+    line-height: 1;
+  }
+  .a-review-score { font-size: 8px; color: #c9a84c; letter-spacing: 1px; margin-bottom: 4px; }
+  .a-review-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 9px;
+    color: rgba(245,240,232,0.55);
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .a-review-meta { font-size: 7px; color: rgba(245,240,232,0.2); letter-spacing: 1px; }
+  .a-review-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: #c9a84c;
+    font-size: 6px;
+    padding: 1px 5px;
+    border-radius: 1px;
+    letter-spacing: 1px;
+    margin-left: 6px;
+  }
+
+  /* ===================== DESIGN B: BLANC MODERNE ===================== */
+  .design-b {
+    background: #fafaf8;
+    font-family: 'Instrument Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .b-hero {
+    position: relative;
+    background: #fff;
+    padding: 0;
+    border-bottom: 1px solid #e8e8e4;
+  }
+  .b-hero-accent {
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: #e63946;
+  }
+  .b-hero-top {
+    padding: 16px 20px 12px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .b-breadcrumb {
+    font-size: 8px;
+    color: #9ca3af;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .b-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 600;
+    color: #1a1a2e;
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+  .b-category {
+    font-size: 9px;
+    color: #9ca3af;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .b-score-block {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .b-score-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 52px;
+    font-weight: 300;
+    color: #1a1a2e;
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .b-score-denom {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: #9ca3af;
+    font-weight: 300;
+  }
+  .b-score-label {
+    font-size: 7px;
+    color: #e63946;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: right;
+    margin-top: 2px;
+  }
+
+  .b-photos {
+    padding: 0 20px 0 28px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 3px;
+    height: 90px;
+    margin-bottom: 12px;
+  }
+  .b-photo {
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .b-photo-inner {
+    width: 100%;
+    height: 100%;
+    background: #e8e8e4;
+  }
+  .b-photo:nth-child(1) .b-photo-inner { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+  .b-photo:nth-child(2) .b-photo-inner { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+  .b-photo:nth-child(3) .b-photo-inner { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+  .b-photo-last {
+    position: relative;
+    cursor: pointer;
+  }
+  .b-photo-last::after {
+    content: '+3 photos';
+    position: absolute;
+    inset: 0;
+    background: rgba(26,26,46,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    display: grid;
+    place-items: center;
+  }
+
+  .b-meta-strip {
+    padding: 0 20px 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .b-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    color: #6b7280;
+  }
+  .b-meta-icon { color: #e63946; font-size: 10px; }
+  .b-meta-link { color: #1a1a2e; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+
+  .b-actions {
+    padding: 10px 20px 10px 28px;
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #f0f0ec;
+    background: #fafaf8;
+  }
+  .b-btn {
+    flex: 1;
+    padding: 7px 10px;
+    border-radius: 2px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Instrument Sans', sans-serif;
+    border: 1.5px solid;
+    transition: all 0.15s;
+  }
+  .b-btn-outline { border-color: #1a1a2e; color: #1a1a2e; background: transparent; }
+  .b-btn-primary { border-color: #e63946; background: #e63946; color: white; }
+
+  .b-criteria-grid {
+    padding: 12px 20px 12px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    background: white;
+    border-top: 1px solid #e8e8e4;
+    border-bottom: 1px solid #e8e8e4;
+  }
+  .b-crit {
+    text-align: center;
+    padding: 6px 4px;
+  }
+  .b-crit-score {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a2e;
+    line-height: 1;
+  }
+  .b-crit-label {
+    font-size: 7px;
+    color: #9ca3af;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .b-crit-bar {
+    height: 2px;
+    background: #f0f0ec;
+    margin-top: 4px;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .b-crit-fill {
+    height: 100%;
+    background: #e63946;
+    border-radius: 1px;
+  }
+
+  .b-reviews-section {
+    padding: 12px 20px 12px 28px;
+    background: #fafaf8;
+  }
+  .b-section-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .b-review {
+    padding: 10px 0;
+    border-bottom: 1px solid #e8e8e4;
+  }
+  .b-review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .b-review-stars { color: #e63946; font-size: 9px; letter-spacing: 1px; }
+  .b-review-date { font-size: 8px; color: #9ca3af; }
+  .b-review-text {
+    font-size: 9px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .b-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 7px;
+    color: #059669;
+    letter-spacing: 0.5px;
+  }
+  .b-verified::before { content: '✓'; font-weight: 700; }
+
+  /* ===================== DESIGN C: SOLEIL ===================== */
+  .design-c {
+    background: #fdf6ec;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  .c-hero {
+    background: linear-gradient(150deg, #1b4332 0%, #2d6a4f 40%, #40916c 100%);
+    padding: 20px 20px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .c-hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(233,118,43,0.3) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .c-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: #fdf6ec;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .c-avatar-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 16px;
+  }
+  .c-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #e9762b, #f59e0b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    flex-shrink: 0;
+  }
+  .c-name-block { flex: 1; }
+  .c-name {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fdf6ec;
+    line-height: 1.1;
+    margin-bottom: 3px;
+  }
+  .c-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(253,246,236,0.15);
+    color: rgba(253,246,236,0.85);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .c-score-pill {
+    background: rgba(253,246,236,0.95);
+    border-radius: 12px;
+    padding: 6px 10px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .c-score-num {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: #1b4332;
+    line-height: 1;
+  }
+  .c-score-label { font-size: 7px; color: #40916c; font-weight: 600; letter-spacing: 0.5px; }
+
+  .c-main {
+    padding: 12px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .c-action-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .c-btn-ghost {
+    flex: 1;
+    background: white;
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 7px 8px;
+    font-size: 8px;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .c-btn-solid {
+    flex: 2;
+    background: #e9762b;
+    border: 1.5px solid #e9762b;
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 8px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 4px 12px rgba(233,118,43,0.3);
+  }
+
+  .c-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .c-photo-item {
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 1;
+  }
+  .c-photo-item:nth-child(1) { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+  .c-photo-item:nth-child(2) { background: linear-gradient(135deg, #fde68a, #fbbf24); aspect-ratio: auto; height: 80px; }
+  .c-photo-item:nth-child(3) { background: linear-gradient(135deg, #fed7aa, #fb923c); }
+
+  .c-about {
+    background: white;
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .c-about-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: #40916c;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .c-about-text {
+    font-size: 9px;
+    color: #4b5563;
+    line-height: 1.6;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+  }
+
+  .c-criteria {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .c-crit-chip {
+    background: white;
+    border-radius: 10px;
+    padding: 6px 10px;
+    text-align: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    min-width: 52px;
+  }
+  .c-crit-score {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1b4332;
+    line-height: 1;
+  }
+  .c-crit-label { font-size: 7px; color: #9ca3af; margin-top: 2px; font-weight: 500; }
+
+  .c-reviews-label {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1b4332;
+    margin-bottom: 8px;
+  }
+  .c-review-card {
+    background: white;
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .c-review-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .c-review-stars { font-size: 10px; color: #e9762b; letter-spacing: 0.5px; }
+  .c-review-chip {
+    background: #d1fae5;
+    color: #059669;
+    font-size: 7px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+  }
+  .c-review-text {
+    font-size: 9px;
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .c-review-date { font-size: 7px; color: #9ca3af; }
+
+  /* Selection behavior */
+  .design-wrap { user-select: none; }
+</style>
+</head>
+<body>
+
+<p class="page-title">Grade — Choisissez votre direction</p>
+<p class="page-subtitle">Cliquez pour sélectionner un design · Tous incluent : galerie photos, upload logo, téléphone/site, filtres avis</p>
+
+<div class="designs-grid">
+
+  <!-- ===== DESIGN A ===== -->
+  <div class="design-wrap" data-choice="a" onclick="selectDesign(this)">
+    <div class="design-a">
+
+      <div class="a-hero">
+        <div class="a-hero-photos">
+          <div class="a-photo-block"></div>
+          <div class="a-photo-block"></div>
+          <div class="a-photo-block"></div>
+          <div class="a-photo-block"><span>PHOTO</span></div>
+        </div>
+        <div class="a-vignette"></div>
+        <div class="a-badge">✦ Certifié Grade</div>
+        <div class="a-name">Le Bistrot<br>Parisien</div>
+        <div class="a-meta">Restaurant · Paris 2e · Cuisine Française</div>
+      </div>
+
+      <div class="a-score-bar">
+        <div class="a-score-num">4.7</div>
+        <div class="a-score-divider"></div>
+        <div>
+          <div class="a-stars">★★★★★</div>
+          <div class="a-score-label">38 avis certifiés</div>
+        </div>
+        <div class="a-ctabar">
+          <div class="a-cta">☎ Appel</div>
+          <div class="a-cta">⇗ Site</div>
+          <div class="a-cta a-cta-primary">⭑ Avis</div>
+        </div>
+      </div>
+
+      <div class="a-criteria">
+        <div class="a-criterion">
+          <div class="a-criterion-label">Accueil</div>
+          <div class="a-criterion-bar"><div class="a-criterion-fill" style="width:92%"></div></div>
+          <div class="a-criterion-score">4.6</div>
+        </div>
+        <div class="a-criterion">
+          <div class="a-criterion-label">Qualité</div>
+          <div class="a-criterion-bar"><div class="a-criterion-fill" style="width:96%"></div></div>
+          <div class="a-criterion-score">4.8</div>
+        </div>
+        <div class="a-criterion">
+          <div class="a-criterion-label">Prix</div>
+          <div class="a-criterion-bar"><div class="a-criterion-fill" style="width:72%"></div></div>
+          <div class="a-criterion-score">3.6</div>
+        </div>
+        <div class="a-criterion">
+          <div class="a-criterion-label">Rapidité</div>
+          <div class="a-criterion-bar"><div class="a-criterion-fill" style="width:84%"></div></div>
+          <div class="a-criterion-score">4.2</div>
+        </div>
+        <div class="a-criterion">
+          <div class="a-criterion-label">Hygiène</div>
+          <div class="a-criterion-bar"><div class="a-criterion-fill" style="width:98%"></div></div>
+          <div class="a-criterion-score">4.9</div>
+        </div>
+      </div>
+
+      <div class="a-about">Cuisine française traditionnelle au cœur de Paris. Depuis 1987, nous accueillons nos clients dans une atmosphère chaleureuse et authentique.</div>
+
+      <div class="a-reviews-header">
+        <div class="a-reviews-title">Avis clients</div>
+        <div class="a-reviews-count">38 AVIS</div>
+      </div>
+
+      <div class="a-review-card">
+        <div class="a-review-score">★★★★★ <span class="a-review-badge">✓ Visité</span></div>
+        <div class="a-review-text">Service impeccable et cuisine raffinée. Le bœuf bourguignon était absolument divin. Une adresse à ne pas manquer.</div>
+        <div class="a-review-meta">il y a 3 jours · Confiance 98</div>
+      </div>
+
+      <div class="a-review-card">
+        <div class="a-review-score">★★★★☆ <span class="a-review-badge">✓ Visité</span></div>
+        <div class="a-review-text">Belle expérience dans l'ensemble. Cadre élégant, service attentionné. Un peu long en cuisine ce soir-là.</div>
+        <div class="a-review-meta">il y a 1 semaine · Confiance 85</div>
+      </div>
+
+    </div>
+    <div class="design-label">
+      <h3>A — Parisienne Noire</h3>
+      <p>Dark luxury · Or & Noir · Playfair Display · Premium gastronomique</p>
+    </div>
+  </div>
+
+  <!-- ===== DESIGN B ===== -->
+  <div class="design-wrap" data-choice="b" onclick="selectDesign(this)">
+    <div class="design-b">
+
+      <div class="b-hero">
+        <div class="b-hero-accent"></div>
+        <div class="b-hero-top">
+          <div>
+            <div class="b-breadcrumb">Annuaire › Paris › Restaurant</div>
+            <div class="b-name">Le Bistrot<br>Parisien</div>
+            <div class="b-category">Restaurant Français · Paris 2e</div>
+          </div>
+          <div class="b-score-block">
+            <div><span class="b-score-num">4.7</span><span class="b-score-denom">/5</span></div>
+            <div class="b-score-label">38 avis certifiés</div>
+          </div>
+        </div>
+
+        <div class="b-photos">
+          <div class="b-photo"><div class="b-photo-inner"></div></div>
+          <div class="b-photo"><div class="b-photo-inner"></div></div>
+          <div class="b-photo b-photo-last"><div class="b-photo-inner"></div></div>
+        </div>
+
+        <div class="b-meta-strip">
+          <div class="b-meta-item"><span class="b-meta-icon">☎</span> <span class="b-meta-link">01 23 45 67 89</span></div>
+          <div class="b-meta-item"><span class="b-meta-icon">⇗</span> <span class="b-meta-link">bistrotparisien.fr</span></div>
+          <div class="b-meta-item"><span class="b-meta-icon">📍</span> 10 Rue de la Paix, 75002</div>
+        </div>
+      </div>
+
+      <div class="b-actions">
+        <div class="b-btn b-btn-outline">☎ Appeler</div>
+        <div class="b-btn b-btn-outline">⇗ Site web</div>
+        <div class="b-btn b-btn-primary">Laisser un avis ↗</div>
+      </div>
+
+      <div class="b-criteria-grid">
+        <div class="b-crit">
+          <div class="b-crit-score">4.6</div>
+          <div class="b-crit-bar"><div class="b-crit-fill" style="width:92%"></div></div>
+          <div class="b-crit-label">Accueil</div>
+        </div>
+        <div class="b-crit">
+          <div class="b-crit-score">4.8</div>
+          <div class="b-crit-bar"><div class="b-crit-fill" style="width:96%"></div></div>
+          <div class="b-crit-label">Qualité</div>
+        </div>
+        <div class="b-crit">
+          <div class="b-crit-score">3.6</div>
+          <div class="b-crit-bar"><div class="b-crit-fill" style="width:72%"></div></div>
+          <div class="b-crit-label">Prix</div>
+        </div>
+        <div class="b-crit">
+          <div class="b-crit-score">4.2</div>
+          <div class="b-crit-bar"><div class="b-crit-fill" style="width:84%"></div></div>
+          <div class="b-crit-label">Rapidité</div>
+        </div>
+        <div class="b-crit">
+          <div class="b-crit-score">4.9</div>
+          <div class="b-crit-bar"><div class="b-crit-fill" style="width:98%"></div></div>
+          <div class="b-crit-label">Hygiène</div>
+        </div>
+        <div class="b-crit" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div style="font-size:7px;color:#e63946;font-weight:700;letter-spacing:1px;text-transform:uppercase">CERTIFIÉ</div>
+          <div style="font-size:16px;color:#e63946">✓</div>
+          <div class="b-crit-label">Grade</div>
+        </div>
+      </div>
+
+      <div class="b-reviews-section">
+        <div class="b-section-heading">Avis certifiés</div>
+
+        <div class="b-review">
+          <div class="b-review-header">
+            <div class="b-review-stars">★★★★★</div>
+            <div class="b-review-date">il y a 3 jours</div>
+          </div>
+          <div class="b-review-text">Service impeccable et cuisine raffinée. Le bœuf bourguignon était absolument divin. Une adresse à ne pas manquer dans Paris.</div>
+          <div class="b-verified">Achat vérifié · Score de confiance 98</div>
+        </div>
+
+        <div class="b-review">
+          <div class="b-review-header">
+            <div class="b-review-stars">★★★★☆</div>
+            <div class="b-review-date">il y a 1 semaine</div>
+          </div>
+          <div class="b-review-text">Belle expérience dans l'ensemble. Cadre élégant, service attentionné.</div>
+          <div class="b-verified">Achat vérifié · Score de confiance 85</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="design-label">
+      <h3>B — Blanc Moderne</h3>
+      <p>Épuré · Rouge & Marine · Cormorant Garamond · Élégance française</p>
+    </div>
+  </div>
+
+  <!-- ===== DESIGN C ===== -->
+  <div class="design-wrap" data-choice="c" onclick="selectDesign(this)">
+    <div class="design-c">
+
+      <div class="c-hero">
+        <div class="c-avatar-row">
+          <div class="c-avatar">B</div>
+          <div class="c-name-block">
+            <div class="c-name">Le Bistrot<br>Parisien</div>
+            <div class="c-tag">✓ Certifié Grade</div>
+          </div>
+          <div class="c-score-pill">
+            <div class="c-score-num">4.7</div>
+            <div class="c-score-label">38 avis</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="c-main">
+        <div class="c-action-row">
+          <div class="c-btn-ghost">☎ Appeler</div>
+          <div class="c-btn-ghost">⇗ Site</div>
+          <div class="c-btn-solid">⭑ Laisser un avis</div>
+        </div>
+
+        <div class="c-photos">
+          <div class="c-photo-item"></div>
+          <div class="c-photo-item"></div>
+          <div class="c-photo-item"></div>
+        </div>
+
+        <div class="c-about">
+          <div class="c-about-label">À propos</div>
+          <div class="c-about-text">Cuisine française traditionnelle au cœur de Paris. Depuis 1987, nous accueillons nos clients dans une atmosphère chaleureuse et authentique.</div>
+        </div>
+
+        <div class="c-criteria">
+          <div class="c-crit-chip">
+            <div class="c-crit-score">4.6</div>
+            <div class="c-crit-label">Accueil</div>
+          </div>
+          <div class="c-crit-chip">
+            <div class="c-crit-score">4.8</div>
+            <div class="c-crit-label">Qualité</div>
+          </div>
+          <div class="c-crit-chip">
+            <div class="c-crit-score">3.6</div>
+            <div class="c-crit-label">Prix</div>
+          </div>
+          <div class="c-crit-chip">
+            <div class="c-crit-score">4.2</div>
+            <div class="c-crit-label">Rapidité</div>
+          </div>
+          <div class="c-crit-chip">
+            <div class="c-crit-score">4.9</div>
+            <div class="c-crit-label">Hygiène</div>
+          </div>
+        </div>
+
+        <div class="c-reviews-label">Avis certifiés</div>
+
+        <div class="c-review-card">
+          <div class="c-review-top">
+            <div class="c-review-stars">★★★★★</div>
+            <div class="c-review-chip">✓ Visité</div>
+          </div>
+          <div class="c-review-text">Service impeccable et cuisine raffinée. Le bœuf bourguignon était absolument divin.</div>
+          <div class="c-review-date">il y a 3 jours · Confiance 98/100</div>
+        </div>
+
+        <div class="c-review-card">
+          <div class="c-review-top">
+            <div class="c-review-stars">★★★★☆</div>
+            <div class="c-review-chip">✓ Visité</div>
+          </div>
+          <div class="c-review-text">Belle expérience dans l'ensemble. Cadre élégant, service attentionné.</div>
+          <div class="c-review-date">il y a 1 semaine · Confiance 85/100</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="design-label">
+      <h3>C — Soleil Méditerranéen</h3>
+      <p>Chaleureux · Vert forêt & Orange · Fraunces · Artisanal & vivant</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function selectDesign(el) {
+  document.querySelectorAll('.design-wrap').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  // Fire selection event for visual companion
+  if (window.__companion) {
+    window.__companion.select(el.dataset.choice, el.querySelector('h3').textContent);
+  }
+}
+</script>
+
+</body>
+</html>

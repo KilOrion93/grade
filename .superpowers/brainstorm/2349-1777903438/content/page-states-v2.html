@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page States — /avis/[city]/[slug]</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-brand-50: #eff6ff;
+    --color-brand-100: #dbeafe;
+    --color-brand-400: #60a5fa;
+    --color-brand-500: #3b82f6;
+    --color-brand-600: #2563eb;
+    --color-brand-700: #1d4ed8;
+    --color-bg: #ffffff;
+    --color-bg-subtle: #f8fafc;
+    --color-bg-muted: #f1f5f9;
+    --color-border: #e2e8f0;
+    --color-border-hover: #cbd5e1;
+    --color-text: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94a3b8;
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #e8edf5; color: var(--color-text); padding: 24px; -webkit-font-smoothing: antialiased; }
+
+  .page-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--color-text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .page-label .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-green { background: #10b981; }
+  .dot-amber { background: #f59e0b; }
+  .dot-slate { background: #94a3b8; }
+
+  .browser-chrome {
+    background: #f1f5f9; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+    margin-bottom: 40px;
+  }
+  .browser-bar {
+    background: #e2e8f0; padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+  }
+  .browser-dots { display: flex; gap: 6px; }
+  .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .bd-r { background: #fc6058; } .bd-y { background: #fec02f; } .bd-g { background: #2aca44; }
+  .browser-url {
+    flex: 1; background: white; border-radius: 6px; padding: 4px 12px;
+    font-size: 11px; color: var(--color-text-secondary); font-family: monospace;
+  }
+
+  .page-content { background: var(--color-bg-subtle); min-height: 320px; }
+
+  /* Header */
+  .site-header {
+    position: sticky; top: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--color-border); padding: 0 24px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .logo-icon {
+    width: 28px; height: 28px; background: var(--color-brand-600); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 13px;
+  }
+  .logo-text { font-weight: 800; font-size: 15px; color: var(--color-text); }
+  .back-link { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px; }
+
+  /* Profile card */
+  .profile-card {
+    background: white; border: 1px solid var(--color-border); border-radius: 2rem;
+    padding: 28px 32px; margin: 20px 24px; box-shadow: var(--shadow-xl);
+    display: flex; gap: 24px; align-items: flex-start; position: relative; overflow: hidden;
+  }
+  .profile-banner {
+    position: absolute; top: 0; left: 0; right: 0; height: 80px;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-400));
+    opacity: 0.08;
+  }
+  .avatar-wrap { position: relative; flex-shrink: 0; margin-top: 4px; }
+  .avatar {
+    width: 80px; height: 80px; border-radius: 50%; background: white;
+    border: 3px solid white; box-shadow: var(--shadow-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: var(--color-brand-600);
+    ring: 1px solid var(--color-border);
+  }
+  .certified-badge {
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 999px;
+    padding: 2px 8px; display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    font-size: 9px; font-weight: 700; color: #065f46; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .avatar-unclaimed {
+    width: 80px; height: 80px; border-radius: 50%; background: var(--color-bg-muted);
+    border: 3px solid var(--color-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 900; color: var(--color-text-muted);
+  }
+  .business-name { font-size: 22px; font-weight: 800; color: var(--color-text); line-height: 1.2; }
+  .business-meta { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .score-chip {
+    display: inline-flex; align-items: flex-end; gap: 4px;
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 4px 12px; margin-top: 10px;
+  }
+  .score-num { font-size: 26px; font-weight: 900; color: #d97706; line-height: 1; }
+  .score-denom { font-size: 13px; color: #92400e; opacity: 0.6; margin-bottom: 1px; }
+  .review-count-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; border: 1px solid var(--color-border); border-radius: 12px; padding: 4px 12px; margin-top: 10px; margin-left: 8px;
+    font-size: 12px; font-weight: 600; color: var(--color-text-secondary);
+  }
+
+  /* Action bar */
+  .action-bar {
+    margin: 0 24px 16px; padding: 16px 20px; border-radius: 1.5rem;
+    background: linear-gradient(135deg, var(--color-brand-600), var(--color-brand-500));
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .action-bar-text { color: white; }
+  .action-bar-text h3 { font-size: 14px; font-weight: 700; }
+  .action-bar-text p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+  .action-btn {
+    background: white; color: var(--color-brand-600); font-weight: 700; font-size: 12px;
+    padding: 8px 16px; border-radius: 10px; white-space: nowrap;
+  }
+
+  /* CTA box */
+  .cta-box {
+    margin: 0 24px 16px; padding: 20px 24px; border-radius: 1.5rem;
+    border: 1px solid var(--color-border-hover); background: white;
+  }
+  .cta-box-amber { border-color: #fde68a; background: #fffbeb; }
+  .cta-box h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .cta-box p { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 12px; }
+  .cta-primary-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--color-brand-600); color: white; font-weight: 700; font-size: 12px;
+    padding: 9px 18px; border-radius: 10px;
+  }
+
+  /* Warning banner */
+  .warn-banner {
+    margin: 0 24px 12px; padding: 10px 14px; border-radius: 10px;
+    background: #fffbeb; border: 1px solid #fde68a; font-size: 12px; color: #92400e;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+
+  /* Reviews */
+  .section-title { font-size: 16px; font-weight: 800; padding: 0 24px; margin-bottom: 12px; }
+  .reviews-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 24px 24px; }
+  .review-card {
+    background: white; border: 1px solid var(--color-border); border-radius: 1.5rem; padding: 14px;
+  }
+  .review-score { display: inline-flex; align-items: center; gap: 3px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 2px 8px; font-size: 14px; font-weight: 900; color: #d97706; }
+  .review-verified { font-size: 10px; font-weight: 700; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 5px; }
+  .review-text { font-size: 11px; color: var(--color-text-secondary); font-style: italic; margin: 8px 0; border-left: 3px solid var(--color-brand-100); padding-left: 8px; }
+
+  /* Unclaimed notice */
+  .unclaimed-notice {
+    margin: 0 24px 16px; padding: 16px 20px; border-radius: 1.5rem;
+    background: var(--color-bg-muted); border: 1px solid var(--color-border);
+    text-align: center;
+  }
+  .unclaimed-icon { font-size: 24px; margin-bottom: 6px; }
+  .unclaimed-notice h3 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .unclaimed-notice p { font-size: 11px; color: var(--color-text-muted); }
+
+  .tabs { display: flex; gap: 32px; margin: 0 24px; margin-bottom: 16px; border-bottom: 1px solid var(--color-border); padding-bottom: 0; }
+  .tab-link { font-size: 13px; font-weight: 600; color: var(--color-text-muted); padding-bottom: 8px; border-bottom: 2px solid transparent; }
+  .tab-link.active { color: var(--color-brand-600); border-bottom-color: var(--color-brand-600); }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0; }
+  h2.section-head { font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+  .section-sub { font-size: 13px; color: var(--color-text-muted); margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div style="max-width:1100px;margin:0 auto">
+
+  <div style="text-align:center;margin-bottom:32px">
+    <h2 class="section-head">Page States — <code style="font-size:16px">/avis/[city]/[slug]</code></h2>
+    <p class="section-sub">Three states, one route. Same URL pattern for customers and non-customers.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px">
+
+    <!-- STATE 1: CUSTOMER -->
+    <div>
+      <div class="page-label"><span class="dot dot-green"></span> State 1 — Grade Customer</div>
+      <div class="browser-chrome">
+        <div class="browser-bar">
+          <div class="browser-dots"><span class="bd-r"></span><span class="bd-y"></span><span class="bd-g"></span></div>
+          <div class="browser-url">grade.app/avis/paris/boulangerie-dupont</div>
+        </div>
+        <div class="page-content">
+          <div class="site-header">
+            <div class="logo"><div class="logo-icon">G</div><span class="logo-text">Grade</span></div>
+            <div class="back-link">← Annuaire Paris</div>
+          </div>
+          <div style="padding-top:16px">
+            <div class="profile-card">
+              <div class="profile-banner"></div>
+              <div class="avatar-wrap">
+                <div class="avatar">B</div>
+                <div class="certified-badge">✓ Certifié</div>
+              </div>
+              <div style="flex:1;position:relative;z-index:1">
+                <div class="business-name">Boulangerie Dupont</div>
+                <div class="business-meta">📍 14 Rue de Rivoli, Paris 1er</div>
+                <div style="display:flex;align-items:center;flex-wrap:wrap">
+                  <div class="score-chip"><span class="score-num">4.7</span><span class="score-denom">/5</span></div>
+                  <div class="review-count-chip">⭐⭐⭐ 38 avis certifiés</div>
+                </div>
+              </div>
+            </div>
+            <div class="action-bar">
+              <div class="action-bar-text">
+                <h3>Vous avez visité Boulangerie Dupont ?</h3>
+                <p>Munissez-vous de votre reçu pour laisser un avis vérifié.</p>
+              </div>
+              <div class="action-btn">Laisser un avis →</div>
+            </div>
+            <div class="section-title">Expériences certifiées</div>
+            <div class="reviews-grid">
+              <div class="review-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <span class="review-score">5 ★</span>
+                  <span class="review-verified">✓ Achat Vérifié</span>
+                </div>
+                <div class="review-text">"Pain au chocolat incroyable, meilleure boulangerie du quartier !"</div>
+                <div style="font-size:10px;color:var(--color-text-muted)">12 jan. 2025</div>
+              </div>
+              <div class="review-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                  <span class="review-score">4 ★</span>
+                  <span class="review-verified">✓ Achat Vérifié</span>
+                </div>
+                <div class="review-text">"Bon service, un peu d'attente le matin mais ça vaut le coup."</div>
+                <div style="font-size:10px;color:var(--color-text-muted)">8 jan. 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 2: LISTED (OSM/SIRENE) -->
+    <div>
+      <div class="page-label"><span class="dot dot-amber"></span> State 2 — Listed, Not Customer</div>
+      <div class="browser-chrome">
+        <div class="browser-bar">
+          <div class="browser-dots"><span class="bd-r"></span><span class="bd-y"></span><span class="bd-g"></span></div>
+          <div class="browser-url">grade.app/avis/lyon/pharmacie-martin</div>
+        </div>
+        <div class="page-content">
+          <div class="site-header">
+            <div class="logo"><div class="logo-icon">G</div><span class="logo-text">Grade</span></div>
+            <div class="back-link">← Annuaire Lyon</div>
+          </div>
+          <div style="padding-top:16px">
+            <div class="profile-card">
+              <div class="profile-banner" style="opacity:0.04"></div>
+              <div class="avatar-wrap">
+                <div class="avatar-unclaimed">P</div>
+              </div>
+              <div style="flex:1;position:relative;z-index:1">
+                <div class="business-name">Pharmacie Martin</div>
+                <div class="business-meta">📍 8 Place Bellecour, Lyon 2e</div>
+                <div style="margin-top:8px">
+                  <span style="font-size:10px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 8px;color:#64748b;font-weight:600">Source: OpenStreetMap</span>
+                </div>
+              </div>
+            </div>
+            <div class="warn-banner">
+              <span style="font-size:14px">⚠️</span>
+              <span><strong>Ce commerce n'utilise pas encore Grade.</strong> Aucun avis certifié n'est disponible pour le moment.</span>
+            </div>
+            <div class="cta-box" style="text-align:center">
+              <div style="font-size:20px;margin-bottom:8px">🏪</div>
+              <h3>Vous êtes le propriétaire ?</h3>
+              <p>Activez Grade pour collecter des avis certifiés et maîtriser votre réputation en ligne.</p>
+              <div class="cta-primary-btn" style="margin:0 auto;display:inline-flex">Revendiquer cette fiche →</div>
+            </div>
+            <div class="unclaimed-notice">
+              <div class="unclaimed-icon">💬</div>
+              <h3>Aucun avis disponible</h3>
+              <p>Les avis apparaîtront ici une fois que ce commerce aura activé le système de vérification Grade.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 3: UNKNOWN -->
+    <div>
+      <div class="page-label"><span class="dot dot-slate"></span> State 3 — Inconnu (généré depuis URL)</div>
+      <div class="browser-chrome">
+        <div class="browser-bar">
+          <div class="browser-dots"><span class="bd-r"></span><span class="bd-y"></span><span class="bd-g"></span></div>
+          <div class="browser-url">grade.app/avis/bordeaux/restaurant-chez-leo</div>
+        </div>
+        <div class="page-content">
+          <div class="site-header">
+            <div class="logo"><div class="logo-icon">G</div><span class="logo-text">Grade</span></div>
+            <div class="back-link">← Annuaire Bordeaux</div>
+          </div>
+          <div style="padding-top:16px">
+            <div class="profile-card">
+              <div class="profile-banner" style="opacity:0.03"></div>
+              <div class="avatar-wrap">
+                <div class="avatar-unclaimed" style="font-size:22px">R</div>
+              </div>
+              <div style="flex:1;position:relative;z-index:1">
+                <div class="business-name">Restaurant Chez Leo</div>
+                <div class="business-meta" style="color:var(--color-text-muted);font-style:italic">📍 Bordeaux · Fiche non revendiquée</div>
+                <div style="margin-top:8px">
+                  <span style="font-size:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:2px 8px;color:#dc2626;font-weight:600">Non vérifié</span>
+                </div>
+              </div>
+            </div>
+            <div class="warn-banner" style="background:#fef2f2;border-color:#fecaca;color:#991b1b">
+              <span style="font-size:14px">ℹ️</span>
+              <span>Cette fiche a été générée automatiquement depuis l'URL. Aucune information officielle n'est disponible.</span>
+            </div>
+            <div class="cta-box" style="text-align:center">
+              <div style="font-size:20px;margin-bottom:8px">🚀</div>
+              <h3>Vous êtes <em>Restaurant Chez Leo</em> ?</h3>
+              <p>Rejoignez Grade pour certifier vos avis, contrôler votre e-réputation et convertir plus de visiteurs.</p>
+              <div class="cta-primary-btn" style="margin:0 auto;display:inline-flex">Créer ma fiche Grade →</div>
+            </div>
+            <div class="unclaimed-notice">
+              <div class="unclaimed-icon">💬</div>
+              <h3>Aucun avis disponible</h3>
+              <p>Les avis apparaîtront ici une fois que ce commerce aura activé le système de vérification Grade.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:24px;padding:16px 20px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;font-size:13px;color:#1e40af">
+    <strong>Architecture C:</strong> <code>/r/[slug]</code> → 301 redirect to <code>/avis/[city]/[slug]</code> for existing customers. City field required in onboarding going forward.
+  </div>
+</div>
+</body>
+</html>

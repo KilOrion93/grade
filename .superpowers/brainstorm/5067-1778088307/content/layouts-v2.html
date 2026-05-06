@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grade — Layout Options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-50: #eff6ff;
+    --brand-100: #dbeafe;
+    --brand-200: #bfdbfe;
+    --brand-400: #60a5fa;
+    --brand-500: #3b82f6;
+    --brand-600: #2563eb;
+    --brand-700: #1d4ed8;
+    --bg: #ffffff;
+    --bg-subtle: #f8fafc;
+    --bg-muted: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --success: #10b981;
+    --accent: #f59e0b;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0f172a;
+    padding: 32px 16px 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .page-header h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.5px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1380px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .option {
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.06);
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.3s;
+    background: #1e293b;
+    position: relative;
+  }
+  .option:hover { transform: translateY(-3px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.12); }
+  .option.selected { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.25), 0 20px 60px rgba(0,0,0,0.5); }
+  .option.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 24px; height: 24px;
+    background: #2563eb;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 50;
+    line-height: 24px;
+    text-align: center;
+  }
+
+  .option-label {
+    padding: 14px 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .option-label h3 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 3px;
+  }
+  .option-label p {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    line-height: 1.5;
+  }
+
+  /* ======= SHARED PREVIEW SHELL ======= */
+  .preview {
+    background: var(--bg-subtle);
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Shared nav bar */
+  .nav-bar {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .nav-logo { font-size: 14px; font-weight: 800; color: var(--brand-600); letter-spacing: -0.5px; }
+  .nav-links { display: flex; align-items: center; gap: 12px; }
+  .nav-link { font-size: 9px; color: var(--text-secondary); font-weight: 500; }
+  .nav-cta { font-size: 9px; background: var(--brand-600); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+
+  /* Breadcrumb */
+  .breadcrumb {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+  .bc-item { color: var(--brand-600); font-weight: 500; }
+  .bc-sep { color: var(--text-muted); }
+  .bc-current { color: var(--text-secondary); font-weight: 500; }
+
+  /* ======= LAYOUT A: Current + Improvements ======= */
+  /* Same centered card layout but adds: photo hero, description, phone/website, criteria bars, photo strip */
+
+  .a-hero-card {
+    margin: 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  }
+  .a-hero-img {
+    height: 100px;
+    background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-400) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .a-hero-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='30'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .a-hero-img-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.2);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .a-hero-img-photos {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    opacity: 0.7;
+  }
+  .a-photo-slot { background: rgba(255,255,255,0.15); position: relative; }
+  .a-photo-slot:nth-child(1) { background: rgba(255,255,255,0.25); }
+  .a-photo-slot:nth-child(2) { background: rgba(255,255,255,0.18); }
+  .a-photo-slot:nth-child(3) { background: rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; }
+  .a-photo-more { color: rgba(255,255,255,0.6); font-size: 8px; font-weight: 600; }
+
+  .a-body { padding: 0 20px 16px; }
+  .a-avatar-row { display: flex; justify-content: center; margin-top: -28px; margin-bottom: 10px; position: relative; }
+  .a-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900;
+    color: var(--brand-600);
+  }
+  .a-certified {
+    position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 3px;
+    background: #ecfdf5; border: 1px solid #a7f3d0;
+    padding: 2px 8px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .a-certified-dot { width: 5px; height: 5px; background: #10b981; border-radius: 50%; }
+  .a-certified-text { font-size: 7px; font-weight: 700; color: #065f46; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  .a-name-block { text-align: center; padding-top: 14px; margin-bottom: 8px; }
+  .a-name { font-size: 18px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; margin-bottom: 3px; }
+  .a-address { font-size: 9px; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; gap: 3px; }
+  .a-addr-dot { width: 4px; height: 4px; background: var(--brand-500); border-radius: 50%; }
+
+  .a-score-row {
+    display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px;
+  }
+  .a-score-pill {
+    display: flex; align-items: center; gap: 4px;
+    background: #fefce8; border: 1px solid #fde68a;
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .a-score-num { font-size: 20px; font-weight: 900; color: #b45309; }
+  .a-score-star { font-size: 10px; color: var(--accent); }
+  .a-count-pill {
+    display: flex; align-items: center; gap: 3px;
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .a-count-star { font-size: 9px; color: var(--accent); }
+  .a-count-text { font-size: 9px; font-weight: 700; color: var(--text-secondary); }
+
+  /* CTA buttons row */
+  .a-ctarow { display: flex; gap: 6px; margin-bottom: 12px; }
+  .a-btn { flex: 1; padding: 7px 6px; border-radius: 10px; font-size: 8px; font-weight: 600; text-align: center; border: 1px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 3px; }
+  .a-btn-ghost { border-color: var(--border); color: var(--text-secondary); background: var(--bg); }
+  .a-btn-primary { border-color: var(--brand-600); background: var(--brand-600); color: white; flex: 2; }
+
+  /* Description */
+  .a-desc {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 9px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  /* Criteria mini-bars */
+  .a-criteria { display: flex; gap: 6px; margin-bottom: 10px; }
+  .a-crit-item { flex: 1; }
+  .a-crit-label { font-size: 7px; color: var(--text-muted); font-weight: 500; margin-bottom: 2px; text-align: center; }
+  .a-crit-bar-bg { height: 3px; background: var(--bg-muted); border-radius: 2px; overflow: hidden; margin-bottom: 2px; }
+  .a-crit-bar-fill { height: 100%; background: var(--brand-500); border-radius: 2px; }
+  .a-crit-score { font-size: 8px; font-weight: 700; color: var(--brand-600); text-align: center; }
+
+  /* Review cards */
+  .a-reviews-title { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .a-review-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .a-rev-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+  .a-rev-score { display: flex; align-items: center; gap: 3px; background: #fefce8; border: 1px solid #fde68a; padding: 3px 7px; border-radius: 8px; }
+  .a-rev-score-num { font-size: 13px; font-weight: 900; color: #b45309; }
+  .a-rev-score-star { font-size: 8px; color: var(--accent); }
+  .a-verified { display: flex; align-items: center; gap: 2px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 6px; border-radius: 6px; }
+  .a-verified-check { font-size: 7px; color: var(--success); font-weight: 700; }
+  .a-verified-text { font-size: 7px; font-weight: 600; color: #065f46; }
+  .a-rev-date { font-size: 7px; color: var(--text-muted); margin-top: 2px; text-align: right; }
+  .a-rev-comment { font-size: 9px; color: var(--text-secondary); line-height: 1.6; font-style: italic; border-left: 3px solid var(--brand-100); padding-left: 6px; margin-bottom: 6px; }
+  .a-rev-criteria { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; padding-top: 6px; border-top: 1px solid var(--border); }
+  .a-rev-crit { display: flex; justify-content: space-between; font-size: 8px; }
+  .a-rev-crit-name { color: var(--text-muted); font-weight: 500; }
+  .a-rev-crit-score { font-weight: 700; color: var(--text); }
+
+  /* ======= LAYOUT B: Two-column desktop split ======= */
+
+  .b-outer { display: grid; grid-template-columns: 180px 1fr; gap: 0; min-height: 560px; }
+  .b-sidebar {
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .b-main { background: var(--bg-subtle); padding: 14px 12px; overflow: hidden; }
+
+  .b-avatar-wrap { text-align: center; margin-bottom: 4px; }
+  .b-avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-subtle);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: var(--brand-600);
+    margin: 0 auto 6px;
+  }
+  .b-name { font-size: 13px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; text-align: center; line-height: 1.2; margin-bottom: 4px; }
+  .b-address { font-size: 8px; color: var(--text-muted); text-align: center; line-height: 1.4; }
+
+  .b-cert-badge {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: #ecfdf5; border: 1px solid #a7f3d0;
+    padding: 4px 8px; border-radius: 20px;
+    font-size: 7px; font-weight: 700; color: #065f46; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  .b-score-block {
+    background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px; text-align: center;
+  }
+  .b-score-big { font-size: 28px; font-weight: 900; color: #b45309; line-height: 1; }
+  .b-score-stars { font-size: 10px; color: var(--accent); letter-spacing: 1px; margin: 2px 0; }
+  .b-score-count { font-size: 8px; color: var(--text-muted); }
+
+  .b-criteria-list { display: flex; flex-direction: column; gap: 5px; }
+  .b-crit { }
+  .b-crit-header { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .b-crit-name { font-size: 8px; color: var(--text-secondary); font-weight: 500; }
+  .b-crit-val { font-size: 8px; font-weight: 700; color: var(--brand-600); }
+  .b-crit-bar { height: 3px; background: var(--bg-muted); border-radius: 2px; overflow: hidden; }
+  .b-crit-fill { height: 100%; background: var(--brand-500); border-radius: 2px; transition: width 0.5s ease; }
+
+  .b-contact-block { border-top: 1px solid var(--border); padding-top: 8px; }
+  .b-contact-label { font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+  .b-contact-item { display: flex; align-items: center; gap: 4px; font-size: 8px; color: var(--brand-600); font-weight: 500; margin-bottom: 3px; cursor: pointer; }
+  .b-contact-icon { font-size: 9px; }
+
+  .b-desc-block { border-top: 1px solid var(--border); padding-top: 8px; }
+  .b-desc-label { font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .b-desc-text { font-size: 8px; color: var(--text-secondary); line-height: 1.6; }
+
+  .b-cta-leave { background: var(--brand-600); color: white; border: none; border-radius: 10px; padding: 8px 10px; font-size: 9px; font-weight: 700; cursor: pointer; text-align: center; width: 100%; margin-top: auto; }
+
+  /* Right side */
+  .b-photos-strip { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-bottom: 10px; }
+  .b-photo-cell { border-radius: 8px; overflow: hidden; aspect-ratio: 16/10; background: var(--bg-muted); }
+  .b-photo-cell:nth-child(1) { background: linear-gradient(135deg, var(--brand-100), var(--brand-200)); }
+  .b-photo-cell:nth-child(2) { background: linear-gradient(135deg, #dbeafe, #93c5fd); }
+  .b-photo-cell:nth-child(3) { background: linear-gradient(135deg, #bfdbfe, #60a5fa); }
+  .b-photo-cell:nth-child(4) { background: var(--bg-muted); display:flex; align-items:center; justify-content:center; font-size:8px; color:var(--text-muted); font-weight:600; }
+
+  .b-reviews-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .b-reviews-title { font-size: 13px; font-weight: 800; color: var(--text); }
+  .b-filter-row { display: flex; gap: 4px; }
+  .b-filter-chip { font-size: 7px; font-weight: 600; padding: 2px 7px; border-radius: 20px; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; background: var(--bg); }
+  .b-filter-chip.active { background: var(--brand-50); border-color: var(--brand-200); color: var(--brand-700); }
+
+  .b-rev-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+    padding: 10px 12px; margin-bottom: 6px;
+  }
+  .b-rev-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+  .b-rev-score-pill { display: flex; align-items: center; gap: 3px; background: #fefce8; border: 1px solid #fde68a; padding: 3px 7px; border-radius: 8px; }
+  .b-rev-score-n { font-size: 13px; font-weight: 900; color: #b45309; }
+  .b-rev-score-s { font-size: 8px; color: var(--accent); }
+  .b-rev-right { text-align: right; }
+  .b-rev-badge { display: inline-flex; align-items: center; gap: 2px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 5px; border-radius: 6px; margin-bottom: 2px; }
+  .b-rev-badge-t { font-size: 7px; font-weight: 600; color: #065f46; }
+  .b-rev-date { font-size: 7px; color: var(--text-muted); }
+  .b-rev-comment { font-size: 9px; color: var(--text-secondary); line-height: 1.6; font-style: italic; border-left: 3px solid var(--brand-100); padding-left: 6px; margin-bottom: 5px; }
+  .b-rev-crits { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding-top: 6px; border-top: 1px solid var(--border); }
+  .b-rev-crit-item { text-align: center; }
+  .b-rev-crit-s { font-size: 9px; font-weight: 800; color: var(--text); }
+  .b-rev-crit-l { font-size: 6px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ======= LAYOUT C: Hero photo full-bleed ======= */
+
+  .c-hero-photo {
+    height: 140px;
+    background: linear-gradient(135deg, var(--brand-700) 0%, var(--brand-500) 60%, var(--brand-400) 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .c-hero-photo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 30%, rgba(9,9,9,0.6) 100%);
+    z-index: 1;
+  }
+  .c-hero-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+  .c-hg-cell { position: relative; overflow: hidden; }
+  .c-hg-cell:nth-child(1) { background: rgba(255,255,255,0.18); }
+  .c-hg-cell:nth-child(2) { background: rgba(255,255,255,0.12); }
+  .c-hg-cell:nth-child(3) { background: rgba(255,255,255,0.08); display: flex; align-items: flex-end; justify-content: flex-end; padding: 6px; }
+  .c-photo-count { font-size: 8px; color: rgba(255,255,255,0.7); font-weight: 600; z-index: 2; position: relative; }
+
+  .c-hero-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 10px 16px;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .c-hero-info { }
+  .c-hero-name { font-size: 18px; font-weight: 800; color: white; letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 3px; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+  .c-hero-address { font-size: 9px; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 3px; }
+  .c-hero-score {
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 6px 10px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .c-hero-score-num { font-size: 20px; font-weight: 900; color: #b45309; line-height: 1; }
+  .c-hero-score-star { font-size: 9px; color: var(--accent); }
+  .c-hero-score-count { font-size: 7px; color: var(--text-muted); font-weight: 500; }
+
+  .c-main-body { padding: 12px 16px; }
+
+  .c-cert-and-actions { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .c-cert { display: flex; align-items: center; gap: 3px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 3px 8px; border-radius: 20px; }
+  .c-cert-dot { width: 5px; height: 5px; background: var(--success); border-radius: 50%; }
+  .c-cert-text { font-size: 7px; font-weight: 700; color: #065f46; letter-spacing: 0.5px; text-transform: uppercase; }
+  .c-act-btn { display: flex; align-items: center; gap: 3px; padding: 4px 10px; border-radius: 20px; font-size: 8px; font-weight: 600; border: 1px solid; cursor: pointer; }
+  .c-act-ghost { border-color: var(--border); color: var(--text-secondary); background: var(--bg); }
+  .c-act-primary { border-color: var(--brand-600); background: var(--brand-600); color: white; }
+
+  .c-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .c-info-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px;
+  }
+  .c-info-label { font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .c-contact-item { display: flex; align-items: center; gap: 5px; font-size: 8px; color: var(--brand-600); font-weight: 500; margin-bottom: 4px; }
+  .c-contact-icon { font-size: 10px; color: var(--brand-500); }
+  .c-desc-text { font-size: 8px; color: var(--text-secondary); line-height: 1.6; }
+
+  .c-criteria-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 10px;
+    margin-bottom: 10px;
+  }
+  .c-crits-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .c-crit { text-align: center; }
+  .c-crit-track { height: 40px; background: var(--bg-muted); border-radius: 4px; overflow: hidden; position: relative; margin-bottom: 3px; display: flex; align-items: flex-end; }
+  .c-crit-bar { width: 100%; background: linear-gradient(to top, var(--brand-600), var(--brand-400)); border-radius: 3px; }
+  .c-crit-score { font-size: 9px; font-weight: 800; color: var(--brand-700); }
+  .c-crit-name { font-size: 6.5px; color: var(--text-muted); font-weight: 500; margin-top: 1px; }
+
+  .c-review-leave {
+    background: linear-gradient(135deg, var(--brand-600), var(--brand-700));
+    border-radius: 16px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    cursor: pointer;
+  }
+  .c-rl-text { }
+  .c-rl-title { font-size: 11px; font-weight: 700; color: white; margin-bottom: 2px; }
+  .c-rl-sub { font-size: 8px; color: rgba(255,255,255,0.7); }
+  .c-rl-btn { background: white; color: var(--brand-600); font-size: 8px; font-weight: 700; padding: 5px 10px; border-radius: 8px; white-space: nowrap; }
+
+  .c-reviews-title { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .c-filter-chips { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+  .c-chip { font-size: 7px; font-weight: 600; padding: 3px 8px; border-radius: 20px; border: 1px solid var(--border); color: var(--text-muted); background: var(--bg); cursor: pointer; }
+  .c-chip.active { background: var(--brand-50); border-color: var(--brand-200); color: var(--brand-700); }
+
+  .c-rev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .c-rev-card { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 10px 12px; }
+  .c-rev-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+  .c-rev-score { display: flex; align-items: center; gap: 3px; background: #fefce8; border: 1px solid #fde68a; padding: 3px 7px; border-radius: 8px; }
+  .c-rev-score-n { font-size: 13px; font-weight: 900; color: #b45309; }
+  .c-rev-score-s { font-size: 8px; color: var(--accent); }
+  .c-rev-right { text-align: right; }
+  .c-rev-badge { display: inline-flex; align-items: center; gap: 2px; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 5px; border-radius: 6px; margin-bottom: 2px; }
+  .c-rev-badge-t { font-size: 7px; font-weight: 600; color: #065f46; }
+  .c-rev-date { font-size: 7px; color: var(--text-muted); }
+  .c-rev-comment { font-size: 9px; color: var(--text-secondary); line-height: 1.6; font-style: italic; border-left: 3px solid var(--brand-100); padding-left: 6px; margin-bottom: 5px; }
+  .c-rev-crits { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; padding-top: 5px; border-top: 1px solid var(--border); }
+  .c-rev-crit-row { display: flex; justify-content: space-between; }
+  .c-rev-crit-l { font-size: 7px; color: var(--text-muted); font-weight: 500; }
+  .c-rev-crit-s { font-size: 7px; font-weight: 700; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="page-header">
+  <h1>Grade — Page Commerce</h1>
+  <p>Même design system · Même couleurs · Différents layouts · Cliquez pour choisir</p>
+</div>
+
+<div class="grid">
+
+  <!-- ===== OPTION A: Current layout improved ===== -->
+  <div class="option" data-choice="a" onclick="sel(this)">
+    <div class="preview">
+      <div class="nav-bar">
+        <div class="nav-logo">Grade</div>
+        <div class="nav-links">
+          <span class="nav-link">Annuaire</span>
+          <span class="nav-cta">Connexion</span>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <span class="bc-item">Annuaire</span><span class="bc-sep">›</span>
+        <span class="bc-item">Paris</span><span class="bc-sep">›</span>
+        <span class="bc-current">Le Bistrot Parisien</span>
+      </div>
+
+      <div style="padding: 12px; background: var(--bg-subtle);">
+        <div class="a-hero-card">
+          <div class="a-hero-img">
+            <div class="a-hero-img-photos">
+              <div class="a-photo-slot"></div>
+              <div class="a-photo-slot"></div>
+              <div class="a-photo-slot"><span class="a-photo-more">+4 photos</span></div>
+            </div>
+          </div>
+          <div class="a-body">
+            <div class="a-avatar-row">
+              <div style="position:relative;">
+                <div class="a-avatar">B</div>
+                <div class="a-certified"><div class="a-certified-dot"></div><span class="a-certified-text">Certifié Grade</span></div>
+              </div>
+            </div>
+            <div class="a-name-block">
+              <div class="a-name">Le Bistrot Parisien</div>
+              <div class="a-address"><div class="a-addr-dot"></div> 10 Rue de la Paix, Paris 2e</div>
+            </div>
+            <div class="a-score-row">
+              <div class="a-score-pill"><span class="a-score-num">4.7</span><span class="a-score-star">★</span></div>
+              <div class="a-count-pill"><span class="a-count-star">⭐</span><span class="a-count-text">38 avis certifiés</span></div>
+            </div>
+            <div class="a-ctarow">
+              <div class="a-btn a-btn-ghost">☎ Appeler</div>
+              <div class="a-btn a-btn-ghost">⇗ Site web</div>
+              <div class="a-btn a-btn-primary">✎ Laisser un avis</div>
+            </div>
+            <div class="a-desc">Cuisine française traditionnelle au cœur de Paris. Depuis 1987, nous accueillons nos clients dans une atmosphère chaleureuse et authentique.</div>
+            <div class="a-criteria">
+              <div class="a-crit-item"><div class="a-crit-label">Accueil</div><div class="a-crit-bar-bg"><div class="a-crit-bar-fill" style="width:92%"></div></div><div class="a-crit-score">4.6</div></div>
+              <div class="a-crit-item"><div class="a-crit-label">Qualité</div><div class="a-crit-bar-bg"><div class="a-crit-bar-fill" style="width:96%"></div></div><div class="a-crit-score">4.8</div></div>
+              <div class="a-crit-item"><div class="a-crit-label">Prix</div><div class="a-crit-bar-bg"><div class="a-crit-bar-fill" style="width:72%"></div></div><div class="a-crit-score">3.6</div></div>
+              <div class="a-crit-item"><div class="a-crit-label">Rapidité</div><div class="a-crit-bar-bg"><div class="a-crit-bar-fill" style="width:84%"></div></div><div class="a-crit-score">4.2</div></div>
+              <div class="a-crit-item"><div class="a-crit-label">Hygiène</div><div class="a-crit-bar-bg"><div class="a-crit-bar-fill" style="width:98%"></div></div><div class="a-crit-score">4.9</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 4px 0 8px;">
+          <div class="a-reviews-title">Expériences certifiées</div>
+          <div class="a-review-card">
+            <div class="a-rev-top">
+              <div class="a-rev-score"><span class="a-rev-score-num">4.8</span><span class="a-rev-score-star">★</span></div>
+              <div><div class="a-verified"><span class="a-verified-check">✓</span><span class="a-verified-text">Achat Vérifié</span></div><div class="a-rev-date">il y a 3 jours</div></div>
+            </div>
+            <div class="a-rev-comment">"Service impeccable et cuisine raffinée. Le bœuf bourguignon était absolument divin."</div>
+            <div class="a-rev-criteria">
+              <div class="a-rev-crit"><span class="a-rev-crit-name">Accueil</span><span class="a-rev-crit-score">5/5</span></div>
+              <div class="a-rev-crit"><span class="a-rev-crit-name">Qualité</span><span class="a-rev-crit-score">5/5</span></div>
+              <div class="a-rev-crit"><span class="a-rev-crit-name">Prix</span><span class="a-rev-crit-score">4/5</span></div>
+              <div class="a-rev-crit"><span class="a-rev-crit-name">Rapidité</span><span class="a-rev-crit-score">4/5</span></div>
+            </div>
+          </div>
+          <div class="a-review-card">
+            <div class="a-rev-top">
+              <div class="a-rev-score"><span class="a-rev-score-num">4.0</span><span class="a-rev-score-star">★</span></div>
+              <div><div class="a-verified"><span class="a-verified-check">✓</span><span class="a-verified-text">Achat Vérifié</span></div><div class="a-rev-date">il y a 1 sem.</div></div>
+            </div>
+            <div class="a-rev-comment">"Belle expérience dans l'ensemble. Cadre élégant, service attentionné. Un peu long."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3>A — Centré amélioré</h3>
+      <p>Layout actuel + galerie hero, description, CTAs, barres critères. Évolution douce.</p>
+    </div>
+  </div>
+
+  <!-- ===== OPTION B: Two-column sidebar ===== -->
+  <div class="option" data-choice="b" onclick="sel(this)">
+    <div class="preview">
+      <div class="nav-bar">
+        <div class="nav-logo">Grade</div>
+        <div class="nav-links">
+          <span class="nav-link">Annuaire</span>
+          <span class="nav-cta">Connexion</span>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <span class="bc-item">Annuaire</span><span class="bc-sep">›</span>
+        <span class="bc-item">Paris</span><span class="bc-sep">›</span>
+        <span class="bc-current">Le Bistrot Parisien</span>
+      </div>
+      <div class="b-outer">
+        <div class="b-sidebar">
+          <div class="b-avatar-wrap">
+            <div class="b-avatar">B</div>
+            <div class="b-name">Le Bistrot Parisien</div>
+            <div class="b-address">10 Rue de la Paix<br>Paris 2e · Restaurant</div>
+          </div>
+          <div class="b-cert-badge"><span style="font-size:8px;color:var(--success)">✓</span> Certifié Grade</div>
+          <div class="b-score-block">
+            <div class="b-score-big">4.7</div>
+            <div class="b-score-stars">★★★★★</div>
+            <div class="b-score-count">38 avis certifiés</div>
+          </div>
+          <div class="b-criteria-list">
+            <div class="b-crit"><div class="b-crit-header"><span class="b-crit-name">Accueil</span><span class="b-crit-val">4.6</span></div><div class="b-crit-bar"><div class="b-crit-fill" style="width:92%"></div></div></div>
+            <div class="b-crit"><div class="b-crit-header"><span class="b-crit-name">Qualité</span><span class="b-crit-val">4.8</span></div><div class="b-crit-bar"><div class="b-crit-fill" style="width:96%"></div></div></div>
+            <div class="b-crit"><div class="b-crit-header"><span class="b-crit-name">Prix</span><span class="b-crit-val">3.6</span></div><div class="b-crit-bar"><div class="b-crit-fill" style="width:72%"></div></div></div>
+            <div class="b-crit"><div class="b-crit-header"><span class="b-crit-name">Rapidité</span><span class="b-crit-val">4.2</span></div><div class="b-crit-bar"><div class="b-crit-fill" style="width:84%"></div></div></div>
+            <div class="b-crit"><div class="b-crit-header"><span class="b-crit-name">Hygiène</span><span class="b-crit-val">4.9</span></div><div class="b-crit-bar"><div class="b-crit-fill" style="width:98%"></div></div></div>
+          </div>
+          <div class="b-contact-block">
+            <div class="b-contact-label">Contact</div>
+            <div class="b-contact-item"><span class="b-contact-icon">☎</span> 01 23 45 67 89</div>
+            <div class="b-contact-item"><span class="b-contact-icon">⇗</span> bistrotparisien.fr</div>
+            <div class="b-contact-item"><span class="b-contact-icon">📍</span> Itinéraire</div>
+          </div>
+          <div class="b-desc-block">
+            <div class="b-desc-label">À propos</div>
+            <div class="b-desc-text">Cuisine française traditionnelle au cœur de Paris depuis 1987...</div>
+          </div>
+          <button class="b-cta-leave">✎ Laisser un avis →</button>
+        </div>
+        <div class="b-main">
+          <div class="b-photos-strip">
+            <div class="b-photo-cell"></div>
+            <div class="b-photo-cell"></div>
+            <div class="b-photo-cell"></div>
+            <div class="b-photo-cell">+3 photos</div>
+          </div>
+          <div class="b-reviews-header">
+            <div class="b-reviews-title">Expériences certifiées</div>
+            <div class="b-filter-row">
+              <div class="b-filter-chip active">Tous</div>
+              <div class="b-filter-chip">5★</div>
+              <div class="b-filter-chip">4★</div>
+            </div>
+          </div>
+          <div class="b-rev-card">
+            <div class="b-rev-top">
+              <div class="b-rev-score-pill"><span class="b-rev-score-n">4.8</span><span class="b-rev-score-s">★</span></div>
+              <div class="b-rev-right"><div class="b-rev-badge"><span class="b-rev-badge-t">✓ Achat Vérifié</span></div><div class="b-rev-date">il y a 3 jours</div></div>
+            </div>
+            <div class="b-rev-comment">"Service impeccable et cuisine raffinée. Le bœuf bourguignon était absolument divin."</div>
+            <div class="b-rev-crits">
+              <div class="b-rev-crit-item"><div class="b-rev-crit-s">5</div><div class="b-rev-crit-l">Accueil</div></div>
+              <div class="b-rev-crit-item"><div class="b-rev-crit-s">5</div><div class="b-rev-crit-l">Qualité</div></div>
+              <div class="b-rev-crit-item"><div class="b-rev-crit-s">4</div><div class="b-rev-crit-l">Prix</div></div>
+              <div class="b-rev-crit-item"><div class="b-rev-crit-s">4</div><div class="b-rev-crit-l">Rapidité</div></div>
+              <div class="b-rev-crit-item"><div class="b-rev-crit-s">5</div><div class="b-rev-crit-l">Hygiène</div></div>
+            </div>
+          </div>
+          <div class="b-rev-card">
+            <div class="b-rev-top">
+              <div class="b-rev-score-pill"><span class="b-rev-score-n">4.0</span><span class="b-rev-score-s">★</span></div>
+              <div class="b-rev-right"><div class="b-rev-badge"><span class="b-rev-badge-t">✓ Achat Vérifié</span></div><div class="b-rev-date">il y a 1 semaine</div></div>
+            </div>
+            <div class="b-rev-comment">"Belle expérience dans l'ensemble. Cadre élégant, service attentionné."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3>B — Sidebar + stream</h3>
+      <p>Infos fixes à gauche. Photos + avis filtrables à droite. Dense, pro, desktop-first.</p>
+    </div>
+  </div>
+
+  <!-- ===== OPTION C: Hero photo full-bleed ===== -->
+  <div class="option" data-choice="c" onclick="sel(this)">
+    <div class="preview">
+      <div class="nav-bar">
+        <div class="nav-logo">Grade</div>
+        <div class="nav-links">
+          <span class="nav-link">Annuaire</span>
+          <span class="nav-cta">Connexion</span>
+        </div>
+      </div>
+
+      <div class="c-hero-photo">
+        <div class="c-hero-grid">
+          <div class="c-hg-cell"></div>
+          <div class="c-hg-cell"></div>
+          <div class="c-hg-cell"><span class="c-photo-count">6 photos →</span></div>
+        </div>
+        <div class="c-hero-overlay">
+          <div class="c-hero-info">
+            <div class="c-hero-name">Le Bistrot Parisien</div>
+            <div class="c-hero-address">📍 10 Rue de la Paix, Paris 2e</div>
+          </div>
+          <div class="c-hero-score">
+            <div class="c-hero-score-num">4.7</div>
+            <div class="c-hero-score-star">★★★★★</div>
+            <div class="c-hero-score-count">38 avis</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: var(--bg-subtle);">
+        <div class="c-main-body">
+          <div class="c-cert-and-actions">
+            <div class="c-cert"><div class="c-cert-dot"></div><span class="c-cert-text">Certifié Grade</span></div>
+            <div class="c-act-btn c-act-ghost">☎ Appeler</div>
+            <div class="c-act-btn c-act-ghost">⇗ Site web</div>
+          </div>
+
+          <div class="c-two-col">
+            <div class="c-info-card">
+              <div class="c-info-label">Contact</div>
+              <div class="c-contact-item"><span class="c-contact-icon">☎</span> 01 23 45 67 89</div>
+              <div class="c-contact-item"><span class="c-contact-icon">⇗</span> bistrotparisien.fr</div>
+            </div>
+            <div class="c-info-card">
+              <div class="c-info-label">À propos</div>
+              <div class="c-desc-text">Cuisine française traditionnelle au cœur de Paris depuis 1987.</div>
+            </div>
+          </div>
+
+          <div class="c-criteria-card">
+            <div class="c-info-label" style="margin-bottom:8px">Critères d'évaluation</div>
+            <div class="c-crits-grid">
+              <div class="c-crit"><div class="c-crit-track"><div class="c-crit-bar" style="height:92%"></div></div><div class="c-crit-score">4.6</div><div class="c-crit-name">Accueil</div></div>
+              <div class="c-crit"><div class="c-crit-track"><div class="c-crit-bar" style="height:96%"></div></div><div class="c-crit-score">4.8</div><div class="c-crit-name">Qualité</div></div>
+              <div class="c-crit"><div class="c-crit-track"><div class="c-crit-bar" style="height:72%"></div></div><div class="c-crit-score">3.6</div><div class="c-crit-name">Prix</div></div>
+              <div class="c-crit"><div class="c-crit-track"><div class="c-crit-bar" style="height:84%"></div></div><div class="c-crit-score">4.2</div><div class="c-crit-name">Rapidité</div></div>
+              <div class="c-crit"><div class="c-crit-track"><div class="c-crit-bar" style="height:98%"></div></div><div class="c-crit-score">4.9</div><div class="c-crit-name">Hygiène</div></div>
+            </div>
+          </div>
+
+          <div class="c-review-leave">
+            <div class="c-rl-text">
+              <div class="c-rl-title">Vous avez visité Le Bistrot Parisien ?</div>
+              <div class="c-rl-sub">Munissez-vous de votre reçu pour laisser un avis certifié.</div>
+            </div>
+            <div class="c-rl-btn">Laisser un avis →</div>
+          </div>
+
+          <div class="c-reviews-title">Expériences certifiées</div>
+          <div class="c-filter-chips">
+            <div class="c-chip active">Tous (38)</div>
+            <div class="c-chip">5★ (22)</div>
+            <div class="c-chip">4★ (12)</div>
+            <div class="c-chip">3★ (4)</div>
+          </div>
+          <div class="c-rev-grid">
+            <div class="c-rev-card">
+              <div class="c-rev-top">
+                <div class="c-rev-score"><span class="c-rev-score-n">4.8</span><span class="c-rev-score-s">★</span></div>
+                <div class="c-rev-right"><div class="c-rev-badge"><span class="c-rev-badge-t">✓ Vérifié</span></div><div class="c-rev-date">il y a 3 jours</div></div>
+              </div>
+              <div class="c-rev-comment">"Service impeccable, cuisine raffinée. Le bœuf bourguignon était divin."</div>
+              <div class="c-rev-crits">
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Accueil</span><span class="c-rev-crit-s">5/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Qualité</span><span class="c-rev-crit-s">5/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Prix</span><span class="c-rev-crit-s">4/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Hygiène</span><span class="c-rev-crit-s">5/5</span></div>
+              </div>
+            </div>
+            <div class="c-rev-card">
+              <div class="c-rev-top">
+                <div class="c-rev-score"><span class="c-rev-score-n">4.0</span><span class="c-rev-score-s">★</span></div>
+                <div class="c-rev-right"><div class="c-rev-badge"><span class="c-rev-badge-t">✓ Vérifié</span></div><div class="c-rev-date">il y a 1 sem.</div></div>
+              </div>
+              <div class="c-rev-comment">"Belle expérience. Cadre élégant, service attentionné. Un peu long."</div>
+              <div class="c-rev-crits">
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Accueil</span><span class="c-rev-crit-s">4/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Qualité</span><span class="c-rev-crit-s">4/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Prix</span><span class="c-rev-crit-s">4/5</span></div>
+                <div class="c-rev-crit-row"><span class="c-rev-crit-l">Rapidité</span><span class="c-rev-crit-s">3/5</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="option-label">
+      <h3>C — Hero photo + grille</h3>
+      <p>Photos plein-cadre en tête avec nom + score en overlay. Critères en barres verticales. Filtres par note. Mobile-first.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function sel(el) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (window.__companion) window.__companion.select(el.dataset.choice, el.querySelector('h3').textContent);
+}
+</script>
+</body>
+</html>

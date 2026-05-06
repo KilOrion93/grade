@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(bash *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(npm run *)",
+      "Bash(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\mayur\\\\Desktop\\\\Grade\\\\trustreview\\\\src\\\\app\\\\api\\\\public\\\\search\" -Force)",
+      "Bash(Out-Null)",
+      "Bash(New-Item -ItemType Directory -Path \"C:\\\\Users\\\\mayur\\\\Desktop\\\\Grade\\\\trustreview\\\\src\\\\app\\\\avis\\\\city\\\\slug\" -Force)",
+      "Bash(Write-Host \"dirs created\")",
+      "Bash(npx tsx *)",
+      "Bash(node -e ' *)",
+      "Bash(ANYTHING)",
+      "Bash(node -e 'const { PrismaClient } = require\\('\\\\''@prisma/client'\\\\''\\); const db = new PrismaClient\\(\\); db.businessListing.count\\({ where: { citySlug: '\\\\''paris'\\\\'' } }\\).then\\(n => { console.log\\('\\\\''Paris:'\\\\'', n\\); db.$disconnect\\(\\); }\\);')",
+      "Bash(npx prisma *)",
+      "Bash(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\mayur\\\\Desktop\\\\Grade\\\\trustreview\\\\src\\\\app\\\\api\\\\reviews\\\\[id]\\\\response\")",
+      "Bash(Write-Output \"Directory created\")",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "Bash(xargs grep *)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\mayur\\\\Desktop\\\\Grade\\\\trustreview\" -Recurse -Force | Where-Object { $_.PSIsContainer } | Select-Object -ExpandProperty FullName | Select-Object -First 50)",
+      "Bash(tasklist *)",
+      "PowerShell(Get-Process *)",
+      "Bash(git *)",
+      "Bash(npm uninstall *)"
+    ]
+  }
+}
