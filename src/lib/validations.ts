@@ -9,7 +9,6 @@ export const registerSchema = z.object({
   email: z.string().email("Email invalide"),
   password: z.string().min(8, "Mot de passe trop court (min. 8 caractères)"),
   name: z.string().min(2, "Nom trop court"),
-  businessName: z.string().min(2, "Nom du business trop court"),
 });
 
 export const reviewSchema = z.object({

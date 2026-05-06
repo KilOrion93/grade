@@ -3,7 +3,6 @@
 import { db } from "@/lib/db";
 import { createSession, destroySession } from "@/lib/session";
 import { loginSchema, registerSchema } from "@/lib/validations";
-import { slugify } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
@@ -51,6 +50,11 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     entityId: user.id,
   });
 
+  const membership = await db.staffMembership.findFirst({ where: { userId: user.id } });
+  if (!membership) {
+    redirect("/onboarding");
+  }
+
   if (user.role === "ADMIN") {
     redirect("/admin");
   }
@@ -62,7 +66,6 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     name: formData.get("name") as string,
-    businessName: formData.get("businessName") as string,
   };
 
   const parsed = registerSchema.safeParse(raw);
@@ -79,18 +82,6 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
   }
 
   const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  const slug = slugify(parsed.data.businessName);
-
-  const existingSlug = await db.business.findUnique({
-    where: { slug },
-  });
-
-  if (existingSlug) {
-    return {
-      success: false,
-      error: "Un business avec un nom similaire existe déjà",
-    };
-  }
 
   const user = await db.user.create({
     data: {
@@ -101,27 +92,11 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     },
   });
 
-  const business = await db.business.create({
-    data: {
-      name: parsed.data.businessName,
-      slug,
-    },
-  });
-
-  await db.staffMembership.create({
-    data: {
-      userId: user.id,
-      businessId: business.id,
-      role: "OWNER",
-    },
-  });
-
   await logAudit({
     userId: user.id,
     action: "user.register",
     entity: "user",
     entityId: user.id,
-    metadata: { businessId: business.id },
   });
 
   await createSession({
@@ -131,7 +106,7 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
     role: user.role,
   });
 
-  redirect("/dashboard");
+  redirect("/onboarding");
 }
 
 export async function logoutAction(): Promise<void> {

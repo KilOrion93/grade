@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Button, Input, Card } from "@/components/ui";
 import { loginAction, registerAction } from "@/actions/auth";
-import { Mail, Lock, User, Store } from "lucide-react";
+import { Mail, Lock, User } from "lucide-react";
 
 export default function LoginPage() {
   const [isRegister, setIsRegister] = useState(false);
@@ -56,13 +56,6 @@ export default function LoginPage() {
                   placeholder="Jean Dupont"
                   required
                   icon={<User className="w-4 h-4" />}
-                />
-                <Input
-                  label="Nom du business"
-                  name="businessName"
-                  placeholder="Votre Business"
-                  required
-                  icon={<Store className="w-4 h-4" />}
                 />
               </>
             )}
