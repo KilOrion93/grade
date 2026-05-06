@@ -44,11 +44,24 @@ model Business {
   memberships    StaffMembership[]
   visitTokens    VisitToken[]
   responses   ReviewResponse[]
+  photos         BusinessPhoto[]
 
   @@index([slug])
   @@index([citySlug])
   @@index([isActive])
   @@map("businesses")
+}
+
+model BusinessPhoto {
+  id         String   @id @default(cuid())
+  businessId String
+  url        String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_photos")
 }
 
 model StaffMembership {
