@@ -25,7 +25,13 @@ export async function generateTokensAction(
   const session = await requireBusinessAccess(businessId);
 
   // Require active subscription
-  const { plan } = await requireActiveSubscription(businessId);
+  let plan: Awaited<ReturnType<typeof requireActiveSubscription>>["plan"];
+  try {
+    const sub = await requireActiveSubscription(businessId);
+    plan = sub.plan;
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Abonnement actif requis" };
+  }
 
   // Enforce monthly token limit
   if (plan.maxTokensPerMonth !== -1) {
@@ -99,7 +105,11 @@ export async function generateQrCodeAction(
 ): Promise<{ success: boolean; qrCodeId?: string; url?: string; error?: string }> {
   const session = await requireBusinessAccess(businessId);
 
-  await requireActiveSubscription(businessId);
+  try {
+    await requireActiveSubscription(businessId);
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : "Abonnement actif requis" };
+  }
 
   const business = await db.business.findUnique({
     where: { id: businessId },

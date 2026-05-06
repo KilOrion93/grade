@@ -3,12 +3,14 @@
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { logAudit } from "@/lib/audit";
-import { extractCityFromAddress } from "@/lib/slug-utils";
 import { z } from "zod";
 
 const createBusinessSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   address: z.string().min(5, "Une adresse complète est requise"),
+  city: z.string().min(1, "La ville est requise"),
+  phone: z.string().optional(),
+  website: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -33,17 +35,20 @@ export async function createBusinessAction(data: z.infer<typeof createBusinessSc
     counter++;
   }
 
-  try {
-    const cityInfo = extractCityFromAddress(parsed.data.address)
+  const citySlug = parsed.data.city.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
+  try {
     const business = await db.business.create({
       data: {
         name: parsed.data.name,
         address: parsed.data.address,
-        description: parsed.data.description,
+        city: parsed.data.city,
+        citySlug,
+        phone: parsed.data.phone || null,
+        website: parsed.data.website || null,
+        description: parsed.data.description || null,
         slug: uniqueSlug,
         isActive: true,
-        ...(cityInfo ? { city: cityInfo.city, citySlug: cityInfo.citySlug } : {}),
         memberships: {
           create: {
             userId: session.userId,
@@ -58,7 +63,7 @@ export async function createBusinessAction(data: z.infer<typeof createBusinessSc
       action: "business.create",
       entity: "business",
       entityId: business.id,
-      metadata: { name: business.name, slug: business.slug },
+      metadata: { name: business.name, slug: business.slug, city: business.city },
     });
 
     return { success: true, businessId: business.id };
