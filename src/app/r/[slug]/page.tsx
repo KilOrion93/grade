@@ -1,8 +1,8 @@
 import { db } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, Info } from "lucide-react";
+import { Star, MapPin, ArrowRight, CheckCircle2, Quote, Info } from "lucide-react";
+import PublicHeader from "@/components/public/public-header";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -55,26 +55,14 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
   const desc = business.description || "Cet établissement n'a pas encore ajouté de présentation. Rejoignez les clients vérifiés en laissant le premier avis !";
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
-      
-      {/* Header NavBar */}
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center group">
-            <Image 
-              src="/logo.png" 
-              alt="Grade Logo" 
-              width={32} 
-              height={32}
-            />
-          </Link>
-          <div className="flex items-center gap-4 text-sm font-medium">
-             <Link href="/businesses" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
-               <ChevronRight className="w-4 h-4" /> Retour à l'annuaire
-             </Link>
-          </div>
-        </div>
-      </header>
+    <>
+      <PublicHeader
+        breadcrumbs={[
+          { label: "Annuaire", href: "/avis" },
+          { label: business.name },
+        ]}
+      />
+      <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
 
       <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-10 relative z-10">
         
@@ -212,5 +200,6 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
         </div>
       </div>
     </main>
+    </>
   );
 }
