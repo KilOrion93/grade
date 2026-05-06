@@ -33,6 +33,11 @@ export async function GET(req: NextRequest) {
         phone: true,
         website: true,
         isActive: true,
+        logoUrl: true,
+        photos: {
+          orderBy: { order: "asc" },
+          select: { id: true, url: true, order: true },
+        },
       },
     });
 
@@ -47,7 +52,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const session = await requireSession();
     const body = await req.json();
-    const { id, name, address, description, phone, website } = body;
+    const { id, name, address, description, phone, website, logoUrl } = body;
 
     if (!id) {
       return NextResponse.json({ error: "id requis" }, { status: 400 });
@@ -72,6 +77,7 @@ export async function PATCH(req: NextRequest) {
         ...(description !== undefined && { description }),
         ...(phone !== undefined && { phone }),
         ...(website !== undefined && { website }),
+        ...(logoUrl !== undefined && { logoUrl }),
         ...(cityInfo ? { city: cityInfo.city, citySlug: cityInfo.citySlug } : {}),
       },
     });
