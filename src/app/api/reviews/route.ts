@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     const [reviews, total] = await Promise.all([
       db.review.findMany({
         where,
-        include: { criterionScores: true },
+        include: { criterionScores: true, response: true },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
@@ -51,6 +51,7 @@ export async function GET(req: NextRequest) {
           name: cs.criterionName,
           score: cs.score,
         })),
+        response: r.response ? { id: r.response.id, content: r.response.content } : null,
       })),
       total,
       page,

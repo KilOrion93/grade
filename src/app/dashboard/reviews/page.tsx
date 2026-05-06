@@ -23,6 +23,110 @@ interface ReviewItem {
   trustScore: number;
   createdAt: string;
   criteria: { name: string; score: number }[];
+  response: { id: string; content: string } | null;
+}
+
+function ResponseSection({
+  reviewId,
+  initialResponse,
+}: {
+  reviewId: string;
+  initialResponse: { id: string; content: string } | null;
+}) {
+  const [response, setResponse] = React.useState(initialResponse);
+  const [editing, setEditing] = React.useState(false);
+  const [content, setContent] = React.useState(initialResponse?.content ?? "");
+  const [saving, setSaving] = React.useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const res = await fetch(`/api/reviews/${reviewId}/response`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setResponse(data.response);
+      setEditing(false);
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    setSaving(true);
+    await fetch(`/api/reviews/${reviewId}/response`, { method: "DELETE" });
+    setResponse(null);
+    setContent("");
+    setEditing(false);
+    setSaving(false);
+  };
+
+  if (!editing && response) {
+    return (
+      <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+        <p className="text-xs font-semibold text-[var(--color-brand-600)] mb-1">Votre réponse</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">{response.content}</p>
+        <button
+          onClick={() => { setContent(response.content); setEditing(true); }}
+          className="text-xs text-[var(--color-brand-600)] hover:underline mt-1"
+        >
+          Modifier
+        </button>
+      </div>
+    );
+  }
+
+  if (!editing) {
+    return (
+      <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+        <button
+          onClick={() => setEditing(true)}
+          className="text-xs text-[var(--color-brand-600)] hover:underline flex items-center gap-1"
+        >
+          + Répondre à cet avis
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-[var(--color-border)] space-y-2">
+      <p className="text-xs font-semibold text-[var(--color-text)]">Votre réponse</p>
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="Répondez à ce client..."
+        maxLength={1000}
+        rows={3}
+        className="w-full text-xs rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-brand-600)]/20"
+      />
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving || !content.trim()}
+          className="text-xs font-semibold text-white bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] px-3 py-1.5 rounded-lg disabled:opacity-50 transition-colors"
+        >
+          {saving ? "Enregistrement..." : "Publier"}
+        </button>
+        <button
+          onClick={() => { setEditing(false); setContent(response?.content ?? ""); }}
+          className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] px-3 py-1.5"
+        >
+          Annuler
+        </button>
+        {response && (
+          <button
+            onClick={handleDelete}
+            disabled={saving}
+            className="text-xs text-red-500 hover:text-red-700 ml-auto"
+          >
+            Supprimer
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ReviewsPage() {
@@ -172,6 +276,8 @@ export default function ReviewsPage() {
                   <p className="text-xs text-[var(--color-text-muted)]">
                     {timeAgo(review.createdAt)}
                   </p>
+
+                  <ResponseSection reviewId={review.id} initialResponse={review.response} />
                 </div>
               </div>
             </Card>

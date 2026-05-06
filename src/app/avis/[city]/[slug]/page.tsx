@@ -20,7 +20,7 @@ async function getPageData(city: string, slug: string) {
     include: {
       reviews: {
         where: { moderationStatus: 'PUBLISHED', visibilityType: 'PUBLIC' },
-        include: { criterionScores: true },
+        include: { criterionScores: true, response: true },
         orderBy: { createdAt: 'desc' },
         take: 100,
       },
@@ -280,6 +280,12 @@ export default async function AvisPage({ params }: Props) {
                           </div>
                         ))}
                       </div>
+                      {rev.response && (
+                        <div className="mt-4 pt-4 border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)] -mx-6 -mb-6 px-6 pb-6 rounded-b-[2rem]">
+                          <p className="text-xs font-bold text-[var(--color-brand-600)] mb-1">Réponse du propriétaire</p>
+                          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{rev.response.content}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
