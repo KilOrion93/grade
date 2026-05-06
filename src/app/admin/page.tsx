@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { StatCard, Card, Skeleton } from "@/components/ui";
-import { Store, Users, MessageSquare, ShieldAlert } from "lucide-react";
+import { Store, Users, MessageSquare, ShieldAlert, TrendingUp, CreditCard } from "lucide-react";
+
+interface RevenueStats {
+  mrr: number;
+  activeSubscriberCount: number;
+  subscribersByPlan: { name: string; count: number; mrr: number }[];
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<{
@@ -11,6 +17,7 @@ export default function AdminDashboard() {
     reviews: number;
     flagged: number;
   } | null>(null);
+  const [revenue, setRevenue] = useState<RevenueStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,14 +26,22 @@ export default function AdminDashboard() {
       fetch("/api/admin/users").then((r) => r.json()),
       fetch("/api/admin/reviews?status=FLAGGED").then((r) => r.json()),
       fetch("/api/admin/reviews").then((r) => r.json()),
+      fetch("/api/admin/stats").then((r) => r.json()),
     ])
-      .then(([businessData, userData, flagData, allReviewsData]) => {
+      .then(([businessData, userData, flagData, allReviewsData, statsData]) => {
         setStats({
           businesses: businessData.businesses?.length || 0,
           users: userData.users?.length || 0,
           reviews: allReviewsData.total || 0,
           flagged: flagData.total || 0,
         });
+        if (!statsData.error) {
+          setRevenue({
+            mrr: statsData.mrr ?? 0,
+            activeSubscriberCount: statsData.activeSubscriberCount ?? 0,
+            subscribersByPlan: statsData.subscribersByPlan ?? [],
+          });
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -36,6 +51,9 @@ export default function AdminDashboard() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28" />)}
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28" />)}
         </div>
@@ -58,27 +76,65 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Businesses actifs"
-          value={stats?.businesses || 0}
-          icon={<Store className="w-6 h-6 text-[var(--color-brand-600)]" />}
-        />
-        <StatCard
-          title="Comptes Clients"
-          value={stats?.users || 0}
-          icon={<Users className="w-6 h-6 text-blue-500" />}
-        />
-        <StatCard
-          title="Avis Total"
-          value={stats?.reviews || 0}
-          icon={<MessageSquare className="w-6 h-6 text-fuchsia-500" />}
-        />
-        <StatCard
-          title="Alertes Fraudes"
-          value={stats?.flagged || 0}
-          icon={<ShieldAlert className="w-6 h-6 text-red-500" />}
-        />
+      {/* Revenue & Subscriber Metrics */}
+      <div>
+        <h2 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)] mb-3">Revenus &amp; Abonnements</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <StatCard
+            title="MRR"
+            value={`${(revenue?.mrr ?? 0).toFixed(0)} €`}
+            icon={<TrendingUp className="w-6 h-6 text-emerald-500" />}
+          />
+          <StatCard
+            title="Abonnés actifs"
+            value={revenue?.activeSubscriberCount ?? 0}
+            icon={<CreditCard className="w-6 h-6 text-violet-500" />}
+          />
+          <Card className="p-5 border-[var(--color-border)] bg-white flex flex-col justify-between">
+            <p className="text-sm font-semibold text-[var(--color-text-secondary)] mb-3">Par plan</p>
+            {revenue && revenue.subscribersByPlan.length > 0 ? (
+              <ul className="space-y-2">
+                {revenue.subscribersByPlan.map((p) => (
+                  <li key={p.name} className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-[var(--color-text)]">{p.name}</span>
+                    <span className="text-[var(--color-text-secondary)]">
+                      {p.count} abonné{p.count > 1 ? "s" : ""} · {p.mrr.toFixed(0)} €/mois
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-[var(--color-text-muted)] italic">Aucun abonnement actif</p>
+            )}
+          </Card>
+        </div>
+      </div>
+
+      {/* Core Platform Stats */}
+      <div>
+        <h2 className="text-xs font-black uppercase tracking-widest text-[var(--color-text-muted)] mb-3">Plateforme</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatCard
+            title="Businesses actifs"
+            value={stats?.businesses || 0}
+            icon={<Store className="w-6 h-6 text-[var(--color-brand-600)]" />}
+          />
+          <StatCard
+            title="Comptes Clients"
+            value={stats?.users || 0}
+            icon={<Users className="w-6 h-6 text-blue-500" />}
+          />
+          <StatCard
+            title="Avis Total"
+            value={stats?.reviews || 0}
+            icon={<MessageSquare className="w-6 h-6 text-fuchsia-500" />}
+          />
+          <StatCard
+            title="Alertes Fraudes"
+            value={stats?.flagged || 0}
+            icon={<ShieldAlert className="w-6 h-6 text-red-500" />}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
