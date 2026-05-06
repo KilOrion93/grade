@@ -6,6 +6,7 @@ import { computeTrustScore, hashIp, REVIEW_CRITERIA } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
 import { sendNewReviewNotification } from "@/lib/email";
 import { headers } from "next/headers";
+import { reviewTokenRatelimit, checkRateLimit } from "@/lib/ratelimit";
 
 interface ReviewResult {
   success: boolean;
@@ -150,6 +151,12 @@ export async function validateTokenAction(
   error?: string;
 }> {
   try {
+    // Rate limit by token value to prevent brute-force
+    const rl = await checkRateLimit(reviewTokenRatelimit, `token:${token.substring(0, 8)}`);
+    if (!rl.allowed) {
+      return { valid: false, error: "Trop de tentatives. Veuillez patienter 1 minute." };
+    }
+
     const business = await db.business.findUnique({
       where: { slug: businessSlug },
     });
