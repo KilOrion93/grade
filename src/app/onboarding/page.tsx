@@ -22,9 +22,9 @@ export default function NewBusinessPage() {
     setError("");
 
     const res = await createBusinessAction({ name, address, description });
-    
+
     if (res.success) {
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } else {
       setError(res.error || "Une erreur est survenue");
       setIsLoading(false);
