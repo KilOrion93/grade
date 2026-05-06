@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
-import Image from 'next/image'
 import { nameToSlug, citySlugToName } from '@/lib/slug-utils'
 import { CheckCircle2, ChevronRight, Search, MapPin } from 'lucide-react'
+import PublicHeader from "@/components/public/public-header"
 
 interface Props {
   searchParams: Promise<{ q?: string; city?: string }>
@@ -39,18 +39,14 @@ export default async function SearchPage({ searchParams }: Props) {
     : [[], []]
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-subtle)] font-sans text-[var(--color-text)] pb-20">
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Grade" width={32} height={32} />
-          </Link>
-          <Link href="/avis" className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Annuaire
-          </Link>
-        </div>
-      </header>
-
+    <>
+      <PublicHeader
+        breadcrumbs={[
+          { label: "Annuaire", href: "/avis" },
+          { label: "Recherche" },
+        ]}
+      />
+      <main className="min-h-screen bg-[var(--color-bg-subtle)] font-sans text-[var(--color-text)] pb-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
         {/* Search form */}
         <form action="/avis/search" className="flex flex-col sm:flex-row gap-3 mb-8">
@@ -167,5 +163,6 @@ export default async function SearchPage({ searchParams }: Props) {
         )}
       </div>
     </main>
+    </>
   )
 }
