@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
-import Image from 'next/image'
 import { CheckCircle2, ChevronRight, Star } from 'lucide-react'
 import { citySlugToName } from '@/lib/slug-utils'
+import PublicHeader from "@/components/public/public-header"
 
 interface Props {
   params: Promise<{ city: string }>
@@ -44,18 +44,14 @@ export default async function CityPage({ params }: Props) {
   ])
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-20 font-sans text-[var(--color-text)]">
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Grade" width={32} height={32} />
-          </Link>
-          <Link href="/avis" className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Toutes les villes
-          </Link>
-        </div>
-      </header>
-
+    <>
+      <PublicHeader
+        breadcrumbs={[
+          { label: "Annuaire", href: "/avis" },
+          { label: cityDisplay },
+        ]}
+      />
+      <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-20 font-sans text-[var(--color-text)]">
       {/* Hero */}
       <div className="relative bg-white border-b border-[var(--color-border)] py-12 px-4 overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-brand-100)] rounded-full blur-3xl opacity-40 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
@@ -154,5 +150,6 @@ export default async function CityPage({ params }: Props) {
         )}
       </div>
     </main>
+    </>
   )
 }
