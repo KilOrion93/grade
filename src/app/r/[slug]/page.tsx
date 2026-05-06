@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: `Avis ${business.name} — Vérifié par Grade`,
-    description: (business as any).description || `Découvrez tous les avis vérifiés et authentiques pour ${business.name}.`,
+    description: business.description || `Découvrez tous les avis vérifiés et authentiques pour ${business.name}.`,
   };
 }
 
@@ -32,8 +32,8 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
     notFound();
   }
 
-  if ((business as any).citySlug) {
-    redirect(`/avis/${(business as any).citySlug}/${business.slug}`)
+  if (business.citySlug) {
+    redirect(`/avis/${business.citySlug}/${business.slug}`)
   }
 
   const reviews = await db.review.findMany({
@@ -52,7 +52,7 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
   const avg = reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.overallScore, 0) / reviews.length).toFixed(1) : "—";
   
   const address = business.address || "Adresse non renseignée";
-  const desc = (business as any).description || "Cet établissement n'a pas encore ajouté de présentation. Rejoignez les clients vérifiés en laissant le premier avis !";
+  const desc = business.description || "Cet établissement n'a pas encore ajouté de présentation. Rejoignez les clients vérifiés en laissant le premier avis !";
 
   return (
     <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
@@ -108,7 +108,7 @@ export default async function BusinessVitrinePage({ params }: PageProps) {
 
                   <div className="flex justify-center md:justify-start items-start gap-2 text-[var(--color-text-secondary)]">
                     <Info className="w-5 h-5 text-[var(--color-brand-400)] shrink-0 mt-1" />
-                    <p className={`text-sm md:text-base leading-relaxed max-w-2xl bg-[var(--color-bg-subtle)] p-4 rounded-2xl border border-[var(--color-border)] ${!(business as any).description ? "italic text-[var(--color-text-muted)]" : ""}`}>
+                    <p className={`text-sm md:text-base leading-relaxed max-w-2xl bg-[var(--color-bg-subtle)] p-4 rounded-2xl border border-[var(--color-border)] ${!business.description ? "italic text-[var(--color-text-muted)]" : ""}`}>
                       {desc}
                     </p>
                   </div>
