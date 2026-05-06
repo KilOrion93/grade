@@ -1,10 +1,12 @@
 import { db } from '@/lib/db'
 import { after } from 'next/server'
 import Link from 'next/link'
-import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, AlertCircle } from 'lucide-react'
+import Image from 'next/image'
+import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, AlertCircle, Phone, Globe } from 'lucide-react'
 import { slugToName, citySlugToName } from '@/lib/slug-utils'
 import { shouldIngestCity, ingestCity } from '@/lib/ingest'
 import PublicHeader from "@/components/public/public-header"
+import ReviewsClient from "@/components/public/reviews-client"
 
 interface Props {
   params: Promise<{ city: string; slug: string }>
@@ -24,6 +26,7 @@ async function getPageData(city: string, slug: string) {
         orderBy: { createdAt: 'desc' },
         take: 100,
       },
+      photos: { orderBy: { order: 'asc' } },
     },
   })
 
@@ -145,6 +148,37 @@ export default async function AvisPage({ params }: Props) {
     ],
   }
 
+  // Serialize reviews for client component (dates -> ISO strings)
+  const serializedReviews = type === 'customer'
+    ? business!.reviews.map(r => ({ ...r, createdAt: r.createdAt.toISOString() }))
+    : []
+
+  // Aggregate criterion scores for bar chart
+  const criteriaMap = new Map<string, number[]>()
+  if (type === 'customer') {
+    for (const rev of business!.reviews) {
+      for (const cs of rev.criterionScores) {
+        const existing = criteriaMap.get(cs.criterionName) ?? []
+        existing.push(cs.score)
+        criteriaMap.set(cs.criterionName, existing)
+      }
+    }
+  }
+  const criteriaAverages = Array.from(criteriaMap.entries()).map(([name, scores]) => ({
+    name,
+    avg: scores.reduce((s, v) => s + v, 0) / scores.length,
+  }))
+
+  const photos = type === 'customer' ? business!.photos : []
+  const phone = business?.phone ?? listing?.phone
+  const website = business?.website ?? listing?.website
+  const description = business?.description ?? null
+  const logoUrl = business?.logoUrl ?? null
+
+  const avgScore = type === 'customer' && business!.reviews.length > 0
+    ? (business!.reviews.reduce((s, r) => s + r.overallScore, 0) / business!.reviews.length).toFixed(1)
+    : null
+
   return (
     <>
       <PublicHeader
@@ -164,209 +198,262 @@ export default async function AvisPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
 
-        <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-8">
+        {/* Hero zone — full-bleed, outside max-w container */}
+        <div className="relative h-60 overflow-hidden bg-gradient-to-br from-[var(--color-brand-600)] to-[var(--color-brand-400)]">
+          {/* Photo grid */}
+          {photos.length > 0 && (
+            <div className={`absolute inset-0 grid h-full w-full ${photos.length === 1 ? 'grid-cols-1' : photos.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {photos.slice(0, 3).map(photo => (
+                <div key={photo.id} className="relative overflow-hidden">
+                  <Image
+                    src={photo.url}
+                    alt={name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
-        {/* Profile Card */}
-        <div className="bg-white border border-[var(--color-border)] rounded-[2rem] p-6 sm:p-10 shadow-[var(--shadow-xl)] relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-400)] opacity-[0.07]" />
-          <div className="relative z-10 flex flex-col items-center text-center gap-4">
-            <div className="relative mt-4">
-              <div className={`w-24 h-24 rounded-full border-4 border-white shadow-[var(--shadow-md)] flex items-center justify-center text-4xl font-black relative z-10 ring-1 ring-[var(--color-border)] ${type === 'customer' ? 'bg-white text-[var(--color-brand-600)]' : 'bg-[var(--color-bg-muted)] text-[var(--color-text-muted)]'}`}>
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+          {/* Score pill — top right */}
+          {avgScore && (
+            <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-400/90 text-yellow-900 font-black text-sm shadow-lg backdrop-blur-sm">
+              <span>{avgScore}</span>
+              <Star className="w-3.5 h-3.5 fill-current" />
+            </div>
+          )}
+
+          {/* Bottom: logo/avatar + name + city */}
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 flex items-end gap-3">
+            {logoUrl ? (
+              <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white/50 shadow-lg shrink-0 relative">
+                <Image src={logoUrl} alt={name} fill className="object-cover" sizes="56px" />
+              </div>
+            ) : (
+              <div className={`w-14 h-14 rounded-2xl border-2 border-white/50 shadow-lg shrink-0 flex items-center justify-center text-2xl font-black ${type === 'customer' ? 'bg-white text-[var(--color-brand-600)]' : 'bg-white/20 text-white'}`}>
                 {name.charAt(0).toUpperCase()}
               </div>
-              {type === 'customer' ? (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 flex items-center gap-1.5 z-20 shadow-sm">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Certifié Grade</span>
-                </div>
-              ) : (
-                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-3 py-1 rounded-full bg-[var(--color-bg-muted)] border border-[var(--color-border)] flex items-center gap-1.5 z-20 shadow-sm">
-                  <span className="text-xs font-semibold text-[var(--color-text-muted)]">Non certifié</span>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-4 space-y-3">
-              <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">{name}</h1>
-              <p className="flex justify-center items-center gap-2 text-[var(--color-text-secondary)] font-medium text-sm">
-                <MapPin className="w-4 h-4 text-[var(--color-brand-500)] shrink-0" />
+            )}
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-white drop-shadow-md truncate">{name}</h1>
+              <p className="text-white/80 text-sm font-medium flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
                 {address || cityDisplay}
               </p>
-              {listing?.source && (
-                <span className="inline-block text-xs font-semibold bg-[var(--color-bg-muted)] border border-[var(--color-border)] rounded-full px-3 py-1 text-[var(--color-text-muted)]">
-                  Source: {listing.source === 'OSM' ? 'OpenStreetMap' : listing.source === 'SIRENE' ? 'Registre officiel SIRENE' : 'Manuel'}
-                </span>
-              )}
-
-              {type === 'customer' && business!.reviews.length > 0 && (
-                <div className="flex items-center justify-center gap-4 pt-2 flex-wrap">
-                  <div className="flex items-end gap-2 bg-yellow-50 px-4 py-2 rounded-2xl border border-yellow-200/50">
-                    <span className="text-3xl font-extrabold tabular-nums text-yellow-500">
-                      {(business!.reviews.reduce((s, r) => s + r.overallScore, 0) / business!.reviews.length).toFixed(1)}
-                    </span>
-                    <span className="text-yellow-600/60 font-medium mb-1">/5</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-[var(--color-border)]">
-                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                    <span className="text-sm font-bold text-[var(--color-text-secondary)]">{business!.reviews.length} avis certifiés</span>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
 
-        {/* State-specific content */}
-        {type === 'customer' ? (
-          <>
-            <div className="mt-6">
-              <Link href={`/r/${business!.slug}/review`} className="group flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg gap-4 transition-all hover:scale-[1.01]">
-                <div className="flex items-center gap-4 text-center sm:text-left">
-                  <div className="hidden sm:flex w-12 h-12 rounded-full bg-white/20 items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg text-white">Vous avez visité {name} ?</h3>
-                    <p className="text-blue-100 text-sm">Munissez-vous de votre reçu pour laisser un avis vérifié.</p>
-                  </div>
-                </div>
-                <div className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-[var(--color-brand-600)] font-bold flex items-center justify-center gap-2">
-                  Laisser un avis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+        {/* Action row */}
+        <div className="bg-white border-b border-[var(--color-border)] px-4 py-3 flex items-center gap-3 flex-wrap">
+          {type === 'customer' && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-700">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Certifié Grade
             </div>
+          )}
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors"
+            >
+              <Phone className="w-3.5 h-3.5" />
+              {phone}
+            </a>
+          )}
+          {website && (
+            <a
+              href={website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border)] text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-brand-300)] transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              Site web
+            </a>
+          )}
+        </div>
 
-            <div className="mt-12 space-y-6">
-              <div>
-                <h2 className="text-2xl font-extrabold">Expériences certifiées</h2>
-                <p className="text-[var(--color-text-secondary)] text-sm mt-1">Tous les témoignages proviennent de clients vérifiés.</p>
-              </div>
-              {business!.reviews.length === 0 ? (
-                <div className="p-10 rounded-[2rem] bg-white border border-[var(--color-border)] text-center">
-                  <div className="w-14 h-14 bg-[var(--color-bg-muted)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--color-border)]">
-                    <Quote className="w-5 h-5 text-[var(--color-text-muted)]" />
+        <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-6">
+
+          {/* Info cards */}
+          {(address || phone || website || description) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {(address || phone || website) && (
+                <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)]">
+                  <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Contact</h2>
+                  <div className="space-y-2">
+                    {address && (
+                      <div className="flex items-start gap-2 text-sm text-[var(--color-text-secondary)]">
+                        <MapPin className="w-4 h-4 text-[var(--color-brand-500)] shrink-0 mt-0.5" />
+                        <span>{address}</span>
+                      </div>
+                    )}
+                    {phone && (
+                      <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] transition-colors">
+                        <Phone className="w-4 h-4 text-[var(--color-brand-500)] shrink-0" />
+                        <span>{phone}</span>
+                      </a>
+                    )}
+                    {website && (
+                      <a href={website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-brand-600)] transition-colors">
+                        <Globe className="w-4 h-4 text-[var(--color-brand-500)] shrink-0" />
+                        <span className="truncate">{website.replace(/^https?:\/\//, '')}</span>
+                      </a>
+                    )}
                   </div>
-                  <h3 className="text-lg font-bold mb-1">Soyez le pionnier</h3>
-                  <p className="text-[var(--color-text-secondary)] text-sm">Aucun avis publié pour le moment.</p>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {business!.reviews.map(rev => (
-                    <div key={rev.id} className="p-6 rounded-[2rem] bg-white border border-[var(--color-border)] shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-50 text-yellow-600 border border-yellow-200">
-                          <span className="text-lg font-black">{rev.overallScore}</span>
-                          <Star className="w-3.5 h-3.5 fill-current" />
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs font-bold text-emerald-600 flex items-center gap-1 justify-end bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
-                            <CheckCircle2 className="w-3 h-3" /> Achat Vérifié
-                          </p>
-                          <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                            {rev.createdAt.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                      {rev.comment && (
-                        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed italic border-l-4 border-[var(--color-brand-100)] pl-3 mb-4">
-                          &ldquo;{rev.comment}&rdquo;
-                        </p>
-                      )}
-                      <div className="pt-4 border-t border-[var(--color-border)] grid grid-cols-2 gap-x-4 gap-y-2">
-                        {rev.criterionScores.map(c => (
-                          <div key={c.id} className="flex justify-between items-center">
-                            <span className="text-xs font-semibold text-[var(--color-text-muted)]">{c.criterionName}</span>
-                            <span className="text-sm font-bold">{c.score}/5</span>
-                          </div>
-                        ))}
-                      </div>
-                      {rev.response && (
-                        <div className="mt-4 pt-4 border-t border-[var(--color-border)] bg-[var(--color-bg-subtle)] -mx-6 -mb-6 px-6 pb-6 rounded-b-[2rem]">
-                          <p className="text-xs font-bold text-[var(--color-brand-600)] mb-1">Réponse du propriétaire</p>
-                          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{rev.response.content}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+              )}
+              {description && (
+                <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)]">
+                  <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">À propos</h2>
+                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{description}</p>
                 </div>
               )}
             </div>
-          </>
-        ) : (
-          <>
-            <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-              <div className="text-sm text-amber-800">
-                <strong>Ce commerce n&apos;utilise pas encore Grade.</strong> Aucun avis certifié n&apos;est disponible. Les avis apparaîtront ici dès son activation.
-              </div>
-            </div>
+          )}
 
-            <div className="mt-5 p-6 rounded-[1.5rem] bg-gradient-to-br from-[var(--color-brand-50)] to-white border border-[var(--color-brand-200)] text-center">
-              <div className="text-3xl mb-3">🚀</div>
-              <h3 className="text-base font-bold text-[var(--color-brand-700)] mb-2">Vous êtes le propriétaire de {name} ?</h3>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-4 max-w-sm mx-auto">
-                Activez Grade pour collecter des avis certifiés, booster votre visibilité Google et gérer votre réputation.
-              </p>
-              <Link href="/login" className="inline-flex items-center gap-2 bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] text-white font-bold px-6 py-3 rounded-xl transition-colors">
-                Activer Grade gratuitement <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="mt-5 p-10 rounded-[2rem] bg-white border border-[var(--color-border)] text-center">
-              <div className="w-14 h-14 bg-[var(--color-bg-muted)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--color-border)]">
-                <Quote className="w-5 h-5 text-[var(--color-text-muted)]" />
-              </div>
-              <h3 className="text-lg font-bold mb-1">Aucun avis certifié</h3>
-              <p className="text-sm text-[var(--color-text-secondary)]">Les avis apparaîtront ici une fois que {name} aura activé Grade.</p>
-            </div>
-          </>
-        )}
-
-        {/* Nearby section */}
-        {(nearby.length > 0 || nearbyCustomers.length > 0) && (
-          <div className="mt-12 space-y-4">
-            <h2 className="text-xl font-extrabold">Autres commerces à {cityDisplay}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {nearbyCustomers.map(b => {
-                const avg = b.reviews.length > 0
-                  ? (b.reviews.reduce((s, r) => s + r.overallScore, 0) / b.reviews.length).toFixed(1)
-                  : null
-                return (
-                  <Link key={b.slug} href={b.citySlug ? `/avis/${b.citySlug}/${b.slug}` : `/r/${b.slug}`}
-                    className="group p-4 bg-white border border-[var(--color-border)] rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] flex items-center justify-center font-black text-[var(--color-brand-600)]">
-                        {b.name.charAt(0)}
+          {/* State-specific content */}
+          {type === 'customer' ? (
+            <>
+              {/* Criteria bar chart */}
+              {criteriaAverages.length > 0 && (
+                <div className="p-5 rounded-2xl bg-white border border-[var(--color-border)] mb-6">
+                  <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-4">Critères</h2>
+                  <div className="flex items-end gap-4 justify-around">
+                    {criteriaAverages.map(c => (
+                      <div key={c.name} className="flex flex-col items-center gap-1 flex-1">
+                        <span className="text-xs font-bold text-[var(--color-text-secondary)]">{c.avg.toFixed(1)}</span>
+                        <div className="w-full rounded-t-md bg-[var(--color-bg-muted)] relative" style={{ height: '80px' }}>
+                          <div
+                            className="absolute bottom-0 left-0 right-0 rounded-t-md bg-[var(--color-brand-600)]"
+                            style={{ height: `${(c.avg / 5) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-[var(--color-text-muted)] text-center leading-tight">{c.name}</span>
                       </div>
-                      <div>
-                        <div className="font-bold text-sm">{b.name}</div>
-                        {avg && <div className="text-xs text-yellow-600 font-semibold">⭐ {avg} · {b.reviews.length} avis</div>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">
-                      <CheckCircle2 className="w-3 h-3" /> Certifié
-                    </div>
-                  </Link>
-                )
-              })}
-              {nearby.map(l => (
-                <Link key={l.slug} href={`/avis/${l.citySlug}/${l.slug}`}
-                  className="group p-4 bg-white border border-[var(--color-border)] rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[var(--color-bg-muted)] flex items-center justify-center font-black text-[var(--color-text-muted)]">
-                      {l.name.charAt(0)}
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CTA banner */}
+              <div className="mb-6">
+                <Link href={`/r/${business!.slug}/review`} className="group flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg gap-4 transition-all hover:scale-[1.01]">
+                  <div className="flex items-center gap-4 text-center sm:text-left">
+                    <div className="hidden sm:flex w-12 h-12 rounded-full bg-white/20 items-center justify-center">
+                      <CheckCircle2 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-bold text-sm">{l.name}</div>
-                      {l.category && <div className="text-xs text-[var(--color-text-muted)]">{l.category}</div>}
+                      <h3 className="font-bold text-lg text-white">Vous avez visité {name} ?</h3>
+                      <p className="text-blue-100 text-sm">Munissez-vous de votre reçu pour laisser un avis vérifié.</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:translate-x-1 transition-transform" />
+                  <div className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-[var(--color-brand-600)] font-bold flex items-center justify-center gap-2">
+                    Laisser un avis <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </Link>
-              ))}
+              </div>
+
+              {/* Reviews section */}
+              <div className="space-y-6 mb-12">
+                <div>
+                  <h2 className="text-2xl font-extrabold">Expériences certifiées</h2>
+                  <p className="text-[var(--color-text-secondary)] text-sm mt-1">Tous les témoignages proviennent de clients vérifiés.</p>
+                </div>
+                {business!.reviews.length === 0 ? (
+                  <div className="p-10 rounded-[2rem] bg-white border border-[var(--color-border)] text-center">
+                    <div className="w-14 h-14 bg-[var(--color-bg-muted)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--color-border)]">
+                      <Quote className="w-5 h-5 text-[var(--color-text-muted)]" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-1">Soyez le pionnier</h3>
+                    <p className="text-[var(--color-text-secondary)] text-sm">Aucun avis publié pour le moment.</p>
+                  </div>
+                ) : (
+                  <ReviewsClient reviews={serializedReviews} businessName={name} />
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <strong>Ce commerce n&apos;utilise pas encore Grade.</strong> Aucun avis certifié n&apos;est disponible. Les avis apparaîtront ici dès son activation.
+                </div>
+              </div>
+
+              <div className="mt-5 p-6 rounded-[1.5rem] bg-gradient-to-br from-[var(--color-brand-50)] to-white border border-[var(--color-brand-200)] text-center">
+                <div className="text-3xl mb-3">🚀</div>
+                <h3 className="text-base font-bold text-[var(--color-brand-700)] mb-2">Vous êtes le propriétaire de {name} ?</h3>
+                <p className="text-sm text-[var(--color-text-secondary)] mb-4 max-w-sm mx-auto">
+                  Activez Grade pour collecter des avis certifiés, booster votre visibilité Google et gérer votre réputation.
+                </p>
+                <Link href="/login" className="inline-flex items-center gap-2 bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] text-white font-bold px-6 py-3 rounded-xl transition-colors">
+                  Activer Grade gratuitement <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              <div className="mt-5 p-10 rounded-[2rem] bg-white border border-[var(--color-border)] text-center">
+                <div className="w-14 h-14 bg-[var(--color-bg-muted)] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[var(--color-border)]">
+                  <Quote className="w-5 h-5 text-[var(--color-text-muted)]" />
+                </div>
+                <h3 className="text-lg font-bold mb-1">Aucun avis certifié</h3>
+                <p className="text-sm text-[var(--color-text-secondary)]">Les avis apparaîtront ici une fois que {name} aura activé Grade.</p>
+              </div>
+            </>
+          )}
+
+          {/* Nearby section */}
+          {(nearby.length > 0 || nearbyCustomers.length > 0) && (
+            <div className="mt-12 space-y-4">
+              <h2 className="text-xl font-extrabold">Autres commerces à {cityDisplay}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {nearbyCustomers.map(b => {
+                  const avg = b.reviews.length > 0
+                    ? (b.reviews.reduce((s, r) => s + r.overallScore, 0) / b.reviews.length).toFixed(1)
+                    : null
+                  return (
+                    <Link key={b.slug} href={b.citySlug ? `/avis/${b.citySlug}/${b.slug}` : `/r/${b.slug}`}
+                      className="group p-4 bg-white border border-[var(--color-border)] rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[var(--color-brand-50)] flex items-center justify-center font-black text-[var(--color-brand-600)]">
+                          {b.name.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-sm">{b.name}</div>
+                          {avg && <div className="text-xs text-yellow-600 font-semibold">⭐ {avg} · {b.reviews.length} avis</div>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-full">
+                        <CheckCircle2 className="w-3 h-3" /> Certifié
+                      </div>
+                    </Link>
+                  )
+                })}
+                {nearby.map(l => (
+                  <Link key={l.slug} href={`/avis/${l.citySlug}/${l.slug}`}
+                    className="group p-4 bg-white border border-[var(--color-border)] rounded-2xl flex items-center justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--color-bg-muted)] flex items-center justify-center font-black text-[var(--color-text-muted)]">
+                        {l.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm">{l.name}</div>
+                        {l.category && <div className="text-xs text-[var(--color-text-muted)]">{l.category}</div>}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-[var(--color-text-muted)] group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </main>
     </>
