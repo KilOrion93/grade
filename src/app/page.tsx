@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import PublicHeader from "@/components/public/public-header";
 import { db } from "@/lib/db";
 import {
   QrCode,
@@ -25,7 +26,9 @@ export default async function HomePage() {
   });
 
   return (
-    <main className="min-h-screen">
+    <>
+      <PublicHeader />
+      <main className="min-h-screen">
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-50)] via-white to-blue-50" />
@@ -36,31 +39,6 @@ export default async function HomePage() {
         </div>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24 sm:py-32">
-          <nav className="flex items-center justify-between mb-16">
-            <div className="flex items-center">
-              <Image 
-                src="/logo.png" 
-                alt="Grade Logo" 
-                width={40} 
-                height={40}
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/login"
-                className="px-4 py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
-              >
-                Connexion
-              </Link>
-              <Link
-                href="/login"
-                className="px-4 py-2.5 text-sm font-medium text-white bg-[var(--color-brand-600)] rounded-[var(--radius-lg)] hover:bg-[var(--color-brand-700)] transition-colors shadow-sm"
-              >
-                Essai gratuit
-              </Link>
-            </div>
-          </nav>
-
           <div className="text-center max-w-3xl mx-auto animate-fade-in">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-brand-50)] border border-[var(--color-brand-200)] text-[var(--color-brand-700)] text-xs font-medium mb-6">
               <Image 
@@ -90,10 +68,10 @@ export default async function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/businesses"
+                href="/avis"
                 className="inline-flex items-center gap-2 px-8 py-3.5 text-base font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] bg-white border border-[var(--color-border)] rounded-[var(--radius-xl)] shadow-sm hover:shadow-md transition-all"
               >
-                Explorer nos établissements
+                Explorer l'annuaire
               </Link>
             </div>
           </div>
@@ -295,5 +273,6 @@ export default async function HomePage() {
         </div>
       </footer>
     </main>
+    </>
   );
 }
