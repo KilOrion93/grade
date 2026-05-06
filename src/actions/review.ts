@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { reviewSchema } from "@/lib/validations";
 import { computeTrustScore, hashIp, REVIEW_CRITERIA } from "@/lib/utils";
 import { logAudit } from "@/lib/audit";
+import { sendNewReviewNotification } from "@/lib/email";
 import { headers } from "next/headers";
 
 interface ReviewResult {
@@ -101,6 +102,34 @@ export async function submitReviewAction(
       entityId: result.id,
       metadata: { businessId, trustScore: result.trustScore },
     });
+
+    // Send notification to business owner (fire-and-forget, non-blocking)
+    try {
+      const business = await db.business.findUnique({
+        where: { id: businessId },
+        select: {
+          name: true,
+          memberships: {
+            where: { role: "OWNER" },
+            take: 1,
+            include: { user: { select: { email: true, name: true } } },
+          },
+        },
+      });
+
+      const owner = business?.memberships[0]?.user;
+      if (owner && business) {
+        await sendNewReviewNotification({
+          ownerEmail: owner.email,
+          ownerName: owner.name,
+          businessName: business.name,
+          overallScore: result.overallScore,
+          comment: result.comment,
+        });
+      }
+    } catch {
+      // Email failure must never fail the review submission
+    }
 
     return { success: true };
   } catch (error) {
