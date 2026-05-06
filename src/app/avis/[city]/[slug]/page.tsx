@@ -1,10 +1,10 @@
 import { db } from '@/lib/db'
 import { after } from 'next/server'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Star, MapPin, ArrowRight, CheckCircle2, ChevronRight, Quote, AlertCircle } from 'lucide-react'
 import { slugToName, citySlugToName } from '@/lib/slug-utils'
 import { shouldIngestCity, ingestCity } from '@/lib/ingest'
+import PublicHeader from "@/components/public/public-header"
 
 interface Props {
   params: Promise<{ city: string; slug: string }>
@@ -146,28 +146,25 @@ export default async function AvisPage({ params }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+    <>
+      <PublicHeader
+        breadcrumbs={[
+          { label: "Annuaire", href: "/avis" },
+          { label: cityDisplay, href: `/avis/${city}` },
+          { label: name },
+        ]}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-      />
+      <main className="min-h-screen bg-[var(--color-bg-subtle)] pb-24 font-sans text-[var(--color-text)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        />
 
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Grade" width={32} height={32} />
-          </Link>
-          <Link href={`/avis/${city}`} className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors flex items-center gap-1">
-            <ChevronRight className="w-4 h-4 rotate-180" /> Annuaire {cityDisplay}
-          </Link>
-        </div>
-      </header>
-
-      <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-8">
+        <div className="max-w-4xl mx-auto px-4 lg:px-0 pt-8">
 
         {/* Profile Card */}
         <div className="bg-white border border-[var(--color-border)] rounded-[2rem] p-6 sm:p-10 shadow-[var(--shadow-xl)] relative overflow-hidden">
@@ -304,7 +301,7 @@ export default async function AvisPage({ params }: Props) {
               <p className="text-sm text-[var(--color-text-secondary)] mb-4 max-w-sm mx-auto">
                 Activez Grade pour collecter des avis certifiés, booster votre visibilité Google et gérer votre réputation.
               </p>
-              <Link href="/register" className="inline-flex items-center gap-2 bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] text-white font-bold px-6 py-3 rounded-xl transition-colors">
+              <Link href="/login" className="inline-flex items-center gap-2 bg-[var(--color-brand-600)] hover:bg-[var(--color-brand-700)] text-white font-bold px-6 py-3 rounded-xl transition-colors">
                 Activer Grade gratuitement <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -364,7 +361,8 @@ export default async function AvisPage({ params }: Props) {
             </div>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   )
 }
