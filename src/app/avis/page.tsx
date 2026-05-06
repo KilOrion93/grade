@@ -1,8 +1,8 @@
 import { db } from '@/lib/db'
 import Link from 'next/link'
-import Image from 'next/image'
 import { ChevronRight, Search } from 'lucide-react'
 import { nameToSlug } from '@/lib/slug-utils'
+import PublicHeader from "@/components/public/public-header"
 
 export const metadata = {
   title: 'Annuaire des avis vérifiés — Grade',
@@ -40,16 +40,9 @@ export default async function AvisLandingPage() {
   const totalCustomers = await db.business.count({ where: { isActive: true } })
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-subtle)] font-sans text-[var(--color-text)] pb-20">
-      <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/80 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Grade" width={32} height={32} />
-          </Link>
-          <Link href="/login" className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">Connexion</Link>
-        </div>
-      </header>
-
+    <>
+      <PublicHeader />
+      <main className="min-h-screen bg-[var(--color-bg-subtle)] font-sans text-[var(--color-text)] pb-20">
       {/* Hero */}
       <div className="relative bg-white border-b border-[var(--color-border)] py-16 sm:py-24 px-4 overflow-hidden text-center">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--color-brand-100)] rounded-full blur-3xl opacity-40 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
@@ -123,6 +116,7 @@ export default async function AvisLandingPage() {
           ))}
         </div>
       </section>
-    </main>
+      </main>
+    </>
   )
 }
