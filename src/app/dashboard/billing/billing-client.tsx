@@ -58,6 +58,7 @@ export default function BillingClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchBilling = useCallback(async () => {
@@ -167,6 +168,26 @@ export default function BillingClient() {
     }
   }, [businessId]);
 
+  const syncSubscription = useCallback(async () => {
+    if (!businessId) return;
+    setIsSyncing(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/billing/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessId }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Synchronisation échouée");
+      await fetchBilling();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Erreur serveur");
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [businessId, fetchBilling]);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -187,7 +208,7 @@ export default function BillingClient() {
   }
 
   const hasStripeCustomer = !!data.business.subscription?.stripeCustomerId;
-  const hasPaidSubscription = !!data.business.subscription?.stripeCustomerId;
+  const hasPaidSubscription = ["active", "trialing"].includes(data.business.subscription?.status ?? "");
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
@@ -214,16 +235,27 @@ export default function BillingClient() {
                 <span className="text-sm font-normal text-[var(--color-text-secondary)]">({activePlan.price}€ / mois)</span>
               </h2>
             </div>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={openPortal}
-              isLoading={isPortalLoading}
-              disabled={!hasStripeCustomer}
-            >
-              <CreditCard className="w-4 h-4" />
-              Gérer la facturation
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={openPortal}
+                isLoading={isPortalLoading}
+                disabled={!hasStripeCustomer}
+              >
+                <CreditCard className="w-4 h-4" />
+                Gérer la facturation
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={syncSubscription}
+                isLoading={isSyncing}
+                title="Synchroniser le statut depuis Stripe"
+              >
+                Synchroniser
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
