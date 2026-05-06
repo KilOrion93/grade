@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, Badge, Skeleton, EmptyState, Button, Input, Textarea } from "@/components/ui";
 import { Store, Edit2 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
@@ -12,6 +13,9 @@ interface Business {
   slug: string;
   address: string | null;
   description: string | null;
+  phone: string | null;
+  website: string | null;
+  logoUrl: string | null;
   isActive: boolean;
   createdAt: string;
   _count: { reviews: number; visitTokens: number };
@@ -30,6 +34,8 @@ export default function AdminBusinessesPage() {
   const [editName, setEditName] = useState("");
   const [editAddress, setEditAddress] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -81,6 +87,8 @@ export default function AdminBusinessesPage() {
     setEditName(business.name);
     setEditAddress(business.address || "");
     setEditDescription(business.description || "");
+    setEditPhone(business.phone || "");
+    setEditWebsite(business.website || "");
   };
 
   const handleUpdate = async (event: React.FormEvent) => {
@@ -97,6 +105,8 @@ export default function AdminBusinessesPage() {
           name: editName,
           address: editAddress,
           description: editDescription,
+          phone: editPhone,
+          website: editWebsite,
         }),
       });
       const data = await response.json();
@@ -168,6 +178,10 @@ export default function AdminBusinessesPage() {
                 <Input label="Nouvelle adresse" required value={editAddress} onChange={(event) => setEditAddress(event.target.value)} />
               </div>
               <Textarea label="Nouvelle description" value={editDescription} onChange={(event) => setEditDescription(event.target.value)} rows={3} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Téléphone" value={editPhone} onChange={(event) => setEditPhone(event.target.value)} placeholder="+33 1 23 45 67 89" />
+                <Input label="Site web" value={editWebsite} onChange={(event) => setEditWebsite(event.target.value)} placeholder="https://..." />
+              </div>
               <div className="pt-4 flex items-center justify-end gap-3">
                 <Button type="button" variant="outline" onClick={() => setEditingBusiness(null)}>Annuler</Button>
                 <Button type="submit" isLoading={isUpdating}>Sauvegarder</Button>
@@ -188,24 +202,35 @@ export default function AdminBusinessesPage() {
           {businesses.map((business) => (
             <Card key={business.id} hover padding="sm">
               <div className="flex items-center justify-between p-2 flex-wrap gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/r/${business.slug}`} target="_blank" className="font-semibold hover:underline text-[var(--color-brand-600)] text-lg">
-                      {business.name}
-                    </Link>
-                    <Badge variant={business.isActive ? "success" : "danger"}>
-                      {business.isActive ? "Actif" : "Inactif"}
-                    </Badge>
+                <div className="flex items-center gap-3">
+                  {business.logoUrl ? (
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--color-border)] shrink-0">
+                      <Image src={business.logoUrl} alt={business.name} width={40} height={40} className="object-cover w-full h-full" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-brand-50)] border border-[var(--color-border)] flex items-center justify-center shrink-0 font-black text-[var(--color-brand-600)]">
+                      {business.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/r/${business.slug}`} target="_blank" className="font-semibold hover:underline text-[var(--color-brand-600)] text-lg">
+                        {business.name}
+                      </Link>
+                      <Badge variant={business.isActive ? "success" : "danger"}>
+                        {business.isActive ? "Actif" : "Inactif"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-[var(--color-text-secondary)] italic">
+                      {business.address || "Aucune adresse renseignée"}
+                    </p>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      /{business.slug} · {business._count?.reviews || 0} avis · Créé le {formatDate(business.createdAt)}
+                    </p>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      Responsables : {business.memberships.length ? business.memberships.map((membership) => membership.user.email).join(", ") : "Aucun responsable"}
+                    </p>
                   </div>
-                  <p className="text-sm text-[var(--color-text-secondary)] italic">
-                    {business.address || "Aucune adresse renseignée"}
-                  </p>
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    /{business.slug} · {business._count?.reviews || 0} avis · Créé le {formatDate(business.createdAt)}
-                  </p>
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    Responsables : {business.memberships.length ? business.memberships.map((membership) => membership.user.email).join(", ") : "Aucun responsable"}
-                  </p>
                 </div>
 
                 <div className="flex flex-col gap-2">
