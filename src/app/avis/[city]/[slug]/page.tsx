@@ -220,7 +220,7 @@ export default async function AvisPage({ params }: Props) {
         {type === 'customer' ? (
           <>
             <div className="mt-6">
-              <Link href={`/r/${business!.slug}`} className="group flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg gap-4 transition-all hover:scale-[1.01]">
+              <Link href={`/r/${business!.slug}/review`} className="group flex flex-col sm:flex-row items-center justify-between p-5 rounded-[1.5rem] bg-gradient-to-r from-[var(--color-brand-600)] to-[var(--color-brand-500)] hover:from-[var(--color-brand-700)] hover:to-[var(--color-brand-600)] shadow-lg gap-4 transition-all hover:scale-[1.01]">
                 <div className="flex items-center gap-4 text-center sm:text-left">
                   <div className="hidden sm:flex w-12 h-12 rounded-full bg-white/20 items-center justify-center">
                     <CheckCircle2 className="w-6 h-6 text-white" />
