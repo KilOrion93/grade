@@ -1,10 +1,7 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { UserRole } from "@prisma/client";
-
-const JWT_SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-not-for-production"
-);
+import { JWT_SECRET_KEY } from "@/lib/jwt";
 
 const COOKIE_NAME = "grade-session";
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days

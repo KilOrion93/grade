@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
-
-const JWT_SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || "fallback-secret-not-for-production"
-);
+import { JWT_SECRET_KEY } from "@/lib/jwt";
 
 const publicPaths = ["/", "/login", "/r/", "/api/"];
 
@@ -62,6 +59,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/admin/:path*",
+    "/onboarding",
     "/api/analytics/:path*",
     "/api/reviews/:path*",
     "/api/export/:path*",
