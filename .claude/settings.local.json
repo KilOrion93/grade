@@ -26,7 +26,14 @@
       "Bash(tasklist *)",
       "PowerShell(Get-Process *)",
       "Bash(git *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(npx eslint *)",
+      "Bash(npx next *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "claude-flow",
+    "ruv-swarm",
+    "flow-nexus"
+  ]
 }

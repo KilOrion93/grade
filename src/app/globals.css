@@ -117,6 +117,14 @@ body {
   background: var(--color-border-hover);
 }
 
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ===== ANIMATIONS ===== */
 
 @keyframes fade-in {
